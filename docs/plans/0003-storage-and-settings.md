@@ -5,7 +5,7 @@
 >
 > Read [0001-self-planning-app.md](0001-self-planning-app.md) first — its **Global Constraints**
 > apply to every task here and are not repeated. Requires
-> [0002-app-shell.md](0002-app-shell.md) to be complete.
+> [0002-app-shell.md](done/0002-app-shell.md) to be complete.
 
 **Goal:** Make the app able to open a Synchronization Folder safely — embedded SurrealDB on
 RocksDB, device-local settings kept out of the sync folder, a synchronized home time zone that
