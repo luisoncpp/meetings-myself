@@ -1,0 +1,31 @@
+{
+  "$schema": "https://raw.githubusercontent.com/fallow-rs/fallow/main/schema.json",
+  "entry": ["src/main.ts", "tests/**"],
+  "ignoreDependencies": ["@tauri-apps/api", "@typescript/native"],
+  "duplicates": {
+    "minOccurrences": 3
+  },
+  "boundaries": {
+    "zones": [
+      { "name": "api", "patterns": ["src/lib/api/**"] },
+      { "name": "domain", "patterns": ["src/lib/domain/**"] },
+      { "name": "ui", "patterns": ["src/lib/ui/**"] },
+      {
+        "name": "surfaces",
+        "patterns": ["src/lib/surfaces/**"],
+        "autoDiscover": ["src/lib/surfaces"]
+      },
+      { "name": "app", "patterns": ["src/**", "!src/lib/**"] }
+    ],
+    "rules": [
+      { "from": "app", "allow": ["api", "domain", "ui", "surfaces"] },
+      { "from": "api", "allow": ["domain"] },
+      { "from": "ui", "allow": ["domain"] },
+      { "from": "surfaces", "allow": ["api", "domain", "ui"] },
+      { "from": "domain", "allow": [] }
+    ]
+  },
+  "rules": {
+    "unused-dependencies": "warn"
+  }
+}

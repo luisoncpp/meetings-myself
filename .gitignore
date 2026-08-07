@@ -3,4 +3,6 @@ dist/
 target/
 .vite/
 coverage/
+.svelte-check/
 *.local
+.fallow/

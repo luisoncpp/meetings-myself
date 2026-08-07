@@ -2,8 +2,8 @@ import { globSync, readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 
 function readAll(pattern: string): Array<{ path: string; text: string }> {
-  return globSync(pattern, { exclude: (p) => p.includes('target') })
-    .map((path) => ({ path, text: readFileSync(path, 'utf8') }));
+  return globSync(pattern, { exclude: (p: string) => p.includes('target') })
+    .map((path: string) => ({ path, text: readFileSync(path, 'utf8') }));
 }
 
 describe('time handling', () => {
