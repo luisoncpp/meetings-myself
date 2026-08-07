@@ -44,7 +44,7 @@ work in plan 0003**, and the first RocksDB build takes 10–20 minutes.
 
 | # | Plan | Delivers | Depends on |
 |---|------|----------|------------|
-| 0002 | [App shell & design tokens](0002-app-shell.md) | Cargo workspace, Tauri 2 + Svelte 5 + Vite scaffold, both test harnesses, verified WCAG-AA token set, `check` script | — |
+| 0002 | [App shell & design tokens](done/0002-app-shell.md) | Done — Cargo workspace, Tauri 2 + Svelte 5 + Vite scaffold, both test harnesses, verified WCAG-AA token set, `check` script | — |
 | 0003 | [Storage, settings & sync safety](0003-storage-and-settings.md) | `planning-store` crate, embedded SurrealDB/RocksDB in the Synchronization Folder, device-local settings, home time zone, `StoreHealth` gating | 0002 |
 | 0004 | [Planning domain & Library API](0004-planning-domain.md) | `planning-core` + `planning-app` crates: Values, Goals, Habits, Tasks, Associations, archive-only lifecycle, overdue projection | 0003 |
 | 0005 | [Daily Plans, habits & recurrence](0005-daily-plan-and-habits.md) | Daily Plan, Weekly Focus, pinned-habit inclusion, Habit Check-ins, idempotent Recurring Task materialization | 0004 |

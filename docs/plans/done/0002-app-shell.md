@@ -3,7 +3,7 @@
 > **For agentic workers:** REQUIRED SUB-SKILL: Use `executing-plans` (or subagent-driven
 > development) to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 >
-> Read [0001-self-planning-app.md](0001-self-planning-app.md) first — its **Global Constraints**
+> Read [0001-self-planning-app.md](../0001-self-planning-app.md) first — its **Global Constraints**
 > section applies to every task here and is not repeated.
 
 **Goal:** Stand up a Tauri 2 + Svelte 5 desktop shell with a Cargo workspace, both test harnesses
@@ -23,7 +23,7 @@ checks together so no task can pass with half the codebase unverified.
 
 ## Global constraints
 
-See [0001-self-planning-app.md](0001-self-planning-app.md#global-constraints). Additionally, for
+See [0001-self-planning-app.md](../0001-self-planning-app.md#global-constraints). Additionally, for
 this plan only:
 
 - Pin **exact** versions (no `^`) for `svelte`, `vite`, `vitest`, and the Tauri crates. A shell is
@@ -540,7 +540,7 @@ git commit -m "feat: add Cargo workspace and Tauri 2 shell with app_version comm
 **Interfaces:**
 - Consumes: `src/styles/tokens.css` created empty in Task 1.
 - Produces: the CSS custom properties listed in
-  [0001 → Design tokens](0001-self-planning-app.md#design-tokens-resolved). Plan 0007 styles every
+  [0001 → Design tokens](../0001-self-planning-app.md#design-tokens-resolved). Plan 0007 styles every
   component exclusively from these; no component may contain a raw hex value.
 
 - [ ] **Step 1: Write the failing contrast test**
@@ -1038,11 +1038,11 @@ git commit -m "feat: add api deep module and document the app shell"
 
 ## Task 7: Verify the plan's own acceptance
 
-- [ ] `npm run tauri dev` opens a dark window reading "Daily Plan" in Inter at 1.75rem.
-- [ ] `npm run check` passes from a clean clone after `npm install`.
-- [ ] `fallow audit` reports no findings.
-- [ ] Deliberately breaking any one guard in `tests/architecture.test.ts` fails `npm run check`.
-- [ ] `DESIGN.md` contains no `[to be resolved during implementation]` and no SEED comment.
-- [ ] `docs/live/current-status.md` no longer claims a missing scaffold.
+- [ ] `npm run tauri dev` opens a dark window reading "Daily Plan" in Inter at 1.75rem. *(compile/launch succeeded earlier; Inter/1.75rem not confirmed in CI-like env)*
+- [x] `npm run check` passes from a clean clone after `npm install`.
+- [x] `fallow audit` reports no findings.
+- [x] Deliberately breaking any one guard in `tests/architecture.test.ts` fails `npm run check`.
+- [x] `DESIGN.md` contains no `[to be resolved during implementation]` and no SEED comment.
+- [x] `docs/live/current-status.md` no longer claims a missing scaffold.
 
-**Next:** [0003-storage-and-settings.md](0003-storage-and-settings.md).
+**Next:** [0003-storage-and-settings.md](../0003-storage-and-settings.md).
