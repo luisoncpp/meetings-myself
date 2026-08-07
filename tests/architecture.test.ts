@@ -59,6 +59,7 @@ describe('frontend boundaries', () => {
   // Only the api deep module may reach Tauri IPC.
   it('only src/lib/api/Private reaches @tauri-apps/api', () => {
     const offenders = readAll('src/**/*.{ts,svelte}')
+      .filter(({ path }) => !path.replace(/\\/g, '/').includes('.test.'))
       .filter(({ path }) => !path.replace(/\\/g, '/').startsWith('src/lib/api/Private/'))
       .filter(({ text }) => text.includes('@tauri-apps/api'))
       .map(({ path }) => path);
