@@ -1,0 +1,81 @@
+/*
+ * Focused Night palette — see DESIGN.md and docs/plans/0001-self-planning-app.md.
+ * Contrast ratios are enforced by tests/tokens.test.ts. Do not change a colour
+ * without re-running that test.
+ */
+:root {
+  /* Surfaces */
+  --color-base: #14161a;
+  --color-lift: #1d2026;
+  --color-raised: #252932;
+  --color-hairline: #2e323b;
+
+  /* Text */
+  --color-ink: #e8eaed;
+  --color-ink-muted: #a3aab6;
+
+  /* Accent — the One Accent Rule: gold covers <=10% of any screen */
+  --color-gold: #d4a94a;
+  --color-gold-deep: #b88f35;
+
+  /* Semantic state — restrained tint shifts, never punitive floods */
+  --color-overdue: #e0a183;
+  --color-done: #8fb89c;
+
+  /* Type — one family, fixed rem scale at ratio 1.125 */
+  --font-sans: 'Inter', ui-sans-serif, system-ui, 'Segoe UI', Roboto, sans-serif;
+  --text-label: 0.75rem;
+  --text-body: 0.875rem;
+  --text-title: 1rem;
+  --text-headline: 1.25rem;
+  --text-display: 1.75rem;
+
+  /* Space — 4px base */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+
+  /* Shape — cards top out at 16px; pills are for tags and compact buttons only */
+  --radius-card: 12px;
+  --radius-control: 8px;
+  --radius-pill: 999px;
+
+  /* Depth — flat at rest, one hover shadow, one focus elevation. No Material ladder. */
+  --shadow-hover: 0 2px 8px rgb(0 0 0 / 0.35);
+  --focus-ring: 0 0 0 2px var(--color-base), 0 0 0 4px var(--color-gold);
+
+  /* Motion — 150-250ms ease-out for state changes only */
+  --duration-fast: 150ms;
+  --duration-state: 250ms;
+  --ease-out: cubic-bezier(0.2, 0, 0, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast: 1ms;
+    --duration-state: 1ms;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--color-base);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  font-variant-numeric: tabular-nums;
+}
+
+:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
