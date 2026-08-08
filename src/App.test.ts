@@ -1,10 +1,15 @@
 import { render, screen } from '@testing-library/svelte';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import App from './App.svelte';
 
+vi.mock('./lib/api', () => ({
+  storeHealth: vi.fn().mockResolvedValue({ status: 'ready' }),
+  openWeeklyReviewWindow: vi.fn(),
+}));
+
 describe('App', () => {
-  it('renders the Daily Plan as the home surface', () => {
+  it('renders the app shell with the daily plan home surface', async () => {
     render(App);
-    expect(screen.getByRole('heading', { name: 'Daily Plan' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Daily Plan' })).toBeInTheDocument();
   });
 });

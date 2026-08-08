@@ -21,5 +21,7 @@ export function nextOutcome(
   const delta = direction === 'next' ? 1 : -1;
   const nextIndex =
     (index + delta + OUTCOME_ORDER.length) % OUTCOME_ORDER.length;
-  return OUTCOME_ORDER[nextIndex];
+  const outcome = OUTCOME_ORDER[nextIndex];
+  if (outcome !== undefined) return outcome;
+  return 'done';
 }

@@ -187,6 +187,10 @@ export function restoreRecurringTask(rule: string): Promise<void> {
   return call<void>('restore_recurring_task', { rule });
 }
 
+export function openWeeklyReviewWindow(): Promise<void> {
+  return call<void>('open_weekly_review_window');
+}
+
 export function openWeeklyReview(week: string): Promise<WeeklyReviewView> {
   return call<WeeklyReviewView>('open_weekly_review', { week });
 }

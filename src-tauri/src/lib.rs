@@ -18,6 +18,7 @@ use private::plan_commands::{
 use private::review_commands::{
     open_current_review, open_weekly_review, report_path, save_reflection, weekly_summary,
 };
+use private::window_commands::open_weekly_review_window;
 use std::sync::Arc;
 
 /// Builds and runs the desktop application.
@@ -76,6 +77,7 @@ pub fn run() {
             save_reflection,
             weekly_summary,
             report_path,
+            open_weekly_review_window,
         ])
         .run(tauri::generate_context!())
         .expect("error while running the Self-Planning application");

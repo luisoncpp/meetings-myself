@@ -23,7 +23,14 @@ export default [
   ...svelte.configs['flat/recommended'],
   {
     files: ['**/*.svelte'],
-    languageOptions: { parserOptions: { parser: ts.parser } },
+    languageOptions: {
+      parserOptions: { parser: ts.parser },
+      globals: {
+        window: 'readonly',
+        document: 'readonly',
+        KeyboardEvent: 'readonly',
+      },
+    },
   },
   {
     rules: {
