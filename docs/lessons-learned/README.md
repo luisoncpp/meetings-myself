@@ -21,3 +21,4 @@ Avoid: "bug description + fix". Prefer: "what I learned that applies to future w
 
 | File | Topic | Date |
 |------|-------|------|
+| [surrealdb-rocksdb-windows-build-prerequisites.md](surrealdb-rocksdb-windows-build-prerequisites.md) | SurrealDB + RocksDB Windows build prerequisites (libclang, NASM) | 2026-08-08 |
