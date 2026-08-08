@@ -1466,16 +1466,16 @@ git commit -m "docs: document the UI surfaces, completion flow, and the runes le
 
 ## Task 11: Verify the plan's own acceptance
 
-- [ ] `npm run check` and `fallow audit` both pass.
-- [ ] The app opens on the Daily Plan; Library and Weekly Review are reachable without dominating it.
-- [ ] **A8:** every action the Weekly Review offers is present in the Library — proven by the Task 7 test.
-- [ ] Archived and overdue entries appear in place with text labels, and archived rows are still
+- [x] `npm run check` and `fallow audit` both pass.
+- [x] The app opens on the Daily Plan; Library and Weekly Review are reachable without dominating it.
+- [x] **A8:** every action the Weekly Review offers is present in the Library — proven by the Task 7 test.
+- [x] Archived and overdue entries appear in place with text labels, and archived rows are still
       completable.
-- [ ] Every core flow is completable with the keyboard alone, including reordering.
-- [ ] No `.svelte` file contains a raw hex colour, gamification language, or an unguarded transition.
-- [ ] The Library offers no delete action anywhere.
-- [ ] Every editable field in the Task 7 table is reachable from the Library — in particular Habit
+- [x] Every core flow is completable with the keyboard alone, including reordering (automated UI tests; manual Windows a11y pass still pending — see `ui-surfaces.md`).
+- [x] No `.svelte` file contains a raw hex colour, gamification language, or an unguarded transition.
+- [x] The Library offers no delete action anywhere.
+- [x] Every editable field in the Task 7 table is reachable from the Library — in particular Habit
       Strength, which has no other home in the UI.
-- [ ] With `StoreHealth` not `ready`, no surface renders its normal content.
+- [x] With `StoreHealth` not `ready`, no surface renders its normal content.
 
 **Next:** [0008-launcher.md](0008-launcher.md).

@@ -1343,4 +1343,4 @@ git commit -m "docs: document weekly reports, the review flow, and file co-owner
 - [x] Correcting a check-in weeks later changes the old week's summary on reopen.
 - [x] The rendered summary contains no `%`, `streak`, or `score`.
 
-**Next:** [0007-ui-surfaces.md](../0007-ui-surfaces.md) and [0008-launcher.md](../0008-launcher.md).
+**Next:** [0007-ui-surfaces.md](0007-ui-surfaces.md) and [0008-launcher.md](../0008-launcher.md).

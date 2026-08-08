@@ -1,7 +1,7 @@
 <script lang="ts">
-  import type { Classification, TaskView } from '../../../domain';
+  import type { TaskView } from '../../../domain';
   import { Button, ListRow, StateFlag } from '../../../ui';
-  import { CLASSIFICATION_OPTIONS } from './labels';
+  import TaskEditFields from './TaskEditFields.svelte';
   import type { LibraryStore } from './LibraryStore.svelte';
 
   interface Props {
@@ -18,30 +18,6 @@
       return;
     }
     void store.archive(end);
-  }
-
-  function onImportanceChange(event: Event): void {
-    const select = event.currentTarget as HTMLSelectElement;
-    void store.classifyTask(
-      task.id,
-      select.value as Classification,
-      task.urgency,
-    );
-  }
-
-  function onUrgencyChange(event: Event): void {
-    const select = event.currentTarget as HTMLSelectElement;
-    void store.classifyTask(
-      task.id,
-      task.importance,
-      select.value as Classification,
-    );
-  }
-
-  function onDeadlineChange(event: Event): void {
-    const input = event.currentTarget as HTMLInputElement;
-    const deadline = input.value === '' ? null : input.value;
-    void store.setDeadline(task.id, deadline);
   }
 </script>
 
@@ -70,41 +46,25 @@
       {/if}
     </div>
     {#if !task.archived}
-      <div class="fields">
-        <label class="field">
-          <span class="label">Importance</span>
-          <select
-            aria-label="Importance"
-            value={task.importance}
-            onchange={/* set importance */ onImportanceChange}
-          >
-            {#each CLASSIFICATION_OPTIONS as option (option.value)}
-              <option value={option.value}>{option.label}</option>
-            {/each}
-          </select>
-        </label>
-        <label class="field">
-          <span class="label">Urgency</span>
-          <select
-            aria-label="Urgency"
-            value={task.urgency}
-            onchange={/* set urgency */ onUrgencyChange}
-          >
-            {#each CLASSIFICATION_OPTIONS as option (option.value)}
-              <option value={option.value}>{option.label}</option>
-            {/each}
-          </select>
-        </label>
-        <label class="field">
-          <span class="label">Deadline</span>
-          <input
-            type="date"
-            aria-label="Deadline"
-            value={task.deadline ?? ''}
-            onchange={/* set deadline */ onDeadlineChange}
-          />
-        </label>
-      </div>
+      <TaskEditFields
+        {task}
+        onimportancechange={/* set importance */ (event) =>
+          void store.classifyTask(
+            task.id,
+            (event.currentTarget as HTMLSelectElement).value as TaskView['importance'],
+            task.urgency,
+          )}
+        onurgencychange={/* set urgency */ (event) =>
+          void store.classifyTask(
+            task.id,
+            task.importance,
+            (event.currentTarget as HTMLSelectElement).value as TaskView['urgency'],
+          )}
+        ondeadlinechange={/* set deadline */ (event) => {
+          const value = (event.currentTarget as HTMLInputElement).value;
+          void store.setDeadline(task.id, value === '' ? null : value);
+        }}
+      />
     {/if}
   </div>
   {#snippet trailing()}
@@ -129,22 +89,5 @@
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-1);
-  }
-
-  .fields {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-3);
-  }
-
-  .field {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-1);
-  }
-
-  .label {
-    font-size: var(--text-label);
-    color: var(--color-ink-muted);
   }
 </style>

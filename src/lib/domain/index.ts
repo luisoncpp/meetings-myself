@@ -1,4 +1,4 @@
-export { formatPlanDate, parsePlanDate } from './Private/plan-date';
+export { formatPlanDate } from './Private/plan-date';
 
 export type Classification = 'unclassified' | 'low' | 'high';
 export type TaskState = 'open' | 'completed' | 'archived';

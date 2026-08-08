@@ -18,8 +18,11 @@
   });
 </script>
 
-{#if store?.view && store.library}
+{#if store}
   {@const activeStore = store}
+  {#if activeStore.loading && !activeStore.view}
+    <p class="loading">Loading review…</p>
+  {:else if activeStore.view && activeStore.library}
   {@const view = activeStore.view!}
   {@const library = activeStore.library!}
   <section class="weekly-review" aria-labelledby="review-week">
@@ -49,6 +52,7 @@
       <p class="error" role="alert">{activeStore.error}</p>
     {/if}
   </section>
+  {/if}
 {/if}
 
 <style>
@@ -70,6 +74,12 @@
   .historical {
     margin: var(--space-2) 0 0;
     font-size: var(--text-label);
+    color: var(--color-ink-muted);
+  }
+
+  .loading {
+    margin: 0;
+    padding: var(--space-6);
     color: var(--color-ink-muted);
   }
 

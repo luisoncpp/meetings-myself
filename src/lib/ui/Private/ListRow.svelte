@@ -59,6 +59,11 @@
     cursor: pointer;
   }
 
+  .leading,
+  .trailing {
+    flex-shrink: 0;
+  }
+
   .content {
     flex: 1;
     min-width: 0;

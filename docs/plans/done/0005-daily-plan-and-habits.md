@@ -1852,4 +1852,4 @@ git commit -m "docs: document daily planning, plan flows, and the record-key les
       yesterday's untouched.
 
 **Next:** [0006-weekly-review-and-reports.md](0006-weekly-review-and-reports.md) (done) and
-[0007-ui-surfaces.md](../0007-ui-surfaces.md) may proceed.
+[0007-ui-surfaces.md](done/0007-ui-surfaces.md) may proceed.

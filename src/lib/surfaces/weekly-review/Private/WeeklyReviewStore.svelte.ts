@@ -25,12 +25,15 @@ export class WeeklyReviewStore {
   #autosave = createDebounce(REFLECTION_DEBOUNCE_MS);
 
   get view(): WeeklyReviewView | null { return this.#view; }
-  get currentWeek(): string { return this.#currentWeek; }
   get library(): LibraryView | null { return this.#library; }
   get focus(): WeeklyFocus | null { return this.#focus; }
   get draftReflection(): string { return this.#draftReflection; }
   get saveState(): SaveState { return this.#saveState; }
+  // Used from WeeklyReview.svelte template.
+  // fallow-ignore-next-line unused-class-member
   get loading(): boolean { return this.#loading; }
+  // Used from WeeklyReview.svelte template.
+  // fallow-ignore-next-line unused-class-member
   get error(): string | null { return this.#error; }
   get isHistorical(): boolean {
     return this.#view !== null && this.#currentWeek !== '' && this.#view.week !== this.#currentWeek;
@@ -81,6 +84,8 @@ export class WeeklyReviewStore {
     });
   }
 
+  // Used from WeeklyReview.svelte template.
+  // fallow-ignore-next-line unused-class-member
   onReflectionBlur(): void {
     this.#autosave.clear();
     void this.#saveNow();

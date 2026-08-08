@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { AssociationEnd, LibraryView } from '../../../domain';
-  import { Button } from '../../../ui';
+  import { Button, InsetPanel } from '../../../ui';
   import type { WeeklyReviewStore } from './WeeklyReviewStore.svelte';
 
   type EntityKind = AssociationEnd['kind'];
@@ -46,8 +46,7 @@
   }
 </script>
 
-<section class="link-panel" aria-label="Association editor">
-  <h3>Link association</h3>
+<InsetPanel title="Link association" label="Association editor">
   <div class="pickers">
     <label>
       From
@@ -82,22 +81,13 @@
   <Button variant="primary" disabled={fromId === '' || toId === ''} onclick={/* link */ link}>
     Link
   </Button>
-  <Button variant="quiet" onclick={/* close */ onclose}>Close</Button>
-</section>
+
+  {#snippet footer()}
+    <Button variant="quiet" onclick={/* close */ onclose}>Close</Button>
+  {/snippet}
+</InsetPanel>
 
 <style>
-  .link-panel {
-    margin-bottom: var(--space-4);
-    padding: var(--space-3);
-    border: 1px solid var(--color-hairline);
-    border-radius: var(--radius-card);
-  }
-
-  h3 {
-    margin: 0 0 var(--space-3);
-    font-size: var(--text-title);
-  }
-
   .pickers {
     display: flex;
     flex-wrap: wrap;

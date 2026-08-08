@@ -5,7 +5,7 @@
 >
 > Read [0001-self-planning-app.md](0001-self-planning-app.md) first. Requires
 > [0005-daily-plan-and-habits.md](done/0005-daily-plan-and-habits.md). Task 5 (settings UI) additionally
-> benefits from [0007-ui-surfaces.md](0007-ui-surfaces.md) but does not require it.
+> benefits from [0007-ui-surfaces.md](done/0007-ui-surfaces.md) but does not require it.
 
 **Goal:** A separate background binary that opens the app at 7:00 AM home time *only* when no Daily
 Plan exists for today and the synchronized data is safe, retries through a configurable morning

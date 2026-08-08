@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { Association, AssociationEnd, LibraryView } from '../../../domain';
-  import { Button } from '../../../ui';
+  import { Button, InsetPanel } from '../../../ui';
   import * as api from '../../../api';
   import {
     candidatesFor,
@@ -66,9 +66,7 @@
   }
 </script>
 
-<section class="editor" aria-label="Association editor">
-  <h3>Link associations</h3>
-
+<InsetPanel title="Link associations" label="Association editor">
   <div class="pickers">
     <label>
       <span class="label">From</span>
@@ -119,22 +117,12 @@
     </ul>
   {/if}
 
-  <Button variant="quiet" onclick={/* close */ onclose}>Close</Button>
-</section>
+  {#snippet footer()}
+    <Button variant="quiet" onclick={/* close */ onclose}>Close</Button>
+  {/snippet}
+</InsetPanel>
 
 <style>
-  .editor {
-    margin-bottom: var(--space-4);
-    padding: var(--space-3);
-    border: 1px solid var(--color-hairline);
-    border-radius: var(--radius-card);
-  }
-
-  h3 {
-    margin: 0 0 var(--space-3);
-    font-size: var(--text-title);
-  }
-
   .pickers {
     display: flex;
     flex-wrap: wrap;

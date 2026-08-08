@@ -30,6 +30,8 @@ export class SetupStore {
     }
   }
 
+  // Used from Setup.svelte on mount.
+  // fallow-ignore-next-line unused-class-member
   async loadTimeZones(): Promise<void> {
     try {
       this.timeZones = await availableTimeZones();
@@ -38,6 +40,8 @@ export class SetupStore {
     }
   }
 
+  // Used from Setup.svelte template.
+  // fallow-ignore-next-line unused-class-member
   async chooseFolder(): Promise<void> {
     this.lastError = null;
     try {
@@ -58,6 +62,8 @@ export class SetupStore {
     }
   }
 
+  // Used from Setup.svelte template.
+  // fallow-ignore-next-line unused-class-member
   async finishSetup(): Promise<void> {
     this.lastError = null;
     try {

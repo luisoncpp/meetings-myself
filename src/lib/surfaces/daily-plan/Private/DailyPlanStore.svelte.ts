@@ -66,14 +66,14 @@ export class DailyPlanStore {
     await this.#change(/* selectTheTask= */ () => api.selectIntoPlan(this.#date(), taskId));
   }
 
-  async remove(taskId: string): Promise<void> {
-    await this.#change(/* removeTheTask= */ () => api.removeFromPlan(this.#date(), taskId));
-  }
-
+  // Used from DailyPlan.svelte template.
+  // fallow-ignore-next-line unused-class-member
   async quickAdd(title: string): Promise<void> {
     await this.#change(/* createAndSelect= */ () => api.quickAddTask(title));
   }
 
+  // Used from DailyPlan.svelte template.
+  // fallow-ignore-next-line unused-class-member
   async checkIn(habitId: string, outcome: CheckInOutcome): Promise<void> {
     await this.#change(/* recordTheOutcome= */ () =>
       api.recordCheckIn(habitId, this.#date(), outcome),

@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { LibraryView } from '../../../domain';
-  import { Button } from '../../../ui';
+  import { Button, InsetPanel } from '../../../ui';
   import type { LibraryStore } from './LibraryStore.svelte';
 
   interface Props {
@@ -19,9 +19,7 @@
   }
 </script>
 
-<section class="focus-panel" aria-label="Weekly focus">
-  <h3>Weekly focus ({week})</h3>
-
+<InsetPanel title="Weekly focus ({week})" label="Weekly focus">
   <ul class="tasks">
     {#each view.tasks.filter((task) => !task.archived) as task (task.id)}
       <li>
@@ -39,22 +37,12 @@
     {/each}
   </ul>
 
-  <Button variant="quiet" onclick={/* close */ onclose}>Close</Button>
-</section>
+  {#snippet footer()}
+    <Button variant="quiet" onclick={/* close */ onclose}>Close</Button>
+  {/snippet}
+</InsetPanel>
 
 <style>
-  .focus-panel {
-    margin-bottom: var(--space-4);
-    padding: var(--space-3);
-    border: 1px solid var(--color-hairline);
-    border-radius: var(--radius-card);
-  }
-
-  h3 {
-    margin: 0 0 var(--space-3);
-    font-size: var(--text-title);
-  }
-
   .tasks {
     list-style: none;
     margin: 0 0 var(--space-3);

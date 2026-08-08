@@ -21,6 +21,8 @@ export class LibraryStore {
     return this.#view;
   }
 
+  // Used from Library.svelte template.
+  // fallow-ignore-next-line unused-class-member
   get includeArchived(): boolean {
     return this.#includeArchived;
   }
@@ -64,18 +66,26 @@ export class LibraryStore {
     await this.load();
   }
 
+  // Used from Library.svelte script.
+  // fallow-ignore-next-line unused-class-member
   async createValue(title: string): Promise<void> {
     await this.#change(/* createValue= */ () => api.createValue(title));
   }
 
+  // Used from Library.svelte script.
+  // fallow-ignore-next-line unused-class-member
   async createGoal(title: string, targetDate?: string | null): Promise<void> {
     await this.#change(/* createGoal= */ () => api.createGoal(title, targetDate));
   }
 
+  // Used from Library.svelte script.
+  // fallow-ignore-next-line unused-class-member
   async createHabit(title: string, cadence: Cadence): Promise<void> {
     await this.#change(/* createHabit= */ () => api.createHabit(title, cadence));
   }
 
+  // Used from Library.svelte script.
+  // fallow-ignore-next-line unused-class-member
   async createTask(title: string): Promise<void> {
     await this.#change(/* createTask= */ () => api.createTask(title));
   }

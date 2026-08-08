@@ -1,12 +1,12 @@
 const WEEK_RE = /^(\d{4})-W(\d{2})$/;
 
-export function parseWeek(week: string): { year: number; num: number } {
+function parseWeek(week: string): { year: number; num: number } {
   const match = WEEK_RE.exec(week);
   if (!match) throw new Error(`invalid week: ${week}`);
   return { year: Number(match[1]), num: Number(match[2]) };
 }
 
-export function formatWeek(year: number, num: number): string {
+function formatWeek(year: number, num: number): string {
   return `${year}-W${String(num).padStart(2, '0')}`;
 }
 
