@@ -1,4 +1,5 @@
 pub mod associations;
+pub mod daily_plan_use_cases;
 pub mod entity_lifecycle;
 pub mod error;
 pub mod habit_lifecycle;

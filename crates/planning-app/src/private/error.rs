@@ -22,6 +22,9 @@ pub enum AppError {
     #[error("cannot select: {reason}")]
     NotSelectable { reason: &'static str },
 
+    #[error("the proposed order is not a permutation of the plan")]
+    InvalidOrder,
+
     #[error("'{0}' is not an IANA time zone")]
     InvalidZone(String),
 }
