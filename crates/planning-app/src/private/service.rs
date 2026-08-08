@@ -31,6 +31,10 @@ impl PlanningApp {
         self.health.clone()
     }
 
+    pub fn clock_ref(&self) -> &dyn Clock {
+        self.clock.as_ref()
+    }
+
     /// Available only once setup is complete — this is what makes it impossible
     /// to compute a date before the home zone is known.
     pub fn calendar(&self) -> Result<HomeCalendar, AppError> {

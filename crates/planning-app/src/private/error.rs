@@ -19,6 +19,9 @@ pub enum AppError {
     #[error("no {table} with id {id}")]
     NotFound { table: &'static str, id: String },
 
+    #[error("cannot select: {reason}")]
+    NotSelectable { reason: &'static str },
+
     #[error("'{0}' is not an IANA time zone")]
     InvalidZone(String),
 }

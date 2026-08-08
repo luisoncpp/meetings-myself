@@ -9,6 +9,7 @@ pub mod service;
 pub mod setup;
 pub mod views;
 pub mod views_entities;
+pub mod weekly_focus_use_cases;
 
 #[cfg(test)]
 pub mod test_support;

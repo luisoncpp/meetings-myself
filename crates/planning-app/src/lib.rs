@@ -7,8 +7,8 @@ pub use chrono::NaiveDate;
 pub use planning_core::{
     Association, AssociationEnd, AssociationId, Cadence, CalendarWeek, Classification, Clock,
     FixedClock, Goal, GoalId, Habit, HabitId, HabitStrength, HomeCalendar, Lifecycle,
-    Occurrence, OccurrenceId, Recurrence, RecurringTask, RecurringTaskId, SystemClock, Task,
-    TaskId, Value, ValueId,
+    Occurrence, OccurrenceId, Recurrence, RecurringTask, RecurringTaskId, StartFocus, SystemClock,
+    Task, TaskId, Value, ValueId, WeeklyFocus, WeeklyFocusId,
 };
 pub use planning_store::{DeviceSettings, DeviceSettingsFile, SetupGap, StoreHealth};
 pub use private::associations::LinkEnds;
@@ -18,5 +18,6 @@ pub use private::habit_lifecycle::{SetCadence, SetPinned, SetStrength};
 pub use private::library::{NewGoal, NewHabit};
 pub use private::materialization::NewRecurringTask;
 pub use private::service::{PlanningApp, StartRequest};
+pub use private::weekly_focus_use_cases::FocusChange;
 pub use private::views::{LibraryFilter, LibraryView, TaskState, TaskView};
 pub use private::views_entities::{GoalView, HabitView, ValueView};
