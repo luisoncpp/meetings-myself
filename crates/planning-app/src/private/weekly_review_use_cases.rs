@@ -5,6 +5,7 @@ use super::views::TaskView;
 use super::weekly_summary::WeeklySummary;
 use planning_core::{CalendarWeek, StartReview, WeeklyReview, WeeklyReviewId};
 use planning_reports::{ReportFrontMatter, SaveBody, WriteReport};
+use serde::Serialize;
 use std::path::PathBuf;
 
 pub struct SaveReflection {
@@ -12,7 +13,8 @@ pub struct SaveReflection {
     pub reflection: String,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct WeeklyReviewView {
     pub week: CalendarWeek,
     pub summary: WeeklySummary,
@@ -94,8 +96,7 @@ impl PlanningApp {
 
     async fn touch_review(&self, week: CalendarWeek) -> Result<(), AppError> {
         let key = WeeklyReview::key(week);
-        let existing: Option<WeeklyReview> =
-            self.load_one(WeeklyReviewId::TABLE, &key).await?;
+        let existing: Option<WeeklyReview> = self.load_one(WeeklyReviewId::TABLE, &key).await?;
         let mut review = existing.unwrap_or_else(|| {
             WeeklyReview::start(StartReview {
                 week,
@@ -146,7 +147,10 @@ mod tests {
 
         let view = app.open_weekly_review(week).await.unwrap();
         assert_eq!(view.week, week);
-        assert!(view.summary.completed.contains(&"Prepare portfolio".to_string()));
+        assert!(view
+            .summary
+            .completed
+            .contains(&"Prepare portfolio".to_string()));
         assert_eq!(view.previous_report, None, "there is no earlier week yet");
         assert!(view.report_path.exists());
 
@@ -157,7 +161,10 @@ mod tests {
         let later = app.calendar().unwrap().current_week(app.clock_ref());
         let second = app.open_weekly_review(later).await.unwrap();
         assert!(
-            second.previous_report.unwrap().contains("Prepare portfolio"),
+            second
+                .previous_report
+                .unwrap()
+                .contains("Prepare portfolio"),
             "A4: the review shows the prior report"
         );
 
@@ -190,14 +197,21 @@ mod tests {
             "reflection is preserved as written"
         );
         assert!(
-            !reopened.summary.completed.contains(&"Late entry".to_string()),
+            !reopened
+                .summary
+                .completed
+                .contains(&"Late entry".to_string()),
             "the Task was completed in a later week, so it belongs to that week's summary"
         );
 
         let files: Vec<_> = std::fs::read_dir(drive.path().join("weekly-reports"))
             .unwrap()
             .collect();
-        assert_eq!(files.len(), 1, "A4: reopening never creates a second report");
+        assert_eq!(
+            files.len(),
+            1,
+            "A4: reopening never creates a second report"
+        );
     }
 
     #[tokio::test]
@@ -221,7 +235,54 @@ mod tests {
         .await
         .unwrap();
 
-        assert!(app.goal(&goal.id).await.unwrap().unwrap().achievement.is_achieved());
+        assert!(app
+            .goal(&goal.id)
+            .await
+            .unwrap()
+            .unwrap()
+            .achievement
+            .is_achieved());
         assert_eq!(app.weekly_focus(week.next()).await.unwrap().tasks.len(), 1);
+    }
+
+    #[test]
+    fn weekly_review_views_serialize_exactly_as_the_frontend_types_declare() {
+        use super::super::views::{TaskState, TaskView};
+        use planning_core::{Classification, TaskId};
+
+        let week = CalendarWeek::containing(chrono::NaiveDate::from_ymd_opt(2026, 8, 7).unwrap());
+        let view = WeeklyReviewView {
+            week,
+            summary: super::super::weekly_summary::WeeklySummary {
+                week,
+                completed: vec!["Prepare portfolio".into()],
+                still_open: 1,
+                overdue: vec![],
+                habits: vec![super::super::weekly_summary::HabitSummary {
+                    title: "Writing".into(),
+                    done: 2,
+                    skipped: 0,
+                    not_completed: 1,
+                }],
+                goals_achieved: vec![],
+            },
+            reflection: "A quiet week.".into(),
+            previous_report: Some("Prior week done.".into()),
+            next_week_focus: vec![TaskView {
+                id: TaskId::new("t1"),
+                title: "Call the bank".into(),
+                state: TaskState::Open,
+                importance: Classification::High,
+                urgency: Classification::Low,
+                deadline: None,
+                overdue: false,
+                archived: false,
+            }],
+            report_path: std::path::PathBuf::from("/sync/weekly-reports/2026-W32-weekly-report.md"),
+        };
+        assert_eq!(
+            serde_json::to_string(&view).unwrap(),
+            r#"{"week":"2026-W32","summary":{"week":"2026-W32","completed":["Prepare portfolio"],"stillOpen":1,"overdue":[],"habits":[{"title":"Writing","done":2,"skipped":0,"notCompleted":1}],"goalsAchieved":[]},"reflection":"A quiet week.","previousReport":"Prior week done.","nextWeekFocus":[{"id":"t1","title":"Call the bank","state":"open","importance":"high","urgency":"low","deadline":null,"overdue":false,"archived":false}],"reportPath":"/sync/weekly-reports/2026-W32-weekly-report.md"}"#
+        );
     }
 }

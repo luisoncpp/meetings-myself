@@ -28,7 +28,9 @@ impl WeeklyReportFile {
     }
 
     pub fn path_for(&self, week_label: &str) -> PathBuf {
-        self.root.join(Self::FOLDER).join(format!("{week_label}-weekly-report.md"))
+        self.root
+            .join(Self::FOLDER)
+            .join(format!("{week_label}-weekly-report.md"))
     }
 
     pub fn read(&self, week_label: &str) -> Result<Option<ReportDocument>, ReportError> {
@@ -36,7 +38,9 @@ impl WeeklyReportFile {
         if !path.exists() {
             return Ok(None);
         }
-        Ok(Some(ReportDocument::parse(&std::fs::read_to_string(path)?)?))
+        Ok(Some(ReportDocument::parse(&std::fs::read_to_string(
+            path,
+        )?)?))
     }
 
     /// Regenerates the summary against the current data, preserving everything the
@@ -55,8 +59,9 @@ impl WeeklyReportFile {
 
     /// Replaces the user's part of the body, keeping the app's summary region.
     pub fn save_reflection(&self, request: SaveBody) -> Result<(), ReportError> {
-        let mut document =
-            self.read(&request.week_label)?.ok_or(ReportError::MissingFrontMatter)?;
+        let mut document = self
+            .read(&request.week_label)?
+            .ok_or(ReportError::MissingFrontMatter)?;
         let summary = SummaryBlock::extract(&document.body).unwrap_or_default();
         document.body = SummaryBlock::replace(&request.reflection, &summary);
         self.save(&request.week_label, &document.render()?)
@@ -113,7 +118,10 @@ mod tests {
         let reports = WeeklyReportFile::at(folder.path().to_path_buf());
 
         reports
-            .write(WriteReport { front_matter: front_matter(), summary_markdown: "Old".into() })
+            .write(WriteReport {
+                front_matter: front_matter(),
+                summary_markdown: "Old".into(),
+            })
             .unwrap();
         reports
             .save_reflection(SaveBody {
@@ -124,7 +132,10 @@ mod tests {
 
         // Regenerating the summary later must not touch the reflection (ADR 0002).
         reports
-            .write(WriteReport { front_matter: front_matter(), summary_markdown: "New".into() })
+            .write(WriteReport {
+                front_matter: front_matter(),
+                summary_markdown: "New".into(),
+            })
             .unwrap();
 
         let document = reports.read("2026-W32").unwrap().unwrap();
@@ -132,8 +143,9 @@ mod tests {
         assert!(!document.body.contains("Old"));
         assert!(document.body.contains("I learned a lot."));
 
-        let files: Vec<_> =
-            std::fs::read_dir(folder.path().join(WeeklyReportFile::FOLDER)).unwrap().collect();
+        let files: Vec<_> = std::fs::read_dir(folder.path().join(WeeklyReportFile::FOLDER))
+            .unwrap()
+            .collect();
         assert_eq!(files.len(), 1, "A4: exactly one report file per week");
     }
 
@@ -149,16 +161,26 @@ mod tests {
         let folder = TempDir::new().unwrap();
         let reports = WeeklyReportFile::at(folder.path().to_path_buf());
         reports
-            .write(WriteReport { front_matter: front_matter(), summary_markdown: "S".into() })
+            .write(WriteReport {
+                front_matter: front_matter(),
+                summary_markdown: "S".into(),
+            })
             .unwrap();
 
         // Simulate the user editing the file in another editor while the app is closed.
         let path = reports.path_for("2026-W32");
         let text = std::fs::read_to_string(&path).unwrap();
-        std::fs::write(&path, format!("{text}\n## My own section\n\nAdded elsewhere.\n")).unwrap();
+        std::fs::write(
+            &path,
+            format!("{text}\n## My own section\n\nAdded elsewhere.\n"),
+        )
+        .unwrap();
 
         reports
-            .write(WriteReport { front_matter: front_matter(), summary_markdown: "S2".into() })
+            .write(WriteReport {
+                front_matter: front_matter(),
+                summary_markdown: "S2".into(),
+            })
             .unwrap();
         let document = reports.read("2026-W32").unwrap().unwrap();
         assert!(document.body.contains("Added elsewhere."));

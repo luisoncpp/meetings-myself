@@ -15,6 +15,9 @@ use private::plan_commands::{
     record_check_in, recurring_tasks, remove_from_focus, remove_from_plan, reorder_plan,
     restore_recurring_task, select_into_plan, task_pool, today_view, weekly_focus,
 };
+use private::review_commands::{
+    open_current_review, open_weekly_review, report_path, save_reflection, weekly_summary,
+};
 use std::sync::Arc;
 
 /// Builds and runs the desktop application.
@@ -68,6 +71,11 @@ pub fn run() {
             recurring_tasks,
             archive_recurring_task,
             restore_recurring_task,
+            open_weekly_review,
+            open_current_review,
+            save_reflection,
+            weekly_summary,
+            report_path,
         ])
         .run(tauri::generate_context!())
         .expect("error while running the Self-Planning application");

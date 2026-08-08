@@ -121,3 +121,28 @@ export interface RecurringTask {
   materializedThrough: string | null;
   createdAt: string;
 }
+
+export interface HabitSummary {
+  title: string;
+  done: number;
+  skipped: number;
+  notCompleted: number;
+}
+
+export interface WeeklySummary {
+  week: string;
+  completed: string[];
+  stillOpen: number;
+  overdue: string[];
+  habits: HabitSummary[];
+  goalsAchieved: string[];
+}
+
+export interface WeeklyReviewView {
+  week: string;
+  summary: WeeklySummary;
+  reflection: string;
+  previousReport: string | null;
+  nextWeekFocus: TaskView[];
+  reportPath: string;
+}

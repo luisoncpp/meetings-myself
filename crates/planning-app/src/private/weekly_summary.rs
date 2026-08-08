@@ -64,7 +64,11 @@ impl PlanningApp {
             .habits()
             .await?
             .into_iter()
-            .filter_map(|habit| tallies.get(&habit.id).map(|counts| summarize(&habit, *counts)))
+            .filter_map(|habit| {
+                tallies
+                    .get(&habit.id)
+                    .map(|counts| summarize(&habit, *counts))
+            })
             .collect())
     }
 
@@ -182,7 +186,10 @@ mod tests {
         .unwrap();
 
         let after = app.weekly_summary(week).await.unwrap();
-        assert_eq!(after.habits[0].done, 1, "summaries are never frozen (ADR 0002)");
+        assert_eq!(
+            after.habits[0].done, 1,
+            "summaries are never frozen (ADR 0002)"
+        );
         assert_eq!(after.habits[0].not_completed, 0);
     }
 
@@ -241,7 +248,31 @@ mod tests {
         assert!(markdown.contains("Prepare portfolio"));
         assert!(markdown.contains("Writing"));
         for banned in ["%", "streak", "Streak", "score", "Score", "🔥"] {
-            assert!(!markdown.contains(banned), "PRODUCT.md forbids {banned} in reports");
+            assert!(
+                !markdown.contains(banned),
+                "PRODUCT.md forbids {banned} in reports"
+            );
         }
+    }
+
+    #[test]
+    fn weekly_summaries_serialize_exactly_as_the_frontend_types_declare() {
+        let summary = WeeklySummary {
+            week: CalendarWeek::containing(chrono::NaiveDate::from_ymd_opt(2026, 8, 7).unwrap()),
+            completed: vec!["Prepare portfolio".into()],
+            still_open: 3,
+            overdue: vec!["Call the bank".into()],
+            habits: vec![HabitSummary {
+                title: "Writing".into(),
+                done: 4,
+                skipped: 1,
+                not_completed: 2,
+            }],
+            goals_achieved: vec!["Career transition".into()],
+        };
+        assert_eq!(
+            serde_json::to_string(&summary).unwrap(),
+            r#"{"week":"2026-W32","completed":["Prepare portfolio"],"stillOpen":3,"overdue":["Call the bank"],"habits":[{"title":"Writing","done":4,"skipped":1,"notCompleted":2}],"goalsAchieved":["Career transition"]}"#
+        );
     }
 }

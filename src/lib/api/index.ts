@@ -12,6 +12,8 @@ import type {
   RecurringTask,
   TaskPoolView,
   WeeklyFocus,
+  WeeklyReviewView,
+  WeeklySummary,
 } from '../domain';
 
 export function appVersion(): Promise<string> {
@@ -183,4 +185,24 @@ export function archiveRecurringTask(rule: string): Promise<void> {
 
 export function restoreRecurringTask(rule: string): Promise<void> {
   return call<void>('restore_recurring_task', { rule });
+}
+
+export function openWeeklyReview(week: string): Promise<WeeklyReviewView> {
+  return call<WeeklyReviewView>('open_weekly_review', { week });
+}
+
+export function openCurrentReview(): Promise<WeeklyReviewView> {
+  return call<WeeklyReviewView>('open_current_review');
+}
+
+export function saveReflection(week: string, reflection: string): Promise<void> {
+  return call<void>('save_reflection', { week, reflection });
+}
+
+export function weeklySummary(week: string): Promise<WeeklySummary> {
+  return call<WeeklySummary>('weekly_summary', { week });
+}
+
+export function reportPath(week: string): Promise<string> {
+  return call<string>('report_path', { week });
 }

@@ -26,7 +26,9 @@ impl SummaryBlock {
         let start = body.find(Self::START)?;
         let end_marker = body[start..].find(Self::END)? + start;
         let content_start = start + Self::START.len();
-        let content = body[content_start..end_marker].strip_prefix('\n').unwrap_or(&body[content_start..]);
+        let content = body[content_start..end_marker]
+            .strip_prefix('\n')
+            .unwrap_or(&body[content_start..]);
         Some(content.trim_end().to_string())
     }
 
@@ -37,7 +39,9 @@ impl SummaryBlock {
         let start = body.find(Self::START)?;
         let end_marker = body[start..].find(Self::END)? + start;
         let after = end_marker + Self::END.len();
-        let after = body[after..].strip_prefix('\n').map_or(after, |_| after + 1);
+        let after = body[after..]
+            .strip_prefix('\n')
+            .map_or(after, |_| after + 1);
         Some((&body[..start], &body[after..]))
     }
 }
@@ -56,7 +60,8 @@ mod tests {
 
     #[test]
     fn replacing_the_summary_leaves_every_other_byte_alone() {
-        let updated = SummaryBlock::replace(&body_with_block(), "## Week in review\n\nNew numbers.");
+        let updated =
+            SummaryBlock::replace(&body_with_block(), "## Week in review\n\nNew numbers.");
         assert!(updated.contains("New numbers."));
         assert!(!updated.contains("Old numbers."));
         assert!(
@@ -69,12 +74,19 @@ mod tests {
     fn replacing_twice_is_stable() {
         let once = SummaryBlock::replace(&body_with_block(), "A");
         let twice = SummaryBlock::replace(&once, "A");
-        assert_eq!(once, twice, "regeneration must not accumulate markers or blank lines");
+        assert_eq!(
+            once, twice,
+            "regeneration must not accumulate markers or blank lines"
+        );
     }
 
     #[test]
     fn text_the_user_wrote_above_the_block_survives() {
-        let body = format!("My preamble.\n\n{}\nold\n{}\n", SummaryBlock::START, SummaryBlock::END);
+        let body = format!(
+            "My preamble.\n\n{}\nold\n{}\n",
+            SummaryBlock::START,
+            SummaryBlock::END
+        );
         let updated = SummaryBlock::replace(&body, "new");
         assert!(updated.starts_with("My preamble.\n\n"));
         assert!(updated.contains("new"));
@@ -103,9 +115,15 @@ mod tests {
 
     #[test]
     fn an_unterminated_start_marker_does_not_swallow_the_rest_of_the_file() {
-        let body = format!("{}\nunclosed\n\n## Reflection\n\nMine.\n", SummaryBlock::START);
+        let body = format!(
+            "{}\nunclosed\n\n## Reflection\n\nMine.\n",
+            SummaryBlock::START
+        );
         let updated = SummaryBlock::replace(&body, "new");
-        assert!(updated.contains("Mine."), "a corrupt marker must not delete prose");
+        assert!(
+            updated.contains("Mine."),
+            "a corrupt marker must not delete prose"
+        );
     }
 
     #[test]

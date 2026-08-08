@@ -17,15 +17,20 @@ impl ReportFrontMatter {
     pub const SCHEMA: u32 = 1;
 
     pub fn render(&self) -> Result<String, ReportError> {
-        serde_norway::to_string(self)
-            .map_err(|error| ReportError::MalformedFrontMatter { detail: error.to_string() })
+        serde_norway::to_string(self).map_err(|error| ReportError::MalformedFrontMatter {
+            detail: error.to_string(),
+        })
     }
 
     pub fn parse(yaml: &str) -> Result<Self, ReportError> {
-        let parsed: Self = serde_norway::from_str(yaml)
-            .map_err(|error| ReportError::MalformedFrontMatter { detail: error.to_string() })?;
+        let parsed: Self =
+            serde_norway::from_str(yaml).map_err(|error| ReportError::MalformedFrontMatter {
+                detail: error.to_string(),
+            })?;
         if parsed.schema > Self::SCHEMA {
-            return Err(ReportError::UnsupportedSchema { found: parsed.schema });
+            return Err(ReportError::UnsupportedSchema {
+                found: parsed.schema,
+            });
         }
         Ok(parsed)
     }
