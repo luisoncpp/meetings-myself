@@ -4,6 +4,7 @@ members = [
     "crates/planning-core",
     "crates/planning-store",
     "crates/planning-app",
+    "crates/planning-reports",
 ]
 resolver = "2"
 
@@ -25,6 +26,7 @@ aws-lc-sys = { version = "0.44", features = ["prebuilt-nasm"] }
 planning-core = { path = "crates/planning-core" }
 planning-store = { path = "crates/planning-store" }
 planning-app = { path = "crates/planning-app" }
+planning-reports = { path = "crates/planning-reports" }
 
 [profile.release]
 lto = true
