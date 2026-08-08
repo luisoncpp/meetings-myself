@@ -13,7 +13,9 @@ tauri-build = { version = "2", features = [] }
 
 [dependencies]
 tauri = { version = "2.11.5", features = [] }
+tauri-plugin-dialog = "2.7"
 serde = { workspace = true }
 serde_json = { workspace = true }
 planning-app = { workspace = true }
+chrono-tz = { workspace = true }
 tokio = { version = "1", features = ["sync"] }

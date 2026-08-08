@@ -1,5 +1,6 @@
 <script lang="ts">
   import { storeHealth, type StoreHealth } from '../../api';
+  import { Setup } from '../../surfaces/setup';
   import type { Surface } from './surface';
   import HealthBanner from './HealthBanner.svelte';
   import Navigation from './Navigation.svelte';
@@ -27,7 +28,7 @@
   {#if health === null}
     <!-- Waiting for the first health check — no surface content yet. -->
   {:else if health.status === 'setupIncomplete'}
-    <SurfacePlaceholder kind="setup" />
+    <Setup {health} onready={refreshHealth} />
   {:else if health.status !== 'ready'}
     <div class="health-gate">
       <HealthBanner health={health} onretry={refreshHealth} />

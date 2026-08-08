@@ -40,6 +40,14 @@ export function setHomeZone(zone: string): Promise<StoreHealth> {
   return call<StoreHealth>('set_home_zone', { zone });
 }
 
+export function pickSyncFolder(): Promise<string | null> {
+  return call<string | null>('pick_sync_folder');
+}
+
+export function availableTimeZones(): Promise<string[]> {
+  return call<string[]>('available_time_zones');
+}
+
 export function library(includeArchived: boolean): Promise<LibraryView> {
   return call<LibraryView>('library', { includeArchived });
 }

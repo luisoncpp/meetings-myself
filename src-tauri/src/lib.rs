@@ -18,7 +18,7 @@ use private::plan_commands::{
 use private::review_commands::{
     open_current_review, open_weekly_review, report_path, save_reflection, weekly_summary,
 };
-use private::window_commands::open_weekly_review_window;
+use private::window_commands::{available_time_zones, open_weekly_review_window, pick_sync_folder};
 use std::sync::Arc;
 
 /// Builds and runs the desktop application.
@@ -32,6 +32,7 @@ pub fn run() {
     .expect("failed to start planning app");
 
     tauri::Builder::default()
+        .plugin(tauri_plugin_dialog::init())
         .manage(AppState(Arc::new(tokio::sync::Mutex::new(app))))
         .invoke_handler(tauri::generate_handler![
             app_version,
@@ -78,6 +79,8 @@ pub fn run() {
             weekly_summary,
             report_path,
             open_weekly_review_window,
+            pick_sync_folder,
+            available_time_zones,
         ])
         .run(tauri::generate_context!())
         .expect("error while running the Self-Planning application");

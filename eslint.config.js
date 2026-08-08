@@ -33,6 +33,12 @@ export default [
     },
   },
   {
+    files: ['**/*.svelte.ts'],
+    languageOptions: {
+      parserOptions: { parser: ts.parser },
+    },
+  },
+  {
     rules: {
       // GUIDELINES.md: no function takes more than 3 parameters.
       'max-params': ['error', 3],
