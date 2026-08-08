@@ -6,6 +6,8 @@ pub mod error;
 pub mod habit_lifecycle;
 pub mod library;
 pub mod materialization;
+pub mod plan_projection;
+pub mod plan_views;
 pub mod recurring_task_lifecycle;
 pub mod service;
 pub mod setup;

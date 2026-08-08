@@ -22,5 +22,6 @@ pub use private::service::{PlanningApp, StartRequest};
 pub use private::check_in_use_cases::{CheckInRequest, DateRange};
 pub use private::daily_plan_use_cases::{PlanChange, PlanHabitChange, ReorderPlan};
 pub use private::weekly_focus_use_cases::FocusChange;
+pub use private::plan_views::{DailyPlanView, PlanHabitView, PlanTaskView, TaskPoolView};
 pub use private::views::{LibraryFilter, LibraryView, TaskState, TaskView};
 pub use private::views_entities::{GoalView, HabitView, ValueView};
