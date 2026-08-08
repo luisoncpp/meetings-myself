@@ -1,3 +1,5 @@
+export { formatPlanDate, parsePlanDate } from './Private/plan-date';
+
 export type Classification = 'unclassified' | 'low' | 'high';
 export type TaskState = 'open' | 'completed' | 'archived';
 export type HabitStrength =

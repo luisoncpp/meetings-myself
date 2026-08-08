@@ -1,6 +1,7 @@
 <script lang="ts">
   import { storeHealth, type StoreHealth } from '../../api';
   import { Setup } from '../../surfaces/setup';
+  import { DailyPlan } from '../../surfaces/daily-plan';
   import type { Surface } from './surface';
   import HealthBanner from './HealthBanner.svelte';
   import Navigation from './Navigation.svelte';
@@ -38,7 +39,7 @@
   {:else}
     <Navigation current={mainView} onnavigate={/* switch main view */ (view) => (mainView = view)} />
     {#if mainView === 'daily-plan'}
-      <SurfacePlaceholder kind="daily-plan" />
+      <DailyPlan />
     {:else}
       <SurfacePlaceholder kind="library" />
     {/if}
