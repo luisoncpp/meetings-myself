@@ -1,0 +1,22 @@
+[package]
+name = "planning-store"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+planning-core = { workspace = true }
+chrono = { workspace = true }
+chrono-tz = { workspace = true }
+directories = "6.0.0"
+serde = { workspace = true }
+serde_json = { workspace = true }
+surrealdb = { version = "3.2.4", default-features = false, features = ["kv-rocksdb"] }
+thiserror = { workspace = true }
+uuid = { workspace = true }
+# Feature-unification only — removes NASM requirement for aws-lc-sys on Windows MSVC.
+aws-lc-sys = { workspace = true }
+
+[dev-dependencies]
+tempfile = "3.27.0"
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
