@@ -2359,4 +2359,4 @@ git commit -m "docs: document the planning domain, archiving flow, and lifecycle
 - [ ] No `DELETE` appears anywhere in `crates/` — `tests/architecture.test.ts` proves it.
 - [ ] Every view type in `src/lib/domain/index.ts` has a matching Rust JSON-shape test.
 
-**Next:** [0005-daily-plan-and-habits.md](0005-daily-plan-and-habits.md).
+**Next:** [0005-daily-plan-and-habits.md](0005-daily-plan-and-habits.md) (done).

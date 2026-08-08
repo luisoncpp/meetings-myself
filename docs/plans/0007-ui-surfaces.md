@@ -4,7 +4,7 @@
 > development) to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 >
 > Read [0001-self-planning-app.md](0001-self-planning-app.md), `PRODUCT.md`, and `DESIGN.md` first.
-> Requires [0005-daily-plan-and-habits.md](0005-daily-plan-and-habits.md); the Weekly Review surface
+> Requires [0005-daily-plan-and-habits.md](done/0005-daily-plan-and-habits.md); the Weekly Review surface
 > (Task 8) additionally requires [0006-weekly-review-and-reports.md](0006-weekly-review-and-reports.md).
 
 **Goal:** Build the Daily Plan home, the Library, and a separate Weekly Review window on top of the

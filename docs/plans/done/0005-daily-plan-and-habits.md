@@ -3,7 +3,7 @@
 > **For agentic workers:** REQUIRED SUB-SKILL: Use `executing-plans` (or subagent-driven
 > development) to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 >
-> Read [0001-self-planning-app.md](0001-self-planning-app.md) first. Requires
+> Read [0001-self-planning-app.md](../0001-self-planning-app.md) first. Requires
 > [0004-planning-domain.md](done/0004-planning-domain.md) to be complete.
 
 **Goal:** Daily Plans with ordered task selection and habit check-ins, a Weekly Focus that guides
@@ -30,7 +30,7 @@ nothing. No archive operation ever writes to a plan.
 
 ## Global constraints
 
-See [0001-self-planning-app.md](0001-self-planning-app.md#global-constraints). Load-bearing here:
+See [0001-self-planning-app.md](../0001-self-planning-app.md#global-constraints). Load-bearing here:
 
 - **Forward-only.** Archiving, unpinning, and cadence changes never rewrite an existing Daily Plan
   or Weekly Focus. Affected entries stay in place, marked, and still completable.
@@ -1851,5 +1851,5 @@ git commit -m "docs: document daily planning, plan flows, and the record-key les
 - [ ] Advancing the clock past midnight and calling `open_today` creates a *new* plan and leaves
       yesterday's untouched.
 
-**Next:** [0006-weekly-review-and-reports.md](0006-weekly-review-and-reports.md) and
-[0007-ui-surfaces.md](0007-ui-surfaces.md) may proceed in parallel.
+**Next:** [0006-weekly-review-and-reports.md](../0006-weekly-review-and-reports.md) and
+[0007-ui-surfaces.md](../0007-ui-surfaces.md) may proceed in parallel.

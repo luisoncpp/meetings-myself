@@ -4,7 +4,7 @@
 > development) to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 >
 > Read [0001-self-planning-app.md](0001-self-planning-app.md) first. Requires
-> [0005-daily-plan-and-habits.md](0005-daily-plan-and-habits.md). Task 5 (settings UI) additionally
+> [0005-daily-plan-and-habits.md](done/0005-daily-plan-and-habits.md). Task 5 (settings UI) additionally
 > benefits from [0007-ui-surfaces.md](0007-ui-surfaces.md) but does not require it.
 
 **Goal:** A separate background binary that opens the app at 7:00 AM home time *only* when no Daily

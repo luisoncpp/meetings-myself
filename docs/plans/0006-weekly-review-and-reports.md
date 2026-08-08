@@ -4,7 +4,7 @@
 > development) to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 >
 > Read [0001-self-planning-app.md](0001-self-planning-app.md) first. Requires
-> [0005-daily-plan-and-habits.md](0005-daily-plan-and-habits.md) to be complete. May run in
+> [0005-daily-plan-and-habits.md](done/0005-daily-plan-and-habits.md) to be complete. May run in
 > parallel with [0007-ui-surfaces.md](0007-ui-surfaces.md).
 
 **Goal:** One canonical, externally editable Markdown Weekly Report per Calendar Week, with

@@ -27,3 +27,4 @@ Avoid: "bug description + fix". Prefer: "what I learned that applies to future w
 | [sync-safety-is-a-value-not-an-exception.md](sync-safety-is-a-value-not-an-exception.md) | `StoreHealth` as returned value, not per-write exceptions | 2026-08-08 |
 | [orthogonal-lifecycle-beats-a-single-state-enum.md](orthogonal-lifecycle-beats-a-single-state-enum.md) | Model archive and outcome as orthogonal axes, not one enum | 2026-08-08 |
 | [surrealdb-records-via-json-value.md](surrealdb-records-via-json-value.md) | Generic Records round-trips via `serde_json::Value` for SurrealDB 3 | 2026-08-08 |
+| [record-keys-as-invariants.md](record-keys-as-invariants.md) | Record key is the uniqueness rule; `materialized_through` is a hint only | 2026-08-08 |
