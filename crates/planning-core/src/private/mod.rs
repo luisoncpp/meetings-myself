@@ -11,6 +11,8 @@ pub mod habit;
 pub mod home_calendar;
 pub mod ids;
 pub mod lifecycle;
+pub mod recurrence;
+pub mod recurring_task;
 pub mod system_clock;
 pub mod task;
 pub mod value;

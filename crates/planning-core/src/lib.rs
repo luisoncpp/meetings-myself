@@ -19,6 +19,8 @@ pub use private::ids::{
     TaskId, ValueId, WeeklyFocusId, WeeklyReviewId,
 };
 pub use private::lifecycle::{Achievement, Completion, Lifecycle};
+pub use private::recurrence::Recurrence;
+pub use private::recurring_task::{CreateRecurringTask, Occurrence, RecurringTask};
 pub use private::system_clock::SystemClock;
 pub use private::task::{CreateTask, Task};
 pub use private::value::{CreateValue, Value};

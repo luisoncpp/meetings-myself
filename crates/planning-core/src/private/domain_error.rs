@@ -13,4 +13,7 @@ pub enum DomainError {
 
     #[error("a habit cadence must include at least one weekday")]
     EmptyCadence,
+
+    #[error("a monthly recurrence day must be between 1 and 31")]
+    InvalidMonthDay,
 }
