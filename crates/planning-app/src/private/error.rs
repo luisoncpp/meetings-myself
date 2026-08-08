@@ -1,3 +1,4 @@
+use planning_core::DomainError;
 use planning_store::{StoreError, StoreHealth};
 use thiserror::Error;
 
@@ -6,11 +7,17 @@ pub enum AppError {
     #[error(transparent)]
     Store(#[from] StoreError),
 
+    #[error(transparent)]
+    Domain(#[from] DomainError),
+
     #[error("the synchronized data is not ready: {0:?}")]
     NotReady(StoreHealth),
 
     #[error("no synchronization folder has been chosen yet")]
     NoDatabase,
+
+    #[error("no {table} with id {id}")]
+    NotFound { table: &'static str, id: String },
 
     #[error("'{0}' is not an IANA time zone")]
     InvalidZone(String),

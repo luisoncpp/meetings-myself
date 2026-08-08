@@ -14,7 +14,7 @@
 
 ## The failure this prevents
 
-The design targets a *silent* write against a half-synchronized RocksDB directory. Drive may have merged two versions of `CURRENT` or left conflict copies alongside live files. Opening SurrealDB on that tree might succeed — RocksDB does not know Drive renamed a sibling file. Without a pre-write health check, the app would happily persist new records on top of torn state. No exception type would have made that visible; the corruption would surface days later on another device.
+The design targets a *silent* write against a half-synchronized SurrealDB directory. Drive may have merged two versions of a live file or left conflict copies alongside it. Opening SurrealDB on that tree might succeed — the KV engine does not know Drive renamed a sibling file. Without a pre-write health check, the app would happily persist new records on top of torn state. No exception type would have made that visible; the corruption would surface days later on another device.
 
 Returning `StoreHealth::SyncConflict { artifacts }` before any write forces the user to resolve duplicates first.
 

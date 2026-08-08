@@ -1,0 +1,15 @@
+# Shared build settings for this workspace.
+#
+# IMPORTANT: Cursor's agent sandbox may set CARGO_TARGET_DIR to a Temp path,
+# which forces a full rebuild of SurrealDB/native deps. Cargo invocations from
+# agents must run unsandboxed (or with CARGO_TARGET_DIR unset) so they reuse
+# this project's ./target. See docs/lessons-learned/cursor-sandbox-splits-cargo-target.md
+
+[profile.dev]
+# Line tables only — enough for backtraces, far smaller than full MSVC PDBs.
+debug = 1
+
+# Dependencies dominate disk for surrealdb / Tauri. Keep our crates' debug
+# info; strip dep debug info to avoid multi-GB .lib/.pdb copies.
+[profile.dev.package."*"]
+debug = 0

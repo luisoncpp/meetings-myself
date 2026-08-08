@@ -7,7 +7,7 @@ use tokio::sync::Mutex;
 /// single-user by construction.
 pub struct AppState(pub Arc<Mutex<PlanningApp>>);
 
-fn to_message(error: AppError) -> String {
+pub(super) fn app_error_message(error: AppError) -> String {
     error.to_string()
 }
 
@@ -34,7 +34,7 @@ pub async fn choose_sync_folder(
         .await
         .choose_sync_folder(folder)
         .await
-        .map_err(to_message)
+        .map_err(app_error_message)
 }
 
 #[tauri::command]
@@ -48,7 +48,7 @@ pub async fn set_home_zone(
         .await
         .set_home_zone_name(&zone)
         .await
-        .map_err(to_message)
+        .map_err(app_error_message)
 }
 
 #[cfg(test)]

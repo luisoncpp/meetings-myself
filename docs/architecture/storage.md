@@ -1,6 +1,6 @@
 # Storage & Sync Safety
 
-Embedded SurrealDB on RocksDB inside a Google Drive Synchronization Folder, with device-local settings kept outside sync and a health gate that refuses writes until the folder is trustworthy.
+Embedded SurrealDB on SurrealKV inside a Google Drive Synchronization Folder, with device-local settings kept outside sync and a health gate that refuses writes until the folder is trustworthy.
 
 ## Crate graph
 
@@ -22,12 +22,12 @@ src-tauri / launcher ──► planning-app ──► planning-store ──► p
 
 ```
 <sync-folder>/
-  planning-db/          # SurrealDB/RocksDB directory (synchronized)
+  planning-db/          # SurrealDB/SurrealKV directory (synchronized)
   writer.lock           # Cooperative one-active-writer marker (JSON heartbeat)
   weekly-reports/       # Markdown weekly reports (plan 0006 — not yet created)
 ```
 
-`planning-db/` is created on first open. RocksDB is a directory of files, not a single `.db` file — Google Drive syncs the whole tree.
+`planning-db/` is created on first open. SurrealKV stores a directory of files, not a single `.db` file — Google Drive syncs the whole tree.
 
 ## Device settings (outside sync)
 
@@ -78,7 +78,7 @@ Deleting `writer.lock` is removal of a transient marker, not planning data — A
 - `(conflicted copy …)` suffix (Google Drive desktop)
 - ` (N)` before extension — e.g. `CURRENT (1)`, `MANIFEST-000004 (2)`
 
-Any match blocks writes until the user resolves duplicates manually.
+Any match blocks writes until the user resolves duplicates manually. Patterns are engine-agnostic (Drive renames whatever files live under `planning-db/`).
 
 ## SurrealDB API notes
 
@@ -86,8 +86,8 @@ Worth remembering when extending `planning-store`:
 
 | Quirk | What we do |
 |-------|------------|
-| Path argument | `Surreal::new::<RocksDb>(path.to_string_lossy().as_ref())` — takes `&str`, not `Path` |
+| Path argument | `Surreal::new::<SurrealKv>(path.to_string_lossy().as_ref())` — takes `&str`, not `Path` |
 | Record types | Derive `surrealdb::types::SurrealValue` alongside `Serialize`/`Deserialize` |
 | `Tz` storage | Store as IANA string (`zone.name()`), parse with `Tz::from_str` on load |
 | Missing table | `select` on a table that does not exist yet returns an error containing `"does not exist"` — treat as unset, return defaults |
-| RocksDB LOCK timing | After `drop(database)`, RocksDB releases its internal LOCK file asynchronously; tests sleep 100 ms before reopening (see lessons-learned) |
+| Lock after drop | After `drop(database)`, the embedded engine may release its on-disk lock asynchronously; tests sleep 100 ms (or retry) before reopening |

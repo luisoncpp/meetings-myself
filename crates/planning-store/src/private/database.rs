@@ -1,6 +1,6 @@
 use super::error::StoreError;
 use std::path::Path;
-use surrealdb::engine::local::{Db, RocksDb};
+use surrealdb::engine::local::{Db, SurrealKv};
 use surrealdb::Surreal;
 
 pub struct Database {
@@ -15,7 +15,7 @@ impl Database {
     pub async fn open(sync_folder: &Path) -> Result<Self, StoreError> {
         let path = sync_folder.join(Self::DIRECTORY);
         std::fs::create_dir_all(&path)?;
-        let inner = Surreal::new::<RocksDb>(path.to_string_lossy().as_ref()).await?;
+        let inner = Surreal::new::<SurrealKv>(path.to_string_lossy().as_ref()).await?;
         inner.use_ns(Self::NAMESPACE).use_db(Self::DATABASE).await?;
         Ok(Self { inner })
     }
@@ -52,7 +52,7 @@ mod tests {
             .await
             .unwrap();
         drop(first);
-        // RocksDB releases its LOCK file asynchronously after the router shuts down.
+        // Embedded engines can release the on-disk lock asynchronously after drop.
         tokio::time::sleep(Duration::from_millis(100)).await;
 
         let second = Database::open(folder.path()).await.unwrap();

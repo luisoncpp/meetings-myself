@@ -21,5 +21,9 @@ Avoid: "bug description + fix". Prefer: "what I learned that applies to future w
 
 | File | Topic | Date |
 |------|-------|------|
-| [surrealdb-rocksdb-windows-build-prerequisites.md](surrealdb-rocksdb-windows-build-prerequisites.md) | SurrealDB + RocksDB Windows build prerequisites (libclang, NASM) | 2026-08-08 |
+| [surrealdb-rocksdb-windows-build-prerequisites.md](surrealdb-rocksdb-windows-build-prerequisites.md) | Historical: RocksDB Windows LLVM/NASM blockers (engine is now SurrealKV) | 2026-08-08 |
+| [cursor-sandbox-splits-cargo-target.md](cursor-sandbox-splits-cargo-target.md) | Cursor sandbox `CARGO_TARGET_DIR` forces full SurrealDB rebuilds | 2026-08-08 |
+| [surrealkv-vs-rocksdb-windows-build.md](surrealkv-vs-rocksdb-windows-build.md) | SurrealKV vs RocksDB compile size/time on Windows; prefer SurrealKV | 2026-08-08 |
 | [sync-safety-is-a-value-not-an-exception.md](sync-safety-is-a-value-not-an-exception.md) | `StoreHealth` as returned value, not per-write exceptions | 2026-08-08 |
+| [orthogonal-lifecycle-beats-a-single-state-enum.md](orthogonal-lifecycle-beats-a-single-state-enum.md) | Model archive and outcome as orthogonal axes, not one enum | 2026-08-08 |
+| [surrealdb-records-via-json-value.md](surrealdb-records-via-json-value.md) | Generic Records round-trips via `serde_json::Value` for SurrealDB 3 | 2026-08-08 |

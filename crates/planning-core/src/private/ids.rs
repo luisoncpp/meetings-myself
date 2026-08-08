@@ -17,7 +17,7 @@ macro_rules! define_ids {
                 Self(raw.into())
             }
 
-            /// UUID v7 keeps ids time-ordered, which keeps RocksDB key locality sane.
+            /// UUID v7 keeps ids time-ordered, which keeps storage key locality sane.
             pub fn generate() -> Self {
                 Self(uuid::Uuid::now_v7().to_string())
             }

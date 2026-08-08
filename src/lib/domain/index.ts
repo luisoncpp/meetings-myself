@@ -1,0 +1,65 @@
+export type Classification = 'unclassified' | 'low' | 'high';
+export type TaskState = 'open' | 'completed' | 'archived';
+export type HabitStrength =
+  | 'reminderDependent'
+  | 'cueTriggered'
+  | 'strengthening'
+  | 'established';
+export type Weekday = 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' | 'sun';
+
+export type Cadence = { kind: 'everyDay' } | { kind: 'onWeekdays'; days: Weekday[] };
+
+export type AssociationEnd =
+  | { kind: 'value'; id: string }
+  | { kind: 'goal'; id: string }
+  | { kind: 'habit'; id: string }
+  | { kind: 'task'; id: string };
+
+export interface TaskView {
+  id: string;
+  title: string;
+  state: TaskState;
+  importance: Classification;
+  urgency: Classification;
+  deadline: string | null;
+  overdue: boolean;
+  archived: boolean;
+}
+
+export interface ValueView {
+  id: string;
+  title: string;
+  archived: boolean;
+}
+
+export interface GoalView {
+  id: string;
+  title: string;
+  achieved: boolean;
+  targetDate: string | null;
+  archived: boolean;
+}
+
+export interface HabitView {
+  id: string;
+  title: string;
+  cadence: Cadence;
+  strength: HabitStrength;
+  pinned: boolean;
+  archived: boolean;
+}
+
+export interface LibraryView {
+  values: ValueView[];
+  goals: GoalView[];
+  habits: HabitView[];
+  tasks: TaskView[];
+}
+
+export interface Association {
+  id: string;
+  left: AssociationEnd;
+  right: AssociationEnd;
+  lifecycle: 'active' | 'archived';
+  createdAt: string;
+}

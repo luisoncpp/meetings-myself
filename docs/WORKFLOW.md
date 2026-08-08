@@ -12,6 +12,8 @@ Before trying to implement any feature or fix any bug, add the following to your
 
 * Add tests for the new feature or the bug fix
 
+* For cargo / npm run check:rust (or any time you will run tests in rust), run with unrestricted permissions and verify CARGO_TARGET_DIR is empty first.
+
 # Implementing new features
 
 Before writing any code or reading any file, add this to your tasks list:

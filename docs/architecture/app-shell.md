@@ -31,6 +31,15 @@ Nothing else under `src/` may import `@tauri-apps/api`.
 
 `tests/architecture.test.ts` enforces crate privacy, binary dependency rules, the IPC boundary, and token-only colours.
 
+## Cargo target directory
+
+Always compile into the workspace `./target`. Cursor agent sandboxes may set
+`CARGO_TARGET_DIR` under `%TEMP%\cursor-sandbox-cache\`, which cold-rebuilds
+native SurrealDB deps and duplicates multi‑GB artifacts. Agent `cargo` runs
+must be unsandboxed (env unset). See
+`docs/lessons-learned/cursor-sandbox-splits-cargo-target.md` and
+`.cargo/config.toml` (lighter `dev` debug info for dependencies).
+
 ## Shell file map
 
 | Path | Role |

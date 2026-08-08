@@ -11,7 +11,7 @@ chrono-tz = { workspace = true }
 directories = "6.0.0"
 serde = { workspace = true }
 serde_json = { workspace = true }
-surrealdb = { version = "3.2.4", default-features = false, features = ["kv-rocksdb"] }
+surrealdb = { version = "3.2.4", default-features = false, features = ["kv-surrealkv"] }
 thiserror = { workspace = true }
 uuid = { workspace = true }
 # Feature-unification only — removes NASM requirement for aws-lc-sys on Windows MSVC.

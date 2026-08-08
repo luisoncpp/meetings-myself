@@ -2260,4 +2260,4 @@ git commit -m "docs: document storage architecture, open-app flow, and sync-safe
 - [ ] `tests/architecture.test.ts` still passes: no `Utc::now()` outside `system_clock.rs`, no
       `chrono::Local`, no `surrealdb` dependency in `src-tauri/Cargo.toml`.
 
-**Next:** [0004-planning-domain.md](../0004-planning-domain.md).
+**Next:** [0004-planning-domain.md](0004-planning-domain.md).

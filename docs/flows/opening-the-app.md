@@ -12,7 +12,7 @@ User launches the desktop application (or the app restarts after choosing a sync
 
 1. **Load device settings** — `DeviceSettingsFile::load()` reads or creates `device-settings.json` in the OS config directory.
 2. **Assess without a folder** — if `sync_folder` is `None`, health is `SetupIncomplete { NoSyncFolder }`; stop here.
-3. **Open database** — if the folder path exists, `Database::open` creates `planning-db/` and connects SurrealDB/RocksDB.
+3. **Open database** — if the folder path exists, `Database::open` creates `planning-db/` and connects SurrealDB/SurrealKV.
 4. **Load home zone** — `HomeSettingsRepository::load` reads `settings:home`; zone may still be `None`.
 5. **Assess health** — `StoreHealth::assess` checks folder presence, conflict artifacts, and whether home zone is set.
 6. **Acquire writer lock** — if health is `Ready`, `WriterLock::acquire` writes or refreshes `writer.lock`.
@@ -33,7 +33,7 @@ User launches the desktop application (or the app restarts after choosing a sync
 | Target | When |
 |--------|------|
 | `device-settings.json` | First run (defaults), `choose_sync_folder` |
-| `planning-db/` | First open (directory + RocksDB files) |
+| `planning-db/` | First open (directory + SurrealKV files) |
 | `settings:home` | `set_home_zone` |
 | `writer.lock` | Health is `Ready` after assess or zone set |
 
@@ -66,4 +66,4 @@ User launches the desktop application (or the app restarts after choosing a sync
 | `syncConflict` | Drive duplicated a file — `CURRENT (1)` or `(conflicted copy …)` in sync folder or `planning-db/` |
 | `lockedByAnotherDevice` | Another machine has a fresh `writer.lock` (< 15 min old) |
 | `calendar()` errors despite `ready` | Should not happen — indicates a logic bug |
-| RocksDB open fails immediately after close | Windows RocksDB LOCK not yet released — retry after ~100 ms |
+| Database open fails immediately after close | Embedded engine lock not yet released — retry after ~100 ms |

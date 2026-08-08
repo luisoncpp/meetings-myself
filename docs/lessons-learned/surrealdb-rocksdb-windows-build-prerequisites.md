@@ -2,6 +2,11 @@
 
 **Date:** 2026-08-08
 
+> **Historical.** The app now uses SurrealKV (`kv-surrealkv`), so LLVM/bindgen for
+> RocksDB is not required. Keep this note if someone re-enables `kv-rocksdb` or
+> hits the same errors in a probe. Active engine choice:
+> `docs/lessons-learned/surrealkv-vs-rocksdb-windows-build.md` and ADR 0001.
+
 ## What to know before starting
 
 Adding `surrealdb` with the `kv-rocksdb` feature on Windows MSVC triggers two unrelated native-toolchain failures long before any application code compiles. Both look like environment problems, not dependency bugs — but they block every `cargo check` that pulls `surrealdb-core`.

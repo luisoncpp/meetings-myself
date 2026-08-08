@@ -118,7 +118,7 @@ mod tests {
                 Err(error) => panic!("{error:?}"),
             }
         }
-        panic!("RocksDB lock did not clear after restart");
+        panic!("database lock did not clear after restart");
     }
 
     #[tokio::test]

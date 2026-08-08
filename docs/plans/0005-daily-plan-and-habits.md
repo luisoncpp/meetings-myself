@@ -4,7 +4,7 @@
 > development) to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 >
 > Read [0001-self-planning-app.md](0001-self-planning-app.md) first. Requires
-> [0004-planning-domain.md](0004-planning-domain.md) to be complete.
+> [0004-planning-domain.md](done/0004-planning-domain.md) to be complete.
 
 **Goal:** Daily Plans with ordered task selection and habit check-ins, a Weekly Focus that guides
 without scheduling, and duplicate-safe Recurring Task materialization — all obeying forward-only

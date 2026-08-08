@@ -1,8 +1,11 @@
 use super::error::AppError;
 use chrono_tz::Tz;
-use planning_core::{Clock, HomeCalendar};
+use planning_core::{
+    Clock, Goal, GoalId, Habit, HabitId, HomeCalendar, Task, TaskId, Value, ValueId,
+};
 use planning_store::{
-    AcquireLock, Assessment, Database, DeviceSettings, DeviceSettingsFile, StoreHealth, WriterLock,
+    AcquireLock, Assessment, Database, DeviceSettings, DeviceSettingsFile, RecordKey, Records,
+    StoreHealth, WriterLock,
 };
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -40,12 +43,73 @@ impl PlanningApp {
         Ok(HomeCalendar::new(zone))
     }
 
-    #[allow(dead_code)] // used by domain use cases in plan 0004
     pub(crate) fn require_database(&self) -> Result<&Database, AppError> {
         if !self.health.permits_writes() {
             return Err(AppError::NotReady(self.health.clone()));
         }
         self.database.as_ref().ok_or(AppError::NoDatabase)
+    }
+
+    /// Saves one record, refusing unless the store is Ready.
+    pub(crate) async fn store<T>(&self, table: &str, id: &str, record: &T) -> Result<(), AppError>
+    where
+        T: serde::Serialize + serde::de::DeserializeOwned + Send + Sync + 'static,
+    {
+        let database = self.require_database()?;
+        Records::save(database, RecordKey { table, id }, record).await?;
+        Ok(())
+    }
+
+    pub(crate) async fn load_all<T>(&self, table: &str) -> Result<Vec<T>, AppError>
+    where
+        T: serde::de::DeserializeOwned + Send + Sync + 'static,
+    {
+        let database = self.require_database()?;
+        Ok(Records::all(database, table).await?)
+    }
+
+    pub(crate) async fn load_one<T>(&self, table: &str, id: &str) -> Result<Option<T>, AppError>
+    where
+        T: serde::de::DeserializeOwned + Send + Sync + 'static,
+    {
+        let database = self.require_database()?;
+        Ok(Records::find(database, RecordKey { table, id }).await?)
+    }
+
+    /// Loads a record, applies `change`, and saves it back. The single
+    /// read-modify-write path, so "not found" is handled in exactly one place.
+    pub(crate) async fn mutate<T>(
+        &self,
+        key: (&'static str, String),
+        change: impl FnOnce(&mut T),
+    ) -> Result<T, AppError>
+    where
+        T: serde::Serialize + serde::de::DeserializeOwned + Clone + Send + Sync + 'static,
+    {
+        let (table, id) = key;
+        let mut record: T = self.load_one(table, &id).await?.ok_or(AppError::NotFound {
+            table,
+            id: id.clone(),
+        })?;
+        change(&mut record);
+        self.store(table, &id, &record).await?;
+        Ok(record)
+    }
+
+    pub async fn values(&self) -> Result<Vec<Value>, AppError> {
+        self.load_all(ValueId::TABLE).await
+    }
+
+    pub async fn goals(&self) -> Result<Vec<Goal>, AppError> {
+        self.load_all(GoalId::TABLE).await
+    }
+
+    pub async fn tasks(&self) -> Result<Vec<Task>, AppError> {
+        self.load_all(TaskId::TABLE).await
+    }
+
+    pub async fn habits(&self) -> Result<Vec<Habit>, AppError> {
+        self.load_all(HabitId::TABLE).await
     }
 
     pub(crate) fn assess(&self) -> StoreHealth {
