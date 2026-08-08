@@ -2,6 +2,7 @@
   import { storeHealth, type StoreHealth } from '../../api';
   import { Setup } from '../../surfaces/setup';
   import { DailyPlan } from '../../surfaces/daily-plan';
+  import { Library } from '../../surfaces/library';
   import type { Surface } from './surface';
   import HealthBanner from './HealthBanner.svelte';
   import Navigation from './Navigation.svelte';
@@ -41,7 +42,7 @@
     {#if mainView === 'daily-plan'}
       <DailyPlan />
     {:else}
-      <SurfacePlaceholder kind="library" />
+      <Library />
     {/if}
   {/if}
 </div>

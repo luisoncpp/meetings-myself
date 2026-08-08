@@ -42,13 +42,15 @@ function planWith(taskIds: string[]) {
   };
 }
 
-describe('DailyPlanStore', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-    todayView.mockResolvedValue(planWith(['a', 'b', 'c']));
-    taskPool.mockResolvedValue({ focus: [], rest: [] });
-  });
+function resetMocks(): void {
+  vi.clearAllMocks();
+  todayView.mockResolvedValue(planWith(['a', 'b', 'c']));
+  taskPool.mockResolvedValue({ focus: [], rest: [] });
+}
 
+beforeEach(resetMocks);
+
+describe('DailyPlanStore loading', () => {
   it('loads the plan and the pool together', async () => {
     const store = new DailyPlanStore();
     await store.load();
@@ -57,7 +59,9 @@ describe('DailyPlanStore', () => {
     expect(store.pool).toEqual({ focus: [], rest: [] });
     expect(store.loading).toBe(false);
   });
+});
 
+describe('DailyPlanStore reorder', () => {
   it('applies a reorder optimistically and sends the new order', async () => {
     const store = new DailyPlanStore();
     await store.load();
@@ -77,7 +81,9 @@ describe('DailyPlanStore', () => {
     expect(store.plan?.tasks.map((task) => task.id)).toEqual(['a', 'b', 'c']);
     expect(store.error).toMatch(/permutation/);
   });
+});
 
+describe('DailyPlanStore mutations', () => {
   it('surfaces a failure without wiping the plan already on screen', async () => {
     const store = new DailyPlanStore();
     await store.load();
