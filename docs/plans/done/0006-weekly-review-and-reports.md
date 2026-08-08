@@ -3,9 +3,9 @@
 > **For agentic workers:** REQUIRED SUB-SKILL: Use `executing-plans` (or subagent-driven
 > development) to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 >
-> Read [0001-self-planning-app.md](0001-self-planning-app.md) first. Requires
-> [0005-daily-plan-and-habits.md](done/0005-daily-plan-and-habits.md) to be complete. May run in
-> parallel with [0007-ui-surfaces.md](0007-ui-surfaces.md).
+> Read [0001-self-planning-app.md](../0001-self-planning-app.md) first. Requires
+> [0005-daily-plan-and-habits.md](0005-daily-plan-and-habits.md) to be complete. May run in
+> parallel with [0007-ui-surfaces.md](../0007-ui-surfaces.md).
 
 **Goal:** One canonical, externally editable Markdown Weekly Report per Calendar Week, with
 always-current summaries and reflection preserved exactly as typed, plus the Weekly Review use
@@ -31,7 +31,7 @@ without a database, and the summary logic be tested without touching the disk.
 
 ## Global constraints
 
-See [0001-self-planning-app.md](0001-self-planning-app.md#global-constraints). Load-bearing here:
+See [0001-self-planning-app.md](../0001-self-planning-app.md#global-constraints). Load-bearing here:
 
 - **Weekly Report summaries are regenerated from current data, never frozen.** Reopening a
   three-week-old review shows corrected check-ins and reopened Tasks.
@@ -1332,15 +1332,15 @@ git commit -m "docs: document weekly reports, the review flow, and file co-owner
 
 ## Task 8: Verify the plan's own acceptance
 
-- [ ] `npm run check` and `fallow audit` both pass.
-- [ ] **A4:** opening a review shows the prior report, produces exactly one file for its week, and
+- [x] `npm run check` and `fallow audit` both pass.
+- [x] **A4:** opening a review shows the prior report, produces exactly one file for its week, and
       leaves a Weekly Focus ready for the coming week.
-- [ ] **A8:** achieving a Goal and adjusting next week's focus both work with no review open.
-- [ ] Typing a reflection, reopening the review, and regenerating leaves the reflection identical
+- [x] **A8:** achieving a Goal and adjusting next week's focus both work with no review open.
+- [x] Typing a reflection, reopening the review, and regenerating leaves the reflection identical
       byte for byte.
-- [ ] Editing a report file in an external editor, then reopening the review, preserves the edit.
-- [ ] Writing a `---` horizontal rule inside a report body survives a regeneration.
-- [ ] Correcting a check-in weeks later changes the old week's summary on reopen.
-- [ ] The rendered summary contains no `%`, `streak`, or `score`.
+- [x] Editing a report file in an external editor, then reopening the review, preserves the edit.
+- [x] Writing a `---` horizontal rule inside a report body survives a regeneration.
+- [x] Correcting a check-in weeks later changes the old week's summary on reopen.
+- [x] The rendered summary contains no `%`, `streak`, or `score`.
 
-**Next:** [0007-ui-surfaces.md](0007-ui-surfaces.md) and [0008-launcher.md](0008-launcher.md).
+**Next:** [0007-ui-surfaces.md](../0007-ui-surfaces.md) and [0008-launcher.md](../0008-launcher.md).

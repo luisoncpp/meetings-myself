@@ -1851,5 +1851,5 @@ git commit -m "docs: document daily planning, plan flows, and the record-key les
 - [ ] Advancing the clock past midnight and calling `open_today` creates a *new* plan and leaves
       yesterday's untouched.
 
-**Next:** [0006-weekly-review-and-reports.md](../0006-weekly-review-and-reports.md) and
-[0007-ui-surfaces.md](../0007-ui-surfaces.md) may proceed in parallel.
+**Next:** [0006-weekly-review-and-reports.md](0006-weekly-review-and-reports.md) (done) and
+[0007-ui-surfaces.md](../0007-ui-surfaces.md) may proceed.

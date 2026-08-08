@@ -48,7 +48,7 @@ work in plan 0003**, and the first RocksDB build takes 10–20 minutes.
 | 0003 | [Storage, settings & sync safety](done/0003-storage-and-settings.md) | Done — `planning-core` + `planning-store` + `planning-app`, embedded SurrealDB/RocksDB, device settings, home zone, `StoreHealth` gating | 0002 |
 | 0004 | [Planning domain & Library API](done/0004-planning-domain.md) | `planning-core` + `planning-app` crates: Values, Goals, Habits, Tasks, Associations, archive-only lifecycle, overdue projection | 0003 |
 | 0005 | [Daily Plans, habits & recurrence](done/0005-daily-plan-and-habits.md) | Done — Daily Plan, Weekly Focus, pinned-habit inclusion, Habit Check-ins, idempotent Recurring Task materialization | 0004 |
-| 0006 | [Weekly Reviews & report files](0006-weekly-review-and-reports.md) | `planning-reports` crate, `weekly-reports/YYYY-Www-weekly-report.md` read/write with preserved reflection | 0005 |
+| 0006 | [Weekly Reviews & report files](done/0006-weekly-review-and-reports.md) | Done — `planning-reports`, weekly Markdown reports with preserved reflection, regenerated summaries, Weekly Review API | 0005 |
 | 0007 | [UI surfaces](0007-ui-surfaces.md) | Daily Plan window (home), Library surface, separate Weekly Review window | 0005 (0006 for the review surface) |
 | 0008 | [Daily Plan Launcher](0008-launcher.md) | Separate `planning-launcher` binary, 7:00 AM home-time attempt, retry window, missed-prompt record | 0005 |
 

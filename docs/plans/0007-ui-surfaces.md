@@ -5,7 +5,7 @@
 >
 > Read [0001-self-planning-app.md](0001-self-planning-app.md), `PRODUCT.md`, and `DESIGN.md` first.
 > Requires [0005-daily-plan-and-habits.md](done/0005-daily-plan-and-habits.md); the Weekly Review surface
-> (Task 8) additionally requires [0006-weekly-review-and-reports.md](0006-weekly-review-and-reports.md).
+> (Task 8) additionally requires [0006-weekly-review-and-reports.md](done/0006-weekly-review-and-reports.md).
 
 **Goal:** Build the Daily Plan home, the Library, and a separate Weekly Review window on top of the
 existing application API — calm, keyboard-operable, WCAG 2.1 AA, and honest about archived,
