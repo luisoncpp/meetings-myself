@@ -1,5 +1,5 @@
 [workspace]
-members = ["src-tauri"]
+members = ["src-tauri", "crates/planning-core"]
 resolver = "2"
 
 [workspace.package]
@@ -17,6 +17,7 @@ uuid = { version = "1.24.0", features = ["v7", "serde"] }
 # Not used directly. `prebuilt-nasm` removes the NASM build requirement that
 # surrealdb-core -> jsonwebtoken -> aws-lc-rs imposes on Windows MSVC.
 aws-lc-sys = { version = "0.44", features = ["prebuilt-nasm"] }
+planning-core = { path = "crates/planning-core" }
 
 [profile.release]
 lto = true
