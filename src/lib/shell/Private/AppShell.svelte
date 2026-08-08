@@ -3,10 +3,10 @@
   import { Setup } from '../../surfaces/setup';
   import { DailyPlan } from '../../surfaces/daily-plan';
   import { Library } from '../../surfaces/library';
+  import { WeeklyReview } from '../../surfaces/weekly-review';
   import type { Surface } from './surface';
   import HealthBanner from './HealthBanner.svelte';
   import Navigation from './Navigation.svelte';
-  import SurfacePlaceholder from './SurfacePlaceholder.svelte';
 
   interface Props {
     surface: Surface;
@@ -36,7 +36,7 @@
       <HealthBanner health={health} onretry={refreshHealth} />
     </div>
   {:else if surface === 'weekly-review'}
-    <SurfacePlaceholder kind="weekly-review" />
+    <WeeklyReview />
   {:else}
     <Navigation current={mainView} onnavigate={/* switch main view */ (view) => (mainView = view)} />
     {#if mainView === 'daily-plan'}
