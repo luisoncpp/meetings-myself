@@ -47,8 +47,9 @@ impl PlanningApp {
     /// Read-only existence check. Plan 0008's launcher calls exactly this and must
     /// never cause a plan to be created as a side effect.
     pub async fn has_plan_for(&self, date: NaiveDate) -> Result<bool, AppError> {
-        let found: Option<DailyPlan> =
-            self.load_one(DailyPlanId::TABLE, &DailyPlan::key(date)).await?;
+        let found: Option<DailyPlan> = self
+            .load_one(DailyPlanId::TABLE, &DailyPlan::key(date))
+            .await?;
         Ok(found.is_some())
     }
 
@@ -85,13 +86,13 @@ impl PlanningApp {
 
     pub async fn reorder_plan(&self, request: ReorderPlan) -> Result<(), AppError> {
         let key = DailyPlan::key(request.date);
-        let mut plan: DailyPlan = self
-            .load_one(DailyPlanId::TABLE, &key)
-            .await?
-            .ok_or(AppError::NotFound {
-                table: "daily_plan",
-                id: key.clone(),
-            })?;
+        let mut plan: DailyPlan =
+            self.load_one(DailyPlanId::TABLE, &key)
+                .await?
+                .ok_or(AppError::NotFound {
+                    table: "daily_plan",
+                    id: key.clone(),
+                })?;
         if !plan.reorder(request.order) {
             return Err(AppError::InvalidOrder);
         }
@@ -296,10 +297,7 @@ mod tests {
     async fn archiving_an_entry_already_in_a_plan_leaves_it_in_place_and_completable() {
         let (_home, _drive, app, _clock) = app_on(7).await;
         let today = app.calendar().unwrap().today(app.clock_ref());
-        let task = app
-            .create_task("Prepare portfolio".into())
-            .await
-            .unwrap();
+        let task = app.create_task("Prepare portfolio".into()).await.unwrap();
         app.select_into_plan(PlanChange {
             date: today,
             task: task.id.clone(),

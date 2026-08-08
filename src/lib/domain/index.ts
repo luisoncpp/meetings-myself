@@ -63,3 +63,61 @@ export interface Association {
   lifecycle: 'active' | 'archived';
   createdAt: string;
 }
+
+export type CheckInOutcome = 'done' | 'skipped' | 'notCompleted';
+
+export type Recurrence =
+  | { kind: 'daily' }
+  | { kind: 'weekdays' }
+  | { kind: 'weekly'; weekday: Weekday }
+  | { kind: 'monthlyDay'; day: number };
+
+export interface PlanTaskView {
+  id: string;
+  title: string;
+  state: TaskState;
+  importance: Classification;
+  urgency: Classification;
+  deadline: string | null;
+  overdue: boolean;
+  archived: boolean;
+  position: number;
+}
+
+export interface PlanHabitView {
+  id: string;
+  title: string;
+  cadence: Cadence;
+  archived: boolean;
+  unpinned: boolean;
+  outcome: CheckInOutcome | null;
+}
+
+export interface DailyPlanView {
+  date: string;
+  week: string;
+  tasks: PlanTaskView[];
+  habits: PlanHabitView[];
+}
+
+export interface TaskPoolView {
+  focus: TaskView[];
+  rest: TaskView[];
+}
+
+export interface WeeklyFocus {
+  id: string;
+  week: string;
+  tasks: string[];
+  createdAt: string;
+}
+
+export interface RecurringTask {
+  id: string;
+  title: string;
+  recurrence: Recurrence;
+  lifecycle: 'active' | 'archived';
+  startsOn: string;
+  materializedThrough: string | null;
+  createdAt: string;
+}

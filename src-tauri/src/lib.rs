@@ -10,6 +10,11 @@ use private::lifecycle_commands::{
     set_habit_cadence, set_habit_pinned, set_habit_strength, set_task_deadline, unachieve_goal,
     unlink,
 };
+use private::plan_commands::{
+    add_habit_to_plan, add_to_focus, archive_recurring_task, create_recurring_task, quick_add_task,
+    record_check_in, recurring_tasks, remove_from_focus, remove_from_plan, reorder_plan,
+    restore_recurring_task, select_into_plan, task_pool, today_view, weekly_focus,
+};
 use std::sync::Arc;
 
 /// Builds and runs the desktop application.
@@ -48,6 +53,21 @@ pub fn run() {
             link,
             unlink,
             associations_for,
+            today_view,
+            task_pool,
+            select_into_plan,
+            remove_from_plan,
+            reorder_plan,
+            add_habit_to_plan,
+            quick_add_task,
+            record_check_in,
+            weekly_focus,
+            add_to_focus,
+            remove_from_focus,
+            create_recurring_task,
+            recurring_tasks,
+            archive_recurring_task,
+            restore_recurring_task,
         ])
         .run(tauri::generate_context!())
         .expect("error while running the Self-Planning application");

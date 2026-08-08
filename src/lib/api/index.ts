@@ -3,9 +3,15 @@ import type {
   Association,
   AssociationEnd,
   Cadence,
+  CheckInOutcome,
   Classification,
+  DailyPlanView,
   HabitStrength,
   LibraryView,
+  Recurrence,
+  RecurringTask,
+  TaskPoolView,
+  WeeklyFocus,
 } from '../domain';
 
 export function appVersion(): Promise<string> {
@@ -110,4 +116,71 @@ export function unlink(association: string): Promise<void> {
 
 export function associationsFor(end: AssociationEnd): Promise<Association[]> {
   return call<Association[]>('associations_for', { end });
+}
+
+export function todayView(): Promise<DailyPlanView> {
+  return call<DailyPlanView>('today_view');
+}
+
+export function taskPool(): Promise<TaskPoolView> {
+  return call<TaskPoolView>('task_pool');
+}
+
+export function selectIntoPlan(date: string, task: string): Promise<void> {
+  return call<void>('select_into_plan', { date, task });
+}
+
+export function removeFromPlan(date: string, task: string): Promise<void> {
+  return call<void>('remove_from_plan', { date, task });
+}
+
+export function reorderPlan(date: string, order: string[]): Promise<void> {
+  return call<void>('reorder_plan', { date, order });
+}
+
+export function addHabitToPlan(date: string, habit: string): Promise<void> {
+  return call<void>('add_habit_to_plan', { date, habit });
+}
+
+export function quickAddTask(title: string): Promise<unknown> {
+  return call('quick_add_task', { title });
+}
+
+export function recordCheckIn(
+  habit: string,
+  date: string,
+  outcome: CheckInOutcome,
+): Promise<void> {
+  return call<void>('record_check_in', { habit, date, outcome });
+}
+
+export function weeklyFocus(week: string): Promise<WeeklyFocus> {
+  return call<WeeklyFocus>('weekly_focus', { week });
+}
+
+export function addToFocus(week: string, task: string): Promise<void> {
+  return call<void>('add_to_focus', { week, task });
+}
+
+export function removeFromFocus(week: string, task: string): Promise<void> {
+  return call<void>('remove_from_focus', { week, task });
+}
+
+export function createRecurringTask(
+  title: string,
+  recurrence: Recurrence,
+): Promise<RecurringTask> {
+  return call<RecurringTask>('create_recurring_task', { title, recurrence });
+}
+
+export function recurringTasks(): Promise<RecurringTask[]> {
+  return call<RecurringTask[]>('recurring_tasks');
+}
+
+export function archiveRecurringTask(rule: string): Promise<void> {
+  return call<void>('archive_recurring_task', { rule });
+}
+
+export function restoreRecurringTask(rule: string): Promise<void> {
+  return call<void>('restore_recurring_task', { rule });
 }

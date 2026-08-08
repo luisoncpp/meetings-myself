@@ -2,9 +2,7 @@ use super::error::AppError;
 use super::service::PlanningApp;
 use super::views::{TaskState, TaskView};
 use chrono::NaiveDate;
-use planning_core::{
-    Cadence, CalendarWeek, CheckInOutcome, Classification, HabitId, Task, TaskId,
-};
+use planning_core::{Cadence, CalendarWeek, CheckInOutcome, Classification, HabitId, Task, TaskId};
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 
@@ -151,7 +149,11 @@ mod tests {
         app.archive_task(&archived.id).await.unwrap();
 
         let view = app.today_view().await.unwrap();
-        assert_eq!(view.tasks.len(), 2, "the archived entry is shown, not hidden");
+        assert_eq!(
+            view.tasks.len(),
+            2,
+            "the archived entry is shown, not hidden"
+        );
         assert_eq!(view.tasks[0].position, 0);
         assert_eq!(view.tasks[1].position, 1);
         let flagged = view
@@ -245,5 +247,52 @@ mod tests {
         let view = app.plan_view(today).await.unwrap();
         assert_eq!(view.tasks.len(), 1);
         assert_eq!(view.tasks[0].id, task.id);
+    }
+
+    #[test]
+    fn plan_habit_views_serialize_exactly_as_the_frontend_types_declare() {
+        let view = PlanHabitView {
+            id: HabitId::new("h1"),
+            title: "Writing".into(),
+            cadence: Cadence::EveryDay,
+            archived: false,
+            unpinned: true,
+            outcome: Some(CheckInOutcome::NotCompleted),
+        };
+        assert_eq!(
+            serde_json::to_string(&view).unwrap(),
+            r#"{"id":"h1","title":"Writing","cadence":{"kind":"everyDay"},"archived":false,"unpinned":true,"outcome":"notCompleted"}"#
+        );
+    }
+
+    #[test]
+    fn daily_plan_views_serialize_exactly_as_the_frontend_types_declare() {
+        let view = DailyPlanView {
+            date: NaiveDate::from_ymd_opt(2026, 8, 7).unwrap(),
+            week: CalendarWeek::containing(NaiveDate::from_ymd_opt(2026, 8, 7).unwrap()),
+            tasks: vec![PlanTaskView {
+                id: TaskId::new("t1"),
+                title: "File taxes".into(),
+                state: TaskState::Open,
+                importance: Classification::High,
+                urgency: Classification::Unclassified,
+                deadline: Some(NaiveDate::from_ymd_opt(2026, 8, 6).unwrap()),
+                overdue: true,
+                archived: false,
+                position: 0,
+            }],
+            habits: vec![PlanHabitView {
+                id: HabitId::new("h1"),
+                title: "Writing".into(),
+                cadence: Cadence::EveryDay,
+                archived: false,
+                unpinned: false,
+                outcome: None,
+            }],
+        };
+        assert_eq!(
+            serde_json::to_string(&view).unwrap(),
+            r#"{"date":"2026-08-07","week":"2026-W32","tasks":[{"id":"t1","title":"File taxes","state":"open","importance":"high","urgency":"unclassified","deadline":"2026-08-06","overdue":true,"archived":false,"position":0}],"habits":[{"id":"h1","title":"Writing","cadence":{"kind":"everyDay"},"archived":false,"unpinned":false,"outcome":null}]}"#
+        );
     }
 }

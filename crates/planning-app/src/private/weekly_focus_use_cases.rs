@@ -11,10 +11,16 @@ impl PlanningApp {
     /// Creates an empty focus on first read so callers never branch on "does one exist".
     pub async fn weekly_focus(&self, week: CalendarWeek) -> Result<WeeklyFocus, AppError> {
         let key = WeeklyFocus::key(week);
-        if let Some(found) = self.load_one::<WeeklyFocus>(WeeklyFocusId::TABLE, &key).await? {
+        if let Some(found) = self
+            .load_one::<WeeklyFocus>(WeeklyFocusId::TABLE, &key)
+            .await?
+        {
             return Ok(found);
         }
-        let created = WeeklyFocus::start(StartFocus { week, clock: self.clock.as_ref() });
+        let created = WeeklyFocus::start(StartFocus {
+            week,
+            clock: self.clock.as_ref(),
+        });
         self.store(WeeklyFocusId::TABLE, &key, &created).await?;
         Ok(created)
     }
@@ -47,13 +53,10 @@ impl PlanningApp {
     }
 
     pub(crate) async fn require_selectable_task(&self, task: &TaskId) -> Result<(), AppError> {
-        let found = self
-            .task(task)
-            .await?
-            .ok_or(AppError::NotFound {
-                table: "task",
-                id: task.to_string(),
-            })?;
+        let found = self.task(task).await?.ok_or(AppError::NotFound {
+            table: "task",
+            id: task.to_string(),
+        })?;
         if !found.lifecycle.is_active() {
             return Err(AppError::NotSelectable {
                 reason: "the task is archived",
@@ -105,7 +108,13 @@ mod tests {
         .unwrap();
 
         assert_eq!(app.tasks().await.unwrap().len(), 1);
-        assert!(app.task(&task.id).await.unwrap().unwrap().lifecycle.is_active());
+        assert!(app
+            .task(&task.id)
+            .await
+            .unwrap()
+            .unwrap()
+            .lifecycle
+            .is_active());
     }
 
     #[tokio::test]

@@ -1,9 +1,7 @@
 use super::error::AppError;
 use super::service::PlanningApp;
 use chrono::NaiveDate;
-use planning_core::{
-    CheckInOutcome, HabitCheckIn, HabitCheckInId, HabitId, RecordCheckIn,
-};
+use planning_core::{CheckInOutcome, HabitCheckIn, HabitCheckInId, HabitId, RecordCheckIn};
 
 pub struct CheckInRequest {
     pub habit: HabitId,
@@ -20,17 +18,15 @@ impl PlanningApp {
     /// Records or corrects one Habit's outcome for one day. Deliberately does NOT
     /// check the habit's lifecycle or cadence: archived habits already in a plan
     /// stay completable, and any past day stays correctable (ADR 0002).
-    pub async fn record_check_in(
-        &self,
-        request: CheckInRequest,
-    ) -> Result<HabitCheckIn, AppError> {
+    pub async fn record_check_in(&self, request: CheckInRequest) -> Result<HabitCheckIn, AppError> {
         let record = HabitCheckIn::record(RecordCheckIn {
             habit: request.habit,
             date: request.date,
             outcome: request.outcome,
             clock: self.clock.as_ref(),
         });
-        self.store(HabitCheckInId::TABLE, record.id.as_str(), &record).await?;
+        self.store(HabitCheckInId::TABLE, record.id.as_str(), &record)
+            .await?;
         Ok(record)
     }
 
@@ -39,13 +35,11 @@ impl PlanningApp {
         habit: &HabitId,
         date: NaiveDate,
     ) -> Result<Option<HabitCheckIn>, AppError> {
-        self.load_one(HabitCheckInId::TABLE, &HabitCheckIn::key(habit, date)).await
+        self.load_one(HabitCheckInId::TABLE, &HabitCheckIn::key(habit, date))
+            .await
     }
 
-    pub async fn check_ins_between(
-        &self,
-        range: DateRange,
-    ) -> Result<Vec<HabitCheckIn>, AppError> {
+    pub async fn check_ins_between(&self, range: DateRange) -> Result<Vec<HabitCheckIn>, AppError> {
         Ok(self
             .load_all::<HabitCheckIn>(HabitCheckInId::TABLE)
             .await?
@@ -74,15 +68,33 @@ mod tests {
         let (_home, _drive, app, _clock) = app_on(7).await;
         let today = app.calendar().unwrap().today(app.clock_ref());
         let habit = app
-            .create_habit(NewHabit { title: "Writing".into(), cadence: Cadence::EveryDay })
+            .create_habit(NewHabit {
+                title: "Writing".into(),
+                cadence: Cadence::EveryDay,
+            })
             .await
             .unwrap();
 
-        for outcome in [CheckInOutcome::Done, CheckInOutcome::Skipped, CheckInOutcome::NotCompleted] {
-            app.record_check_in(CheckInRequest { habit: habit.id.clone(), date: today, outcome })
-                .await
-                .unwrap();
-            assert_eq!(app.check_in_for(&habit.id, today).await.unwrap().unwrap().outcome, outcome);
+        for outcome in [
+            CheckInOutcome::Done,
+            CheckInOutcome::Skipped,
+            CheckInOutcome::NotCompleted,
+        ] {
+            app.record_check_in(CheckInRequest {
+                habit: habit.id.clone(),
+                date: today,
+                outcome,
+            })
+            .await
+            .unwrap();
+            assert_eq!(
+                app.check_in_for(&habit.id, today)
+                    .await
+                    .unwrap()
+                    .unwrap()
+                    .outcome,
+                outcome
+            );
         }
     }
 
@@ -91,13 +103,18 @@ mod tests {
         let (_home, _drive, app, clock) = app_on(7).await;
         let today = app.calendar().unwrap().today(app.clock_ref());
         let habit = app
-            .create_habit(NewHabit { title: "Writing".into(), cadence: Cadence::EveryDay })
+            .create_habit(NewHabit {
+                title: "Writing".into(),
+                cadence: Cadence::EveryDay,
+            })
             .await
             .unwrap();
         let yesterday = today - Duration::days(1);
 
         app.record_check_in(CheckInRequest {
-            habit: habit.id.clone(), date: yesterday, outcome: CheckInOutcome::NotCompleted,
+            habit: habit.id.clone(),
+            date: yesterday,
+            outcome: CheckInOutcome::NotCompleted,
         })
         .await
         .unwrap();
@@ -105,17 +122,29 @@ mod tests {
         clock.advance(Duration::days(5));
         // Still correctable days later (ADR 0002).
         app.record_check_in(CheckInRequest {
-            habit: habit.id.clone(), date: yesterday, outcome: CheckInOutcome::Done,
+            habit: habit.id.clone(),
+            date: yesterday,
+            outcome: CheckInOutcome::Done,
         })
         .await
         .unwrap();
 
         assert_eq!(
-            app.check_in_for(&habit.id, yesterday).await.unwrap().unwrap().outcome,
+            app.check_in_for(&habit.id, yesterday)
+                .await
+                .unwrap()
+                .unwrap()
+                .outcome,
             CheckInOutcome::Done
         );
         assert_eq!(
-            app.check_ins_between(DateRange { from: yesterday, to: yesterday }).await.unwrap().len(),
+            app.check_ins_between(DateRange {
+                from: yesterday,
+                to: yesterday
+            })
+            .await
+            .unwrap()
+            .len(),
             1
         );
     }
@@ -125,7 +154,10 @@ mod tests {
         let (_home, _drive, app, _clock) = app_on(7).await;
         let today = app.calendar().unwrap().today(app.clock_ref());
         let habit = app
-            .create_habit(NewHabit { title: "Writing".into(), cadence: Cadence::EveryDay })
+            .create_habit(NewHabit {
+                title: "Writing".into(),
+                cadence: Cadence::EveryDay,
+            })
             .await
             .unwrap();
         app.open_today().await.unwrap();
@@ -135,7 +167,9 @@ mod tests {
         // A6: the entry remains and stays completable.
         assert!(app.open_today().await.unwrap().habits.contains(&habit.id));
         app.record_check_in(CheckInRequest {
-            habit: habit.id.clone(), date: today, outcome: CheckInOutcome::Done,
+            habit: habit.id.clone(),
+            date: today,
+            outcome: CheckInOutcome::Done,
         })
         .await
         .unwrap();

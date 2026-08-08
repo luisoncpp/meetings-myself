@@ -28,9 +28,7 @@ pub async fn ready_app_at(
 
 /// A fully set-up app: device settings in one temp dir, sync folder in another.
 pub async fn ready_app() -> (TempDir, TempDir, PlanningApp) {
-    let (home, drive, app, _clock) = ready_app_at(
-        Utc.with_ymd_and_hms(2026, 8, 7, 9, 0, 0).unwrap(),
-    )
-    .await;
+    let (home, drive, app, _clock) =
+        ready_app_at(Utc.with_ymd_and_hms(2026, 8, 7, 9, 0, 0).unwrap()).await;
     (home, drive, app)
 }
