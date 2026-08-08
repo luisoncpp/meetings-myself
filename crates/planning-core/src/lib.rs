@@ -3,7 +3,9 @@
 
 mod private;
 
+pub use private::calendar_week::{CalendarError, CalendarWeek};
 pub use private::clock::{Clock, FixedClock};
+pub use private::home_calendar::HomeCalendar;
 pub use private::ids::{
     AssociationId, DailyPlanId, GoalId, HabitCheckInId, HabitId, RecurringTaskId, TaskId, ValueId,
     WeeklyFocusId, WeeklyReviewId,
