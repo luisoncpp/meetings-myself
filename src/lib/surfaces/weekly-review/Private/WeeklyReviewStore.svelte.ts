@@ -1,8 +1,17 @@
 import type { LibraryView, WeeklyFocus, WeeklyReviewView } from '../../../domain';
 import * as api from '../../../api';
 import { nextWeek } from './week-nav';
+import {
+  commitReflectionSave,
+  createDebounce,
+  errorMessage,
+  loadReviewSideData,
+  REFLECTION_DEBOUNCE_MS,
+  runWeeklyReviewMutation,
+  type SaveState,
+} from './weekly-review-store-support';
 
-export type SaveState = 'saved' | 'unsaved' | 'saving';
+export type { SaveState };
 
 export class WeeklyReviewStore {
   #view = $state<WeeklyReviewView | null>(null);
@@ -13,47 +22,20 @@ export class WeeklyReviewStore {
   #saveState = $state<SaveState>('saved');
   #error = $state<string | null>(null);
   #loading = $state(false);
-  #debounceTimer: ReturnType<typeof setTimeout> | null = null;
+  #autosave = createDebounce(REFLECTION_DEBOUNCE_MS);
 
-  get view(): WeeklyReviewView | null {
-    return this.#view;
-  }
-
-  get currentWeek(): string {
-    return this.#currentWeek;
-  }
-
-  get library(): LibraryView | null {
-    return this.#library;
-  }
-
-  get focus(): WeeklyFocus | null {
-    return this.#focus;
-  }
-
-  get draftReflection(): string {
-    return this.#draftReflection;
-  }
-
-  get saveState(): SaveState {
-    return this.#saveState;
-  }
-
-  get loading(): boolean {
-    return this.#loading;
-  }
-
-  get error(): string | null {
-    return this.#error;
-  }
-
+  get view(): WeeklyReviewView | null { return this.#view; }
+  get currentWeek(): string { return this.#currentWeek; }
+  get library(): LibraryView | null { return this.#library; }
+  get focus(): WeeklyFocus | null { return this.#focus; }
+  get draftReflection(): string { return this.#draftReflection; }
+  get saveState(): SaveState { return this.#saveState; }
+  get loading(): boolean { return this.#loading; }
+  get error(): string | null { return this.#error; }
   get isHistorical(): boolean {
     return this.#view !== null && this.#currentWeek !== '' && this.#view.week !== this.#currentWeek;
   }
-
-  get focusWeek(): string {
-    return this.#view ? nextWeek(this.#view.week) : '';
-  }
+  get focusWeek(): string { return this.#view ? nextWeek(this.#view.week) : ''; }
 
   async load(): Promise<void> {
     this.#loading = true;
@@ -63,7 +45,7 @@ export class WeeklyReviewStore {
       await this.#applyReview(review);
       this.#error = null;
     } catch (failure) {
-      this.#error = message(failure);
+      this.#error = errorMessage(failure);
     } finally {
       this.#loading = false;
     }
@@ -80,7 +62,7 @@ export class WeeklyReviewStore {
       await this.#applyReview(review);
       this.#error = null;
     } catch (failure) {
-      this.#error = message(failure);
+      this.#error = errorMessage(failure);
     } finally {
       this.#loading = false;
     }
@@ -90,20 +72,22 @@ export class WeeklyReviewStore {
     this.#draftReflection = text;
     if (text === this.#view?.reflection) {
       this.#saveState = 'saved';
-      this.#clearDebounce();
+      this.#autosave.clear();
       return;
     }
     this.#saveState = 'unsaved';
-    this.#scheduleDebounce();
+    this.#autosave.schedule(/*autosave*/ () => {
+      void this.#saveNow();
+    });
   }
 
   onReflectionBlur(): void {
-    this.#clearDebounce();
+    this.#autosave.clear();
     void this.#saveNow();
   }
 
   destroy(): void {
-    this.#clearDebounce();
+    this.#autosave.clear();
     if (this.#saveState !== 'unsaved') return;
     void this.#saveNow();
   }
@@ -111,15 +95,12 @@ export class WeeklyReviewStore {
   async reloadLibrary(): Promise<void> {
     if (!this.#view) return;
     try {
-      const [library, focus] = await Promise.all([
-        api.library(/*includeArchived=*/false),
-        api.weeklyFocus(this.focusWeek),
-      ]);
+      const { library, focus } = await loadReviewSideData(this.#view.week);
       this.#library = library;
       this.#focus = focus;
       this.#error = null;
     } catch (failure) {
-      this.#error = message(failure);
+      this.#error = errorMessage(failure);
     }
   }
 
@@ -151,66 +132,45 @@ export class WeeklyReviewStore {
   }
 
   async #applyReview(review: WeeklyReviewView): Promise<void> {
-    this.#clearDebounce();
+    this.#autosave.clear();
     this.#view = review;
     this.#draftReflection = review.reflection;
     this.#saveState = 'saved';
-    const [library, focus] = await Promise.all([
-      api.library(/*includeArchived=*/false),
-      api.weeklyFocus(nextWeek(review.week)),
-    ]);
+    const { library, focus } = await loadReviewSideData(review.week);
     this.#library = library;
     this.#focus = focus;
   }
 
-  #scheduleDebounce(): void {
-    this.#clearDebounce();
-    this.#debounceTimer = setTimeout(/*autosave*/ () => {
-      void this.#saveNow();
-    }, /*delayInMs=*/2000);
-  }
-
-  #clearDebounce(): void {
-    if (this.#debounceTimer === null) return;
-    clearTimeout(this.#debounceTimer);
-    this.#debounceTimer = null;
-  }
-
   async #saveNow(): Promise<void> {
     const week = this.#view?.week;
-    if (!week || this.#draftReflection === this.#view?.reflection) {
+    const savedReflection = this.#view?.reflection ?? '';
+    if (!week || this.#draftReflection === savedReflection) {
       this.#saveState = 'saved';
       return;
     }
     this.#saveState = 'saving';
-    try {
-      await api.saveReflection(week, this.#draftReflection);
-      if (this.#view) {
-        this.#view = { ...this.#view, reflection: this.#draftReflection };
-      }
-      this.#saveState = 'saved';
-      this.#error = null;
-    } catch (failure) {
+    const outcome = await commitReflectionSave(week, this.#draftReflection, savedReflection);
+    if (outcome.status === 'failed') {
       this.#saveState = 'unsaved';
-      this.#error = message(failure);
+      this.#error = outcome.error;
+      return;
     }
+    if (this.#view) this.#view = { ...this.#view, reflection: outcome.reflection };
+    this.#saveState = 'saved';
+    this.#error = null;
   }
 
   async #mutate(mutation: () => Promise<unknown>): Promise<void> {
-    try {
-      await mutation();
-      this.#error = null;
-    } catch (failure) {
-      this.#error = message(failure);
+    const result = await runWeeklyReviewMutation(mutation, {
+      reloadLibrary: () => this.reloadLibrary(),
+      week: this.#view?.week,
+      preserveReflection: this.#draftReflection,
+    });
+    if (result.error) {
+      this.#error = result.error;
       return;
     }
-    await this.reloadLibrary();
-    if (!this.#view) return;
-    const review = await api.openWeeklyReview(this.#view.week);
-    this.#view = { ...review, reflection: this.#draftReflection };
+    this.#error = null;
+    if (result.view) this.#view = result.view;
   }
-}
-
-function message(failure: unknown): string {
-  return failure instanceof Error ? failure.message : String(failure);
 }

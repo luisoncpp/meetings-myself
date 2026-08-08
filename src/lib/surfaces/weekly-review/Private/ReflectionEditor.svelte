@@ -16,7 +16,7 @@
 
   function handleInput(event: Event): void {
     const target = event.currentTarget;
-    if (!('value' in target) || typeof target.value !== 'string') return;
+    if (target === null || !('value' in target) || typeof target.value !== 'string') return;
     oninput(target.value);
   }
 </script>

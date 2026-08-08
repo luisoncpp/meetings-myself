@@ -36,12 +36,12 @@
       {/if}
     </div>
   </div>
-  <div class="badges">
+  <div class="chips">
     {#if task.importance !== 'unclassified'}
-      <span class="badge">{CLASS_LABELS[task.importance]} importance</span>
+      <span class="chip">{CLASS_LABELS[task.importance]} importance</span>
     {/if}
     {#if task.urgency !== 'unclassified'}
-      <span class="badge">{CLASS_LABELS[task.urgency]} urgency</span>
+      <span class="chip">{CLASS_LABELS[task.urgency]} urgency</span>
     {/if}
   </div>
 </div>
@@ -73,14 +73,14 @@
     margin-top: var(--space-1);
   }
 
-  .badges {
+  .chips {
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-1);
     justify-content: flex-end;
   }
 
-  .badge {
+  .chip {
     font-size: var(--text-label);
     color: var(--color-ink-muted);
   }
