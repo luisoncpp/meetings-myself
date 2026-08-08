@@ -1,8 +1,10 @@
 pub mod association;
 pub mod cadence;
 pub mod calendar_week;
+pub mod check_in;
 pub mod classification;
 pub mod clock;
+pub mod daily_plan;
 pub mod domain_error;
 pub mod goal;
 pub mod habit;
@@ -12,3 +14,4 @@ pub mod lifecycle;
 pub mod system_clock;
 pub mod task;
 pub mod value;
+pub mod weekly_focus;

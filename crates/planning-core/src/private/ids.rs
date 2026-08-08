@@ -46,6 +46,7 @@ define_ids! {
     WeeklyFocusId => "weekly_focus",
     WeeklyReviewId => "weekly_review",
     HabitCheckInId => "habit_check_in",
+    OccurrenceId => "occurrence",
 }
 
 #[cfg(test)]
