@@ -46,3 +46,4 @@ Keep these docs operational. Prefer short tables, explicit file names, and seque
 | [opening-a-weekly-review.md](opening-a-weekly-review.md) | Weekly Review open → touch record → compute summary → regenerate report → project view |
 | [archiving-an-entity.md](archiving-an-entity.md) | Library archive → lifecycle mutate → no cascade, no delete |
 | [archiving-a-habit-already-in-a-plan.md](archiving-a-habit-already-in-a-plan.md) | Archive Habit in Library → plan entry stays, `archived: true`, still checkable |
+| [completing-a-task-from-the-daily-plan.md](completing-a-task-from-the-daily-plan.md) | Tick plan row → `complete_task` / `reopen_task` → home-zone date → reload → reprojection |

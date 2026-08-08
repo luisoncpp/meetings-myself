@@ -29,3 +29,4 @@ Avoid: "bug description + fix". Prefer: "what I learned that applies to future w
 | [surrealdb-records-via-json-value.md](surrealdb-records-via-json-value.md) | Generic Records round-trips via `serde_json::Value` for SurrealDB 3 | 2026-08-08 |
 | [record-keys-as-invariants.md](record-keys-as-invariants.md) | Record key is the uniqueness rule; `materialized_through` is a hint only | 2026-08-08 |
 | [app-owned-regions-in-user-owned-files.md](app-owned-regions-in-user-owned-files.md) | Co-own Markdown with humans: sacred bytes outside one comment region; parsing is the risk | 2026-08-08 |
+| [svelte-5-runes-need-the-svelte-ts-extension.md](svelte-5-runes-need-the-svelte-ts-extension.md) | `$state` only in `.svelte` / `.svelte.ts`; hoist `vi.mock` before dynamic store import | 2026-08-08 |

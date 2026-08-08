@@ -88,14 +88,14 @@ Translucent overlays (backdrop blur) are permitted **only** for transient layers
 
 ## 5. Components
 
-[To be documented when UI components exist. Seed expectations below guide the first implementation pass.]
+Shared primitives in `src/lib/ui`. Surface-specific rows (e.g. `PlanTaskRow`, `TaskRow`) compose them inside each surface module.
 
-Expected primitives once built:
-- **Task / Habit cards** — Keep-like scannability; Trello-like reorder affordance on Daily Plan lists.
-- **Library list rows** — dense but calm; archived state visible inline, not hidden.
-- **Primary action button** — solid gold on dark; rare on screen.
-- **Check-in controls** — three clear outcomes (Done / Skipped / Not completed) without streak counters or celebration animation.
-- **Navigation** — Daily Plan home prominent; Library and Weekly Review reachable without competing chrome.
+- **Button** — variants: `primary` | `secondary` | `quiet`. **Rule:** solid gold (`primary`) is rare — The One Accent Rule; only for the single primary action on a screen.
+- **Card** — prop: `interactive`. **Rule:** flat at rest; `--shadow-hover` appears only when `interactive` (Flat-By-Default Rule).
+- **ListRow** — slots: `leading`, `children`, `trailing`; props: `muted`, `onactivate`. **Rule:** library-density rows with optional keyboard activation (`Enter` / `Space`); muted styling for archived or completed entries without hiding them.
+- **StateFlag** — kinds: `archived` | `overdue` | `unpinned` | `completed`. **Rule:** every state has visible text — status is never conveyed by colour alone (Real State Rule).
+- **CheckInControl** — radiogroup for `done` | `skipped` | `notCompleted`. **Rule:** three honest outcomes, gold border on selection only — no streak counters, no celebration animation.
+- **OrderableList** — generic reorderable list (drag + Alt+Arrow keyboard). **Rule:** Trello-like sequencing affordance with live-region position announcements; used on Daily Plan task order only.
 
 ## 6. Do's and Don'ts
 
