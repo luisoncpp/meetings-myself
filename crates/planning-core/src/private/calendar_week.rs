@@ -20,7 +20,10 @@ pub struct CalendarWeek {
 impl CalendarWeek {
     pub fn containing(date: NaiveDate) -> Self {
         let iso = date.iso_week();
-        Self { iso_year: iso.year(), iso_week: iso.week() }
+        Self {
+            iso_year: iso.year(),
+            iso_week: iso.week(),
+        }
     }
 
     pub fn monday(&self) -> NaiveDate {
@@ -92,9 +95,18 @@ mod tests {
 
     #[test]
     fn iso_years_do_not_follow_the_calendar_year() {
-        assert_eq!(CalendarWeek::containing(date(2025, 12, 29)).label(), "2026-W01");
-        assert_eq!(CalendarWeek::containing(date(2025, 12, 28)).label(), "2025-W52");
-        assert_eq!(CalendarWeek::containing(date(2027, 1, 3)).label(), "2026-W53");
+        assert_eq!(
+            CalendarWeek::containing(date(2025, 12, 29)).label(),
+            "2026-W01"
+        );
+        assert_eq!(
+            CalendarWeek::containing(date(2025, 12, 28)).label(),
+            "2025-W52"
+        );
+        assert_eq!(
+            CalendarWeek::containing(date(2027, 1, 3)).label(),
+            "2026-W53"
+        );
     }
 
     #[test]
@@ -102,7 +114,12 @@ mod tests {
         let last = CalendarWeek::containing(date(2027, 1, 3));
         assert_eq!(last.label(), "2026-W53");
         assert_eq!(last.next().label(), "2027-W01");
-        assert_eq!(CalendarWeek::containing(date(2026, 1, 5)).previous().label(), "2026-W01");
+        assert_eq!(
+            CalendarWeek::containing(date(2026, 1, 5))
+                .previous()
+                .label(),
+            "2026-W01"
+        );
     }
 
     #[test]

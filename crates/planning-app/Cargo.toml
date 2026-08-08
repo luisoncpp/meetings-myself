@@ -1,15 +1,17 @@
 [package]
-name = "planning-core"
+name = "planning-app"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
 
 [dependencies]
+planning-core = { workspace = true }
+planning-store = { workspace = true }
 chrono = { workspace = true }
 chrono-tz = { workspace = true }
 serde = { workspace = true }
 thiserror = { workspace = true }
-uuid = { workspace = true }
 
 [dev-dependencies]
-serde_json = { workspace = true }
+tempfile = "3.27.0"
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }

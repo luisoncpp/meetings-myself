@@ -1,5 +1,10 @@
 [workspace]
-members = ["src-tauri", "crates/planning-core", "crates/planning-store"]
+members = [
+    "src-tauri",
+    "crates/planning-core",
+    "crates/planning-store",
+    "crates/planning-app",
+]
 resolver = "2"
 
 [workspace.package]
@@ -19,6 +24,7 @@ uuid = { version = "1.24.0", features = ["v7", "serde"] }
 aws-lc-sys = { version = "0.44", features = ["prebuilt-nasm"] }
 planning-core = { path = "crates/planning-core" }
 planning-store = { path = "crates/planning-store" }
+planning-app = { path = "crates/planning-app" }
 
 [profile.release]
 lto = true

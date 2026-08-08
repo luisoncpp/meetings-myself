@@ -57,9 +57,12 @@ mod tests {
 
         let second = Database::open(folder.path()).await.unwrap();
         let found: Option<Probe> = second.inner().select(("probe", "one")).await.unwrap();
-        assert_eq!(found, Some(Probe {
-            note: "hello".into(),
-        }));
+        assert_eq!(
+            found,
+            Some(Probe {
+                note: "hello".into(),
+            })
+        );
     }
 
     #[tokio::test]

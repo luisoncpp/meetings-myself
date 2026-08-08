@@ -67,7 +67,11 @@ mod tests {
 
         assert!(found.contains(&"CURRENT (1)".to_string()));
         assert!(found.contains(&"MANIFEST-000004 (conflicted copy 2026-08-06)".to_string()));
-        assert_eq!(found.len(), 2, "clean files must not be reported: {found:?}");
+        assert_eq!(
+            found.len(),
+            2,
+            "clean files must not be reported: {found:?}"
+        );
     }
 
     #[test]

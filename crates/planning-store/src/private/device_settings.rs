@@ -103,7 +103,10 @@ mod tests {
         assert_eq!(first.sync_folder, None);
 
         let second = file.load().unwrap();
-        assert_eq!(second.device_id, first.device_id, "device id must survive reload");
+        assert_eq!(
+            second.device_id, first.device_id,
+            "device id must survive reload"
+        );
     }
 
     #[test]

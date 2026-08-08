@@ -148,9 +148,15 @@ mod tests {
         let (_folder, database) = database().await;
         let clock = FixedClock::at(Utc.with_ymd_and_hms(2026, 8, 7, 9, 0, 0).unwrap());
         for zone in [Tz::Europe__Madrid, Tz::America__Los_Angeles] {
-            HomeSettingsRepository::set_zone(&database, SetZone { zone, clock: &clock })
-                .await
-                .unwrap();
+            HomeSettingsRepository::set_zone(
+                &database,
+                SetZone {
+                    zone,
+                    clock: &clock,
+                },
+            )
+            .await
+            .unwrap();
         }
         let reloaded = HomeSettingsRepository::load(&database).await.unwrap();
         assert_eq!(reloaded.home_zone, Some(Tz::America__Los_Angeles));

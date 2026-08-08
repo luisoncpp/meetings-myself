@@ -17,11 +17,22 @@ pub enum SetupGap {
 #[serde(tag = "status", rename_all = "camelCase")]
 pub enum StoreHealth {
     Ready,
-    SetupIncomplete { reason: SetupGap },
-    FolderMissing { path: PathBuf },
-    LockedByAnotherDevice { device_name: String, since: DateTime<Utc> },
-    SyncConflict { artifacts: Vec<PathBuf> },
-    Unreadable { detail: String },
+    SetupIncomplete {
+        reason: SetupGap,
+    },
+    FolderMissing {
+        path: PathBuf,
+    },
+    LockedByAnotherDevice {
+        device_name: String,
+        since: DateTime<Utc>,
+    },
+    SyncConflict {
+        artifacts: Vec<PathBuf>,
+    },
+    Unreadable {
+        detail: String,
+    },
 }
 
 pub struct Assessment {
@@ -34,7 +45,9 @@ impl StoreHealth {
     /// actually act on.
     pub fn assess(assessment: Assessment) -> Self {
         let Some(folder) = assessment.sync_folder else {
-            return Self::SetupIncomplete { reason: SetupGap::NoSyncFolder };
+            return Self::SetupIncomplete {
+                reason: SetupGap::NoSyncFolder,
+            };
         };
         if !folder.is_dir() {
             return Self::FolderMissing { path: folder };
@@ -44,7 +57,9 @@ impl StoreHealth {
             return Self::SyncConflict { artifacts };
         }
         if !assessment.home_zone_is_set {
-            return Self::SetupIncomplete { reason: SetupGap::NoHomeZone };
+            return Self::SetupIncomplete {
+                reason: SetupGap::NoHomeZone,
+            };
         }
         Self::Ready
     }
@@ -67,7 +82,9 @@ mod tests {
         });
         assert!(matches!(
             health,
-            StoreHealth::SetupIncomplete { reason: SetupGap::NoSyncFolder }
+            StoreHealth::SetupIncomplete {
+                reason: SetupGap::NoSyncFolder
+            }
         ));
     }
 
@@ -89,7 +106,9 @@ mod tests {
         });
         assert!(matches!(
             health,
-            StoreHealth::SetupIncomplete { reason: SetupGap::NoHomeZone }
+            StoreHealth::SetupIncomplete {
+                reason: SetupGap::NoHomeZone
+            }
         ));
     }
 
@@ -113,5 +132,17 @@ mod tests {
         });
         assert_eq!(health, StoreHealth::Ready);
         assert!(health.permits_writes());
+    }
+
+    #[test]
+    fn store_health_serializes_as_the_frontend_expects() {
+        let json = serde_json::to_string(&StoreHealth::SetupIncomplete {
+            reason: SetupGap::NoHomeZone,
+        })
+        .unwrap();
+        assert_eq!(
+            json,
+            r#"{"status":"setupIncomplete","reason":{"kind":"NoHomeZone"}}"#
+        );
     }
 }

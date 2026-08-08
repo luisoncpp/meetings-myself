@@ -66,10 +66,12 @@ impl WriterLock {
             device_name: settings.device_name.clone(),
             heartbeat_at: clock.now(),
         };
-        let text = serde_json::to_string(&record)
-            .map_err(|error| StoreHealth::Unreadable { detail: error.to_string() })?;
-        std::fs::write(&self.path, text)
-            .map_err(|error| StoreHealth::Unreadable { detail: error.to_string() })
+        let text = serde_json::to_string(&record).map_err(|error| StoreHealth::Unreadable {
+            detail: error.to_string(),
+        })?;
+        std::fs::write(&self.path, text).map_err(|error| StoreHealth::Unreadable {
+            detail: error.to_string(),
+        })
     }
 }
 

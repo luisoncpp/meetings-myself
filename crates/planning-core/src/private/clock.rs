@@ -14,7 +14,9 @@ pub struct FixedClock {
 
 impl FixedClock {
     pub fn at(instant: DateTime<Utc>) -> Self {
-        Self { instant: Mutex::new(instant) }
+        Self {
+            instant: Mutex::new(instant),
+        }
     }
 
     pub fn set(&self, instant: DateTime<Utc>) {
@@ -45,6 +47,9 @@ mod tests {
         assert_eq!(clock.now(), start);
 
         clock.advance(Duration::hours(3));
-        assert_eq!(clock.now(), Utc.with_ymd_and_hms(2026, 8, 6, 8, 0, 0).unwrap());
+        assert_eq!(
+            clock.now(),
+            Utc.with_ymd_and_hms(2026, 8, 6, 8, 0, 0).unwrap()
+        );
     }
 }
