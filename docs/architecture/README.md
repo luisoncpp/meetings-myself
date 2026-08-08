@@ -10,3 +10,4 @@ Covers only what's already implemented. For architecture docs of not implemented
 | [storage.md](storage.md) | `planning-core` / `planning-store` / `planning-app`, sync folder layout, `StoreHealth`, writer lock | Plan 0003 |
 | [planning-domain.md](planning-domain.md) | Values, Goals, Habits, Tasks, Associations, Library views, `Records` gateway | Plan 0004 |
 | [daily-planning.md](daily-planning.md) | Daily Plan, Weekly Focus, Habit Check-ins, Recurring Task materialization, record-key invariants | Plan 0005 |
+| [weekly-reports.md](weekly-reports.md) | Weekly Report files, summary region, preservation contract, `planning-reports` crate | Plan 0006 |

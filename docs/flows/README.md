@@ -43,5 +43,6 @@ Keep these docs operational. Prefer short tables, explicit file names, and seque
 |------|-------|
 | [opening-the-app.md](opening-the-app.md) | Launch → device settings → DB open → health assess → writer lock |
 | [opening-todays-plan.md](opening-todays-plan.md) | App open / date rollover → materialize → load-or-create plan → project |
+| [opening-a-weekly-review.md](opening-a-weekly-review.md) | Weekly Review open → touch record → compute summary → regenerate report → project view |
 | [archiving-an-entity.md](archiving-an-entity.md) | Library archive → lifecycle mutate → no cascade, no delete |
 | [archiving-a-habit-already-in-a-plan.md](archiving-a-habit-already-in-a-plan.md) | Archive Habit in Library → plan entry stays, `archived: true`, still checkable |
