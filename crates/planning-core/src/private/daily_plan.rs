@@ -110,7 +110,10 @@ mod tests {
     fn selecting_the_same_task_twice_does_not_duplicate_it() {
         let mut plan = plan();
         assert!(plan.select(TaskId::new("t1")));
-        assert!(!plan.select(TaskId::new("t1")), "second selection is a no-op");
+        assert!(
+            !plan.select(TaskId::new("t1")),
+            "second selection is a no-op"
+        );
         assert_eq!(plan.tasks, vec![TaskId::new("t1")]);
     }
 
@@ -122,7 +125,10 @@ mod tests {
         }
         assert!(plan.unselect(&TaskId::new("t2")));
         assert_eq!(plan.tasks, vec![TaskId::new("t1"), TaskId::new("t3")]);
-        assert!(!plan.unselect(&TaskId::new("t2")), "removing twice is a no-op");
+        assert!(
+            !plan.unselect(&TaskId::new("t2")),
+            "removing twice is a no-op"
+        );
     }
 
     #[test]
@@ -139,11 +145,7 @@ mod tests {
         ]));
         assert_eq!(
             plan.tasks,
-            vec![
-                TaskId::new("t3"),
-                TaskId::new("t1"),
-                TaskId::new("t2"),
-            ]
+            vec![TaskId::new("t3"), TaskId::new("t1"), TaskId::new("t2"),]
         );
 
         // A drag-and-drop bug must not be able to drop or invent entries.

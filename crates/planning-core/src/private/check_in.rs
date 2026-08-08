@@ -69,8 +69,7 @@ mod tests {
     }
 
     #[test]
-    fn recording_the_same_day_twice_produces_the_same_key_so_it_corrects_rather_than_appends()
-    {
+    fn recording_the_same_day_twice_produces_the_same_key_so_it_corrects_rather_than_appends() {
         let habit = HabitId::new("h1");
         let first = HabitCheckIn::record(RecordCheckIn {
             habit: habit.clone(),
