@@ -6,6 +6,7 @@ rust-version.workspace = true
 
 [dependencies]
 planning-core = { workspace = true }
+planning-reports = { workspace = true }
 planning-store = { workspace = true }
 chrono = { workspace = true }
 chrono-tz = { workspace = true }

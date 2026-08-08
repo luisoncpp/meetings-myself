@@ -25,3 +25,4 @@ pub use private::service::{PlanningApp, StartRequest};
 pub use private::views::{LibraryFilter, LibraryView, TaskState, TaskView};
 pub use private::views_entities::{GoalView, HabitView, ValueView};
 pub use private::weekly_focus_use_cases::FocusChange;
+pub use private::weekly_summary::{HabitSummary, WeeklySummary};
