@@ -1,3 +1,4 @@
+use super::health::StoreHealth;
 use std::path::PathBuf;
 use thiserror::Error;
 
@@ -14,6 +15,9 @@ pub enum StoreError {
 
     #[error("database error: {0}")]
     Database(String),
+
+    #[error("the synchronized data is not ready for writing")]
+    NotReady(StoreHealth),
 }
 
 impl From<surrealdb::Error> for StoreError {
