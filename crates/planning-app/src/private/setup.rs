@@ -1,6 +1,7 @@
 use super::error::AppError;
 use super::service::{PlanningApp, StartRequest};
 use chrono_tz::Tz;
+use planning_reports::WeeklyReportFile;
 use planning_store::{Database, DeviceSettingsFile, HomeSettingsRepository, SetZone, StoreHealth};
 use std::path::PathBuf;
 
@@ -13,6 +14,7 @@ impl PlanningApp {
             settings,
             clock: request.clock,
             database: None,
+            reports: None,
             home_zone: None,
             health: StoreHealth::Unreadable {
                 detail: "not opened".into(),
@@ -58,12 +60,14 @@ impl PlanningApp {
     pub async fn reconnect(&mut self) -> Result<StoreHealth, AppError> {
         self.lock = None;
         self.database = None;
+        self.reports = None;
         self.home_zone = None;
 
         let Some(folder) = self.settings.sync_folder.clone() else {
             self.health = self.assess();
             return Ok(self.health());
         };
+        self.reports = Some(WeeklyReportFile::at(folder.clone()));
         if folder.is_dir() {
             let database = Database::open(&folder).await?;
             self.home_zone = HomeSettingsRepository::load(&database).await?.home_zone;

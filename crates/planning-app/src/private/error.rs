@@ -1,4 +1,5 @@
 use planning_core::DomainError;
+use planning_reports::ReportError;
 use planning_store::{StoreError, StoreHealth};
 use thiserror::Error;
 
@@ -9,6 +10,9 @@ pub enum AppError {
 
     #[error(transparent)]
     Domain(#[from] DomainError),
+
+    #[error(transparent)]
+    Report(#[from] ReportError),
 
     #[error("the synchronized data is not ready: {0:?}")]
     NotReady(StoreHealth),

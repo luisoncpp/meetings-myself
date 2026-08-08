@@ -3,6 +3,7 @@ use chrono_tz::Tz;
 use planning_core::{
     Clock, Goal, GoalId, Habit, HabitId, HomeCalendar, Task, TaskId, Value, ValueId,
 };
+use planning_reports::WeeklyReportFile;
 use planning_store::{
     AcquireLock, Assessment, Database, DeviceSettings, DeviceSettingsFile, RecordKey, Records,
     StoreHealth, WriterLock,
@@ -21,6 +22,7 @@ pub struct PlanningApp {
     pub(crate) settings: DeviceSettings,
     pub(crate) clock: Arc<dyn Clock>,
     pub(crate) database: Option<Database>,
+    pub(crate) reports: Option<WeeklyReportFile>,
     pub(crate) home_zone: Option<Tz>,
     pub(crate) health: StoreHealth,
     pub(crate) lock: Option<WriterLock>,
@@ -52,6 +54,13 @@ impl PlanningApp {
             return Err(AppError::NotReady(self.health.clone()));
         }
         self.database.as_ref().ok_or(AppError::NoDatabase)
+    }
+
+    pub(crate) fn require_reports(&self) -> Result<&WeeklyReportFile, AppError> {
+        if !self.health.permits_writes() {
+            return Err(AppError::NotReady(self.health.clone()));
+        }
+        self.reports.as_ref().ok_or(AppError::NoDatabase)
     }
 
     /// Saves one record, refusing unless the store is Ready.
