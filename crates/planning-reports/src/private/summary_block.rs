@@ -22,6 +22,14 @@ impl SummaryBlock {
         format!("{before}{after}")
     }
 
+    pub fn extract(body: &str) -> Option<String> {
+        let start = body.find(Self::START)?;
+        let end_marker = body[start..].find(Self::END)? + start;
+        let content_start = start + Self::START.len();
+        let content = body[content_start..end_marker].strip_prefix('\n').unwrap_or(&body[content_start..]);
+        Some(content.trim_end().to_string())
+    }
+
     /// Splits into (text before the block, text after it). Returns None when the
     /// markers are absent or the start marker is unterminated — in both cases the
     /// safe move is to treat the whole body as the user's.
@@ -98,5 +106,14 @@ mod tests {
         let body = format!("{}\nunclosed\n\n## Reflection\n\nMine.\n", SummaryBlock::START);
         let updated = SummaryBlock::replace(&body, "new");
         assert!(updated.contains("Mine."), "a corrupt marker must not delete prose");
+    }
+
+    #[test]
+    fn extract_returns_the_summary_region_contents() {
+        let body = body_with_block();
+        assert_eq!(
+            SummaryBlock::extract(&body),
+            Some("## Week in review\n\nOld numbers.".into())
+        );
     }
 }
