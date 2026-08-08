@@ -41,3 +41,4 @@ Keep these docs operational. Prefer short tables, explicit file names, and seque
 
 | File | Scope |
 |------|-------|
+| [opening-the-app.md](opening-the-app.md) | Launch → device settings → DB open → health assess → writer lock |

@@ -35,3 +35,13 @@ The Daily Plan Launcher defaults to a 7:00 AM first attempt in the home time zon
 - **redb:** lightweight embedded key-value storage, but requires the app to implement document queries and relationship indexes.
 - **BonsaiDb:** Rust-native document database, but remains alpha with an explicit data-loss warning.
 - **NeDB:** Node.js-oriented and unsuitable for Tauri without a Node sidecar.
+
+## Amendments
+
+### 2026-08-08 — Cooperative writer lock (plan 0003)
+
+ADR 0001 required one active writer but did not specify detection. Implementation uses a `writer.lock` file in the Synchronization Folder: JSON with `device_id`, `device_name`, and `heartbeat_at`. Another device is refused while the heartbeat is fresher than 15 minutes; a stale lock (crash) can be taken over. Clean shutdown deletes the file. This is advisory — Google Drive provides no real locking — but sufficient for the "one device at a time" rule.
+
+### 2026-08-08 — Home time zone starts unset (plan 0003)
+
+The synchronized home time zone is stored in SurrealDB but begins as `None`. Setup is explicitly incomplete (`SetupIncomplete { NoHomeZone }`) until the user chooses a zone. No silent default to UTC or the device time zone.

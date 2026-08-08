@@ -7,3 +7,4 @@ Covers only what's already implemented. For architecture docs of not implemented
 | File | Subsystem | Notes |
 |------|-----------|-------|
 | [app-shell.md](app-shell.md) | Tauri + Svelte shell, crate graph, quality gates | Enforced by `tests/architecture.test.ts` |
+| [storage.md](storage.md) | `planning-core` / `planning-store` / `planning-app`, sync folder layout, `StoreHealth`, writer lock | Plan 0003 |

@@ -22,3 +22,4 @@ Avoid: "bug description + fix". Prefer: "what I learned that applies to future w
 | File | Topic | Date |
 |------|-------|------|
 | [surrealdb-rocksdb-windows-build-prerequisites.md](surrealdb-rocksdb-windows-build-prerequisites.md) | SurrealDB + RocksDB Windows build prerequisites (libclang, NASM) | 2026-08-08 |
+| [sync-safety-is-a-value-not-an-exception.md](sync-safety-is-a-value-not-an-exception.md) | `StoreHealth` as returned value, not per-write exceptions | 2026-08-08 |

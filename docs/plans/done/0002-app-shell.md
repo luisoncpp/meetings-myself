@@ -1045,4 +1045,4 @@ git commit -m "feat: add api deep module and document the app shell"
 - [x] `DESIGN.md` contains no `[to be resolved during implementation]` and no SEED comment.
 - [x] `docs/live/current-status.md` no longer claims a missing scaffold.
 
-**Next:** [0003-storage-and-settings.md](../0003-storage-and-settings.md).
+**Next:** [0003-storage-and-settings.md](done/0003-storage-and-settings.md).

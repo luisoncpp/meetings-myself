@@ -4,7 +4,7 @@
 > development) to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 >
 > Read [0001-self-planning-app.md](0001-self-planning-app.md) first. Requires
-> [0003-storage-and-settings.md](0003-storage-and-settings.md) to be complete.
+> [0003-storage-and-settings.md](done/0003-storage-and-settings.md) to be complete.
 
 **Goal:** Model Values, Goals, Habits, Tasks, and Associations with an archive-only reversible
 lifecycle, forward-only propagation, correctable outcomes, and overdue projection — exposed through

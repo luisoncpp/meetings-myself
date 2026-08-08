@@ -3,9 +3,9 @@
 > **For agentic workers:** REQUIRED SUB-SKILL: Use `executing-plans` (or subagent-driven
 > development) to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 >
-> Read [0001-self-planning-app.md](0001-self-planning-app.md) first — its **Global Constraints**
+> Read [0001-self-planning-app.md](../0001-self-planning-app.md) first — its **Global Constraints**
 > apply to every task here and are not repeated. Requires
-> [0002-app-shell.md](done/0002-app-shell.md) to be complete.
+> [0002-app-shell.md](0002-app-shell.md) to be complete.
 
 **Goal:** Make the app able to open a Synchronization Folder safely — embedded SurrealDB on
 RocksDB, device-local settings kept out of the sync folder, a synchronized home time zone that
@@ -24,7 +24,7 @@ path takes a `Ready` proof it cannot fabricate.
 
 ## Global constraints
 
-See [0001-self-planning-app.md](0001-self-planning-app.md#global-constraints). Additionally:
+See [0001-self-planning-app.md](../0001-self-planning-app.md#global-constraints). Additionally:
 
 - **No `Utc::now()` outside `system_clock.rs`.** Everything that needs the current instant takes
   `&dyn Clock`. `tests/architecture.test.ts` from plan 0002 enforces this.
@@ -2260,4 +2260,4 @@ git commit -m "docs: document storage architecture, open-app flow, and sync-safe
 - [ ] `tests/architecture.test.ts` still passes: no `Utc::now()` outside `system_clock.rs`, no
       `chrono::Local`, no `surrealdb` dependency in `src-tauri/Cargo.toml`.
 
-**Next:** [0004-planning-domain.md](0004-planning-domain.md).
+**Next:** [0004-planning-domain.md](../0004-planning-domain.md).
