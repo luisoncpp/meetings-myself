@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { Textarea } from '../../../ui';
   import type { SaveState } from './WeeklyReviewStore.svelte';
 
   interface Props {
@@ -26,13 +27,13 @@
     <h2>Reflection</h2>
     <span class="status" role="status">{statusLabel}</span>
   </div>
-  <textarea
+  <Textarea
     aria-label="Reflection"
-    rows="8"
+    rows={8}
     {value}
     oninput={/* edit */ handleInput}
     onblur={/* blur save */ onblur}
-  ></textarea>
+  />
 </section>
 
 <style>
@@ -50,7 +51,7 @@
 
   h2 {
     margin: 0;
-    font-size: var(--text-title);
+    font-size: var(--text-headline);
     font-weight: 600;
   }
 
@@ -59,15 +60,7 @@
     color: var(--color-ink-muted);
   }
 
-  textarea {
-    width: 100%;
-    box-sizing: border-box;
-    padding: var(--space-3);
-    border: 1px solid var(--color-hairline);
-    border-radius: var(--radius-card);
-    font-family: var(--font-sans);
-    font-size: var(--text-body);
-    line-height: 1.5;
-    resize: vertical;
+  .reflection :global(textarea) {
+    max-width: 65ch;
   }
 </style>

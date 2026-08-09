@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { LibraryView } from '../../../domain';
-  import { Button } from '../../../ui';
+  import { Button, Field, Input, Select } from '../../../ui';
   import type { WeeklyReviewStore } from './WeeklyReviewStore.svelte';
   import FocusPanel from './FocusPanel.svelte';
   import LinkPanel from './LinkPanel.svelte';
@@ -59,25 +59,23 @@
       void createGoal();
     }}
   >
-    <label>
-      Goal name
-      <input bind:value={goalTitle} aria-label="Goal name" />
-    </label>
+    <Field label="Goal name">
+      <Input bind:value={goalTitle} aria-label="Goal name" />
+    </Field>
     <Button type="submit" variant="primary" disabled={goalTitle.trim() === ''}>Create goal</Button>
   </form>
 {/if}
 
 {#if showAchieve}
   <div class="panel">
-    <label>
-      Goal
-      <select bind:value={selectedGoalId} aria-label="Goal to mark achieved">
+    <Field label="Goal">
+      <Select bind:value={selectedGoalId} aria-label="Goal to mark achieved">
         <option value="">Select…</option>
         {#each openGoals as goal (goal.id)}
           <option value={goal.id}>{goal.title}</option>
         {/each}
-      </select>
-    </label>
+      </Select>
+    </Field>
     <Button variant="primary" disabled={selectedGoalId === ''} onclick={/* achieve */ markAchieved}>
       Mark achieved
     </Button>
@@ -115,11 +113,4 @@
     border-radius: var(--radius-card);
   }
 
-  label {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-1);
-    font-size: var(--text-label);
-    color: var(--color-ink-muted);
-  }
 </style>

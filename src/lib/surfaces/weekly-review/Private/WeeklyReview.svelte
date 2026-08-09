@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { SurfaceLayout } from '../../../ui';
   import { WeeklyReviewStore } from './WeeklyReviewStore.svelte';
   import NextWeekFocus from './NextWeekFocus.svelte';
   import PreviousReport from './PreviousReport.svelte';
@@ -21,46 +22,45 @@
 {#if store}
   {@const activeStore = store}
   {#if activeStore.loading && !activeStore.view}
-    <p class="loading">Loading review…</p>
+    <SurfaceLayout>
+      <p class="loading">Loading review…</p>
+    </SurfaceLayout>
   {:else if activeStore.view && activeStore.library}
-  {@const view = activeStore.view!}
-  {@const library = activeStore.library!}
-  <section class="weekly-review" aria-labelledby="review-week">
-    <header class="top">
-      <h1 id="review-week">{view.week}</h1>
-      {#if activeStore.isHistorical}
-        <p class="historical">Viewing a past week — not the current one.</p>
-      {/if}
-    </header>
+    {@const view = activeStore.view}
+    {@const library = activeStore.library}
+    <SurfaceLayout aria-labelledby="review-week">
+      <section class="weekly-review">
+        <header class="top">
+          <h1 id="review-week">{view.week}</h1>
+          {#if activeStore.isHistorical}
+            <p class="historical">Viewing a past week — not the current one.</p>
+          {/if}
+        </header>
 
-    <WeekNav week={view.week} store={activeStore} />
+        <WeekNav week={view.week} store={activeStore} />
 
-    <ReviewActions store={activeStore} {library} focusWeek={activeStore.focusWeek} />
+        <ReviewActions store={activeStore} {library} focusWeek={activeStore.focusWeek} />
 
-    <PreviousReport body={view.previousReport} />
-    <SummarySection summary={view.summary} />
-    <ReflectionEditor
-      value={activeStore.draftReflection}
-      saveState={activeStore.saveState}
-      oninput={/* edit */ (text) => activeStore.setReflection(text)}
-      onblur={/* blur */ () => activeStore.onReflectionBlur()}
-    />
-    <NextWeekFocus tasks={view.nextWeekFocus} />
-    <ReportPath path={view.reportPath} />
+        <PreviousReport body={view.previousReport} />
+        <SummarySection summary={view.summary} />
+        <ReflectionEditor
+          value={activeStore.draftReflection}
+          saveState={activeStore.saveState}
+          oninput={/* edit */ (text) => activeStore.setReflection(text)}
+          onblur={/* blur */ () => activeStore.onReflectionBlur()}
+        />
+        <NextWeekFocus tasks={view.nextWeekFocus} />
+        <ReportPath path={view.reportPath} />
 
-    {#if activeStore.error}
-      <p class="error" role="alert">{activeStore.error}</p>
-    {/if}
-  </section>
+        {#if activeStore.error}
+          <p class="error" role="alert">{activeStore.error}</p>
+        {/if}
+      </section>
+    </SurfaceLayout>
   {/if}
 {/if}
 
 <style>
-  .weekly-review {
-    padding: var(--space-6);
-    max-width: 48rem;
-  }
-
   .top {
     margin-bottom: var(--space-2);
   }
@@ -79,7 +79,6 @@
 
   .loading {
     margin: 0;
-    padding: var(--space-6);
     color: var(--color-ink-muted);
   }
 

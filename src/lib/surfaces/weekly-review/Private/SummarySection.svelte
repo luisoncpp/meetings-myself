@@ -72,7 +72,7 @@
 
   h2 {
     margin: 0 0 var(--space-3);
-    font-size: var(--text-title);
+    font-size: var(--text-headline);
     font-weight: 600;
   }
 

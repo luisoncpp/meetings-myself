@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { Field, Input } from '../../../ui';
+
   interface Props {
     onsubmit: (title: string) => void;
   }
@@ -21,41 +23,20 @@
   }
 </script>
 
-<label class="field" for="quick-add">
-  <span class="label">Add a task</span>
-  <input
-    id="quick-add"
-    type="text"
-    bind:value={draft}
-    onkeydown={handleKeydown}
-    autocomplete="off"
-  />
-</label>
+<div class="quick-add">
+  <Field label="Add a task" forId="quick-add">
+    <Input
+      id="quick-add"
+      type="text"
+      bind:value={draft}
+      onkeydown={handleKeydown}
+      autocomplete="off"
+    />
+  </Field>
+</div>
 
 <style>
-  .field {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2);
+  .quick-add {
     margin-bottom: var(--space-3);
-  }
-
-  .label {
-    font-size: var(--text-caption);
-    color: var(--color-ink-muted);
-  }
-
-  input {
-    padding: var(--space-2) var(--space-3);
-    border: 1px solid var(--color-hairline);
-    border-radius: var(--radius-control);
-    background: var(--color-raised);
-    color: var(--color-ink);
-    font: inherit;
-  }
-
-  input:focus-visible {
-    outline: 2px solid var(--color-gold);
-    outline-offset: 2px;
   }
 </style>

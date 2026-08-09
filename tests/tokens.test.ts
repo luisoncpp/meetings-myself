@@ -1,7 +1,15 @@
-import { readFileSync } from 'node:fs';
+import { globSync, readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 
 const css = readFileSync('src/styles/tokens.css', 'utf8');
+
+function definedTokens(source: string): Set<string> {
+  return new Set([...source.matchAll(/^\s*--([a-zA-Z0-9-]+):/gm)].map((match) => match[1]!));
+}
+
+function customPropertiesIn(text: string): string[] {
+  return [...text.matchAll(/var\(\s*--([a-zA-Z0-9-]+)/g)].map((match) => match[1]!);
+}
 
 function token(name: string): string {
   const match = css.match(new RegExp(`--${name}:\\s*(#[0-9A-Fa-f]{6})`));
@@ -45,5 +53,16 @@ describe('design tokens', () => {
   it('defines the fixed type scale without fluid clamp', () => {
     expect(css).toMatch(/--text-display:\s*1\.75rem/);
     expect(css).not.toMatch(/clamp\(/);
+  });
+
+  it('only references custom properties defined in tokens.css', () => {
+    const defined = definedTokens(css);
+    const undefinedRefs = globSync('src/**/*.svelte').flatMap((path) => {
+      const text = readFileSync(path, 'utf8');
+      return customPropertiesIn(text)
+        .filter((name) => !defined.has(name))
+        .map((name) => `${path}: --${name}`);
+    });
+    expect(undefinedRefs).toEqual([]);
   });
 });

@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { Association, AssociationEnd, LibraryView } from '../../../domain';
-  import { Button, InsetPanel } from '../../../ui';
+  import { Button, Field, InsetPanel, Select } from '../../../ui';
   import * as api from '../../../api';
   import {
     candidatesFor,
@@ -68,36 +68,34 @@
 
 <InsetPanel title="Link associations" label="Association editor">
   <div class="pickers">
-    <label>
-      <span class="label">From</span>
-      <select bind:value={fromKind}>
+    <Field label="From">
+      <Select bind:value={fromKind}>
         <option value="value">Value</option>
         <option value="goal">Goal</option>
         <option value="habit">Habit</option>
         <option value="task">Task</option>
-      </select>
-      <select bind:value={fromId}>
+      </Select>
+      <Select bind:value={fromId}>
         <option value="">Select…</option>
         {#each entitiesFor(fromKind) as item (item.id)}
           <option value={item.id}>{item.title}</option>
         {/each}
-      </select>
-    </label>
+      </Select>
+    </Field>
 
-    <label>
-      <span class="label">To</span>
-      <select bind:value={toKind}>
+    <Field label="To">
+      <Select bind:value={toKind}>
         {#each allowedTargets as kind (kind)}
           <option value={kind}>{kind}</option>
         {/each}
-      </select>
-      <select bind:value={toId}>
+      </Select>
+      <Select bind:value={toId}>
         <option value="">Select…</option>
         {#each candidatesFor(view, toKind) as end (end.id)}
           <option value={end.id}>{entityTitle(view, end)}</option>
         {/each}
-      </select>
-    </label>
+      </Select>
+    </Field>
   </div>
 
   <Button variant="primary" disabled={fromId === '' || toId === ''} onclick={/* link */ linkEntities}>
@@ -128,13 +126,6 @@
     flex-wrap: wrap;
     gap: var(--space-3);
     margin-bottom: var(--space-3);
-  }
-
-  .label {
-    display: block;
-    font-size: var(--text-label);
-    color: var(--color-ink-muted);
-    margin-bottom: var(--space-1);
   }
 
   .links {

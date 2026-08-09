@@ -12,9 +12,16 @@
     getId: (item: T) => string;
     onreorder: (order: string[]) => void;
     children: Snippet<[T]>;
+    label?: string;
   }
 
-  let { items, getId, onreorder, children }: Props = $props();
+  let {
+    items,
+    getId,
+    onreorder,
+    children,
+    label = 'Reorderable list',
+  }: Props = $props();
 
   let focusedIndex = $state(0);
   let statusMessage = $state('');
@@ -93,30 +100,40 @@
   }
 </script>
 
-<div role="listbox" class="list">
+<ul aria-label={label} class="list">
   {#each items as item, index (getId(item))}
-    <div
+  {@const id = getId(item)}
+    <li
       bind:this={rowRefs[index]}
-      role="option"
-      aria-label={getId(item)}
-      aria-selected={index === focusedIndex}
+      aria-label={id}
+      aria-grabbed={dragId === id ? true : undefined}
       tabindex={index === focusedIndex ? 0 : -1}
-      class="option"
-      class:dragging={dragId === getId(item)}
-      draggable={/*enable pointer reorder=*/true}
+      class="item"
+      class:dragging={dragId === id}
       onfocus={/*sync roving tabindex=*/() => {
         focusedIndex = index;
       }}
       onkeydown={(event) => handleKeydown(event, index)}
-      ondragstart={(event) => handleDragStart(event, getId(item))}
       ondragover={handleDragOver}
-      ondrop={(event) => handleDrop(event, getId(item))}
-      ondragend={handleDragEnd}
+      ondrop={(event) => handleDrop(event, id)}
     >
-      {@render children(item)}
-    </div>
+      <button
+        type="button"
+        class="handle"
+        tabindex={-1}
+        aria-label="Reorder {id}"
+        draggable={/*enable pointer reorder=*/true}
+        ondragstart={(event) => handleDragStart(event, id)}
+        ondragend={handleDragEnd}
+      >
+        <span class="grip" aria-hidden="true">⋮⋮</span>
+      </button>
+      <div class="content">
+        {@render children(item)}
+      </div>
+    </li>
   {/each}
-</div>
+</ul>
 
 <div role="status" aria-live="polite" class="status">{statusMessage}</div>
 
@@ -125,25 +142,57 @@
     display: flex;
     flex-direction: column;
     gap: var(--space-1);
+    margin: 0;
+    padding: 0;
+    list-style: none;
   }
 
-  .option {
-    padding: var(--space-2) var(--space-3);
-    border: 1px solid var(--color-hairline);
+  .item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
     border-radius: var(--radius-control);
-    background: var(--color-lift);
-    color: var(--color-ink);
-    cursor: grab;
     transition: opacity var(--duration-state) var(--ease-out);
   }
 
-  .option:focus-visible {
+  .item:focus-visible {
     outline: none;
     box-shadow: var(--focus-ring);
   }
 
   .dragging {
     opacity: 0.6;
+  }
+
+  .handle {
+    flex-shrink: 0;
+    padding: var(--space-2);
+    border: none;
+    border-radius: var(--radius-control);
+    background: none;
+    color: var(--color-ink-muted);
+    font: inherit;
+    cursor: grab;
+    transition: color var(--duration-fast) var(--ease-out);
+  }
+
+  .handle:hover {
+    color: var(--color-ink);
+  }
+
+  .handle:active {
+    cursor: grabbing;
+  }
+
+  .grip {
+    display: block;
+    font-size: var(--text-label);
+    line-height: 1;
+  }
+
+  .content {
+    flex: 1;
+    min-width: 0;
   }
 
   .status {

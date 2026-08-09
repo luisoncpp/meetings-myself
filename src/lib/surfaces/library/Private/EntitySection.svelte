@@ -88,7 +88,7 @@
 
   h2 {
     margin: 0;
-    font-size: var(--text-title);
+    font-size: var(--text-headline);
     font-weight: 600;
   }
 

@@ -1,7 +1,12 @@
 export { default as Button } from './Private/Button.svelte';
 export { default as Card } from './Private/Card.svelte';
 export { default as CheckInControl } from './Private/CheckInControl.svelte';
+export { default as Field } from './Private/Field.svelte';
+export { default as Input } from './Private/Input.svelte';
 export { default as InsetPanel } from './Private/InsetPanel.svelte';
 export { default as ListRow } from './Private/ListRow.svelte';
 export { default as OrderableList } from './Private/OrderableList.svelte';
+export { default as Select } from './Private/Select.svelte';
 export { default as StateFlag } from './Private/StateFlag.svelte';
+export { default as SurfaceLayout } from './Private/SurfaceLayout.svelte';
+export { default as Textarea } from './Private/Textarea.svelte';

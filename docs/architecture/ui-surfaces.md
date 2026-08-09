@@ -28,7 +28,7 @@ src/lib/
 ├── domain/        ← TypeScript mirror of Rust read models
 ├── shell/         ← AppShell, health gate, navigation, surface routing
 ├── surfaces/      ← daily-plan, library, weekly-review, setup
-└── ui/            ← shared primitives (Button, Card, ListRow, …)
+└── ui/            ← shared primitives (see below)
 ```
 
 Nothing under `src/` except `api/Private/bridge.ts` may import `@tauri-apps/api`.
@@ -62,6 +62,12 @@ Writes are refused server-side when health is not `ready`; the gate keeps the UI
 | `surfaces/setup` | `SetupStore` | `chooseSyncFolder`, `setHomeZone`, `pickSyncFolder` |
 
 Shared UI primitives live in `src/lib/ui`; surface-specific rows and panels stay inside each surface's `Private/`.
+
+**Layout:** `SurfaceLayout` — content column with `max-width: min(var(--content-max-width), 100%)` and horizontal padding; used by Daily Plan, Library, Weekly Review, and Setup.
+
+**Forms:** `Field`, `Input`, `Select`, `Textarea` — labelled controls with token-backed borders and backgrounds.
+
+**Other:** `Button`, `Card`, `ListRow`, `OrderableList`, `CheckInControl`, `StateFlag`, `InsetPanel`.
 
 ## Accessibility
 

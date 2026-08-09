@@ -21,6 +21,7 @@
   }
 
   .filename {
-    font-family: var(--font-mono, monospace);
+    font-family: var(--font-sans);
+    font-variant-numeric: tabular-nums;
   }
 </style>

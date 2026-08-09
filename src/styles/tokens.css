@@ -35,8 +35,12 @@
   --space-2: 0.5rem;
   --space-3: 0.75rem;
   --space-4: 1rem;
+  --space-5: 1.25rem;
   --space-6: 1.5rem;
   --space-8: 2rem;
+
+  /* Layout — shared content column width */
+  --content-max-width: 72rem;
 
   /* Shape — cards top out at 16px; pills are for tags and compact buttons only */
   --radius-card: 12px;
@@ -78,4 +82,10 @@ body {
 :focus-visible {
   outline: none;
   box-shadow: var(--focus-ring);
+}
+
+input[type='checkbox'] {
+  accent-color: var(--color-gold);
+  width: 1rem;
+  height: 1rem;
 }

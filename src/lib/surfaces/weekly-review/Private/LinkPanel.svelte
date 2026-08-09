@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { AssociationEnd, LibraryView } from '../../../domain';
-  import { Button, InsetPanel } from '../../../ui';
+  import { Button, Field, InsetPanel, Select } from '../../../ui';
   import type { WeeklyReviewStore } from './WeeklyReviewStore.svelte';
 
   type EntityKind = AssociationEnd['kind'];
@@ -48,35 +48,33 @@
 
 <InsetPanel title="Link association" label="Association editor">
   <div class="pickers">
-    <label>
-      From
-      <select bind:value={fromKind}>
+    <Field label="From">
+      <Select bind:value={fromKind}>
         <option value="value">Value</option>
         <option value="goal">Goal</option>
         <option value="habit">Habit</option>
         <option value="task">Task</option>
-      </select>
-      <select bind:value={fromId}>
+      </Select>
+      <Select bind:value={fromId}>
         <option value="">Select…</option>
         {#each entities(fromKind) as item (item.id)}
           <option value={item.id}>{item.title}</option>
         {/each}
-      </select>
-    </label>
-    <label>
-      To
-      <select bind:value={toKind}>
+      </Select>
+    </Field>
+    <Field label="To">
+      <Select bind:value={toKind}>
         {#each allowed as kind (kind)}
           <option value={kind}>{kind}</option>
         {/each}
-      </select>
-      <select bind:value={toId}>
+      </Select>
+      <Select bind:value={toId}>
         <option value="">Select…</option>
         {#each entities(toKind) as item (item.id)}
           <option value={item.id}>{item.title}</option>
         {/each}
-      </select>
-    </label>
+      </Select>
+    </Field>
   </div>
   <Button variant="primary" disabled={fromId === '' || toId === ''} onclick={/* link */ link}>
     Link
@@ -93,13 +91,5 @@
     flex-wrap: wrap;
     gap: var(--space-3);
     margin-bottom: var(--space-3);
-  }
-
-  label {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-1);
-    font-size: var(--text-label);
-    color: var(--color-ink-muted);
   }
 </style>

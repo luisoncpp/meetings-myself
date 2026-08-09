@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { Cadence, HabitView, Weekday } from '../../../domain';
-  import { Button, ListRow, StateFlag } from '../../../ui';
+  import { Button, Field, ListRow, Select, StateFlag } from '../../../ui';
   import { STRENGTH_OPTIONS, WEEKDAYS } from './labels';
   import type { LibraryStore } from './LibraryStore.svelte';
 
@@ -56,9 +56,8 @@
       {#if habit.archived}
         <StateFlag kind="archived" />
       {:else}
-        <label class="field">
-          <span class="label">Habit Strength</span>
-          <select
+        <Field label="Habit Strength">
+          <Select
             aria-label="Habit Strength"
             value={habit.strength}
             onchange={/* set strength */ onStrengthChange}
@@ -66,8 +65,8 @@
             {#each STRENGTH_OPTIONS as option (option.value)}
               <option value={option.value}>{option.label}</option>
             {/each}
-          </select>
-        </label>
+          </Select>
+        </Field>
         <fieldset class="cadence">
           <legend>Cadence</legend>
           {#each WEEKDAYS as day (day.value)}
@@ -110,16 +109,10 @@
     font-weight: 500;
   }
 
-  .field,
   .pinned {
     display: flex;
-    flex-direction: column;
-    gap: var(--space-1);
-  }
-
-  .label {
-    font-size: var(--text-label);
-    color: var(--color-ink-muted);
+    align-items: center;
+    gap: var(--space-2);
   }
 
   .cadence {

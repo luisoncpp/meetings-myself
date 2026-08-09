@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Button } from '../../../ui';
+  import { Button, SurfaceLayout } from '../../../ui';
   import AssociationEditor from './AssociationEditor.svelte';
   import EntitySection from './EntitySection.svelte';
   import type { CreatePayload } from './CreateEntity.svelte';
@@ -48,108 +48,113 @@
   }
 </script>
 
-{#if store?.view}
+{#if store}
   {@const activeStore = store}
-  {@const view = activeStore.view!}
-  <section class="library" aria-labelledby="library-heading">
-    <header class="top">
-      <h1 id="library-heading">Library</h1>
-      <label class="archived-toggle">
-        <input
-          type="checkbox"
-          role="switch"
-          checked={activeStore.includeArchived}
-          onchange={/* toggle archived */ (event) =>
-            void activeStore.setIncludeArchived((event.currentTarget as HTMLInputElement).checked)}
+  {#if activeStore.loading && !activeStore.view}
+    <SurfaceLayout>
+      <p class="loading">Loading library…</p>
+    </SurfaceLayout>
+  {:else if activeStore.view}
+    {@const view = activeStore.view}
+    <SurfaceLayout aria-labelledby="library-heading">
+      <section class="library">
+        <header class="top">
+          <h1 id="library-heading">Library</h1>
+          <label class="archived-toggle">
+            <input
+              type="checkbox"
+              role="switch"
+              checked={activeStore.includeArchived}
+              onchange={/* toggle archived */ (event) =>
+                void activeStore.setIncludeArchived((event.currentTarget as HTMLInputElement).checked)}
+            />
+            Show archived
+          </label>
+        </header>
+
+        <div class="toolbar">
+          <Button variant="primary" onclick={/* new goal */ () => startCreate('goal')}>
+            New goal
+          </Button>
+          <Button variant="secondary" onclick={/* mark achieved */ markSelectedAchieved}>
+            Mark achieved
+          </Button>
+          <Button variant="secondary" onclick={/* open link editor */ () => (showLink = !showLink)}>
+            Link
+          </Button>
+          <Button variant="secondary" onclick={/* open weekly focus */ () => (showFocus = !showFocus)}>
+            Weekly focus
+          </Button>
+        </div>
+
+        {#if showLink}
+          <AssociationEditor {view} store={activeStore} onclose={/* close */ () => (showLink = false)} />
+        {/if}
+
+        {#if showFocus}
+          <WeeklyFocusPanel
+            {view}
+            store={activeStore}
+            week={activeStore.week}
+            onclose={/* close */ () => (showFocus = false)}
+          />
+        {/if}
+
+        <EntitySection
+          kind="value"
+          title="Values"
+          emptyLabel="No values yet."
+          store={activeStore}
+          {creating}
+          onstartCreate={startCreate}
+          oncreate={/* create */ (payload) => void handleCreate(payload)}
+          oncancelCreate={cancelCreate}
         />
-        Show archived
-      </label>
-    </header>
 
-    <div class="toolbar">
-      <Button variant="primary" onclick={/* new goal */ () => startCreate('goal')}>New goal</Button>
-      <Button variant="secondary" onclick={/* mark achieved */ markSelectedAchieved}>
-        Mark achieved
-      </Button>
-      <Button variant="secondary" onclick={/* open link editor */ () => (showLink = !showLink)}>
-        Link
-      </Button>
-      <Button variant="secondary" onclick={/* open weekly focus */ () => (showFocus = !showFocus)}>
-        Weekly focus
-      </Button>
-    </div>
+        <EntitySection
+          kind="goal"
+          title="Goals"
+          emptyLabel="No goals yet."
+          store={activeStore}
+          {selectedGoalId}
+          onselectGoal={/* select */ (goalId) => (selectedGoalId = goalId)}
+          {creating}
+          onstartCreate={startCreate}
+          oncreate={/* create */ (payload) => void handleCreate(payload)}
+          oncancelCreate={cancelCreate}
+        />
 
-    {#if showLink}
-      <AssociationEditor {view} store={activeStore} onclose={/* close */ () => (showLink = false)} />
-    {/if}
+        <EntitySection
+          kind="habit"
+          title="Habits"
+          emptyLabel="No habits yet."
+          store={activeStore}
+          {creating}
+          onstartCreate={startCreate}
+          oncreate={/* create */ (payload) => void handleCreate(payload)}
+          oncancelCreate={cancelCreate}
+        />
 
-    {#if showFocus}
-      <WeeklyFocusPanel
-        {view}
-        store={activeStore}
-        week={activeStore.week}
-        onclose={/* close */ () => (showFocus = false)}
-      />
-    {/if}
+        <EntitySection
+          kind="task"
+          title="Tasks"
+          emptyLabel="No tasks yet."
+          store={activeStore}
+          {creating}
+          onstartCreate={startCreate}
+          oncreate={/* create */ (payload) => void handleCreate(payload)}
+          oncancelCreate={cancelCreate}
+        />
 
-    <EntitySection
-      kind="value"
-      title="Values"
-      emptyLabel="No values yet."
-      store={activeStore}
-      {creating}
-      onstartCreate={startCreate}
-      oncreate={/* create */ (payload) => void handleCreate(payload)}
-      oncancelCreate={cancelCreate}
-    />
-
-    <EntitySection
-      kind="goal"
-      title="Goals"
-      emptyLabel="No goals yet."
-      store={activeStore}
-      {selectedGoalId}
-      onselectGoal={/* select */ (goalId) => (selectedGoalId = goalId)}
-      {creating}
-      onstartCreate={startCreate}
-      oncreate={/* create */ (payload) => void handleCreate(payload)}
-      oncancelCreate={cancelCreate}
-    />
-
-    <EntitySection
-      kind="habit"
-      title="Habits"
-      emptyLabel="No habits yet."
-      store={activeStore}
-      {creating}
-      onstartCreate={startCreate}
-      oncreate={/* create */ (payload) => void handleCreate(payload)}
-      oncancelCreate={cancelCreate}
-    />
-
-    <EntitySection
-      kind="task"
-      title="Tasks"
-      emptyLabel="No tasks yet."
-      store={activeStore}
-      {creating}
-      onstartCreate={startCreate}
-      oncreate={/* create */ (payload) => void handleCreate(payload)}
-      oncancelCreate={cancelCreate}
-    />
-
-    {#if activeStore.error}
-      <p class="error" role="alert">{activeStore.error}</p>
-    {/if}
-  </section>
+        {#if activeStore.error}
+          <p class="error" role="alert">{activeStore.error}</p>
+        {/if}
+      </section>
+    </SurfaceLayout>
+  {/if}
 {/if}
 
 <style>
-  .library {
-    padding: var(--space-6);
-    max-width: 48rem;
-  }
-
   .top {
     display: flex;
     align-items: center;
@@ -177,6 +182,11 @@
     flex-wrap: wrap;
     gap: var(--space-2);
     margin-bottom: var(--space-4);
+  }
+
+  .loading {
+    margin: 0;
+    color: var(--color-ink-muted);
   }
 
   .error {

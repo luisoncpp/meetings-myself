@@ -49,6 +49,8 @@
     align-items: center;
     gap: var(--space-3);
     padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-control);
+    background: var(--color-raised);
   }
 
   .muted {
@@ -57,6 +59,11 @@
 
   .interactive {
     cursor: pointer;
+    transition: background-color var(--duration-fast) var(--ease-out);
+  }
+
+  .interactive:hover {
+    background: var(--color-lift);
   }
 
   .leading,

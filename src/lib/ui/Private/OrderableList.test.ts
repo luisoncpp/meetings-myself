@@ -1,14 +1,14 @@
-import { fireEvent, render, screen } from '@testing-library/svelte';
+import { fireEvent, render, screen, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import OrderableListHarness from './OrderableListHarness.svelte';
 
-describe('OrderableList', () => {
-  it('reorders from the keyboard and announces the result', async () => {
+describe('OrderableList keyboard', () => {
+  it('reorders from Alt+Arrow and announces the result', async () => {
     const onreorder = vi.fn();
     render(OrderableListHarness, { items: ['a', 'b', 'c'], onreorder });
 
-    const row = screen.getByRole('option', { name: 'b' });
+    const row = screen.getByRole('listitem', { name: 'b' });
     row.focus();
     await userEvent.keyboard('{Alt>}{ArrowUp}{/Alt}');
 
@@ -18,21 +18,30 @@ describe('OrderableList', () => {
 
   it('moves focus between rows with bare arrow keys', async () => {
     render(OrderableListHarness, { items: ['a', 'b', 'c'], onreorder: vi.fn() });
-    screen.getByRole('option', { name: 'a' }).focus();
+    screen.getByRole('listitem', { name: 'a' }).focus();
     await userEvent.keyboard('{ArrowDown}');
-    expect(screen.getByRole('option', { name: 'b' })).toHaveFocus();
+    expect(screen.getByRole('listitem', { name: 'b' })).toHaveFocus();
   });
+});
 
-  it('reorders by pointer drag', async () => {
+describe('OrderableList pointer and semantics', () => {
+  it('reorders by pointer drag on the handle', async () => {
     const onreorder = vi.fn();
     render(OrderableListHarness, { items: ['a', 'b', 'c'], onreorder });
 
-    const source = screen.getByRole('option', { name: 'c' });
-    const target = screen.getByRole('option', { name: 'a' });
-    await fireEvent.dragStart(source);
-    await fireEvent.dragOver(target);
-    await fireEvent.drop(target);
+    const sourceRow = screen.getByRole('listitem', { name: 'c' });
+    const targetRow = screen.getByRole('listitem', { name: 'a' });
+    const handle = within(sourceRow).getByRole('button', { name: 'Reorder c' });
+    await fireEvent.dragStart(handle);
+    await fireEvent.dragOver(targetRow);
+    await fireEvent.drop(targetRow);
 
     expect(onreorder).toHaveBeenCalledWith(['c', 'a', 'b']);
+  });
+
+  it('exposes list semantics with an accessible label', () => {
+    render(OrderableListHarness, { items: ['a'], onreorder: vi.fn() });
+    expect(screen.getByRole('list', { name: 'Reorderable list' })).toBeInTheDocument();
+    expect(screen.getAllByRole('listitem')).toHaveLength(1);
   });
 });

@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { TaskView } from '../../../domain';
+  import { Field, Input, Select } from '../../../ui';
   import { CLASSIFICATION_OPTIONS } from './labels';
 
   interface Props {
@@ -13,9 +14,8 @@
 </script>
 
 <div class="fields">
-  <label class="field">
-    <span class="label">Importance</span>
-    <select
+  <Field label="Importance">
+    <Select
       aria-label="Importance"
       value={task.importance}
       onchange={/* set importance */ onimportancechange}
@@ -23,11 +23,10 @@
       {#each CLASSIFICATION_OPTIONS as option (option.value)}
         <option value={option.value}>{option.label}</option>
       {/each}
-    </select>
-  </label>
-  <label class="field">
-    <span class="label">Urgency</span>
-    <select
+    </Select>
+  </Field>
+  <Field label="Urgency">
+    <Select
       aria-label="Urgency"
       value={task.urgency}
       onchange={/* set urgency */ onurgencychange}
@@ -35,17 +34,16 @@
       {#each CLASSIFICATION_OPTIONS as option (option.value)}
         <option value={option.value}>{option.label}</option>
       {/each}
-    </select>
-  </label>
-  <label class="field">
-    <span class="label">Deadline</span>
-    <input
+    </Select>
+  </Field>
+  <Field label="Deadline">
+    <Input
       type="date"
       aria-label="Deadline"
       value={task.deadline ?? ''}
       onchange={/* set deadline */ ondeadlinechange}
     />
-  </label>
+  </Field>
 </div>
 
 <style>
@@ -53,16 +51,5 @@
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-3);
-  }
-
-  .field {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-1);
-  }
-
-  .label {
-    font-size: var(--text-label);
-    color: var(--color-ink-muted);
   }
 </style>

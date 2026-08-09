@@ -20,11 +20,12 @@
 
   h2 {
     margin: 0 0 var(--space-2);
-    font-size: var(--text-title);
+    font-size: var(--text-headline);
     font-weight: 600;
   }
 
   .body {
+    max-width: 65ch;
     white-space: pre-wrap;
     font-size: var(--text-body);
     color: var(--color-ink-muted);

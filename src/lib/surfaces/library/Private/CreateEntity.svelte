@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { Cadence, Weekday } from '../../../domain';
-  import { Button } from '../../../ui';
+  import { Button, Field, Input } from '../../../ui';
   import { createButtonLabel, entityNameLabel } from './create-entity-copy';
   import CreateHabitCadence from './CreateHabitCadence.svelte';
   import type { EntityKind } from './associations';
@@ -66,16 +66,14 @@
 </script>
 
 <form class="create" onsubmit={/* create entity */ (event) => { event.preventDefault(); submit(); }}>
-  <label class="field">
-    <span class="label">{nameLabel}</span>
-    <input bind:value={title} aria-label={kind === 'habit' ? 'Habit name' : undefined} />
-  </label>
+  <Field label={nameLabel}>
+    <Input bind:value={title} aria-label={kind === 'habit' ? 'Habit name' : undefined} />
+  </Field>
 
   {#if kind === 'goal'}
-    <label class="field">
-      <span class="label">Target date</span>
-      <input type="date" bind:value={targetDate} aria-label="Target date" />
-    </label>
+    <Field label="Target date">
+      <Input type="date" bind:value={targetDate} aria-label="Target date" />
+    </Field>
   {/if}
 
   {#if kind === 'habit'}
@@ -94,17 +92,6 @@
     flex-direction: column;
     gap: var(--space-3);
     margin-bottom: var(--space-3);
-  }
-
-  .field {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-1);
-  }
-
-  .label {
-    font-size: var(--text-label);
-    color: var(--color-ink-muted);
   }
 
   .actions {

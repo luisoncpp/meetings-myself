@@ -1,5 +1,6 @@
 <script lang="ts">
   import { storeHealth, type StoreHealth } from '../../api';
+  import { SurfaceLayout } from '../../ui';
   import { Setup } from '../../surfaces/setup';
   import { DailyPlan } from '../../surfaces/daily-plan';
   import { Library } from '../../surfaces/library';
@@ -28,13 +29,17 @@
 
 <div class="shell">
   {#if health === null}
-    <!-- Waiting for the first health check — no surface content yet. -->
+    <SurfaceLayout>
+      <p class="loading">Loading…</p>
+    </SurfaceLayout>
   {:else if health.status === 'setupIncomplete'}
     <Setup {health} onready={refreshHealth} />
   {:else if health.status !== 'ready'}
-    <div class="health-gate">
-      <HealthBanner health={health} onretry={refreshHealth} />
-    </div>
+    <SurfaceLayout>
+      <div class="health-gate">
+        <HealthBanner health={health} onretry={refreshHealth} />
+      </div>
+    </SurfaceLayout>
   {:else if surface === 'weekly-review'}
     <WeeklyReview />
   {:else}
@@ -56,7 +61,8 @@
     font-size: var(--text-body);
   }
 
-  .health-gate {
-    padding: var(--space-6);
+  .loading {
+    margin: 0;
+    color: var(--color-ink-muted);
   }
 </style>
