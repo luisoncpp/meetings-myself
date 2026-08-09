@@ -9,6 +9,7 @@
   import { SurfaceLayout } from '../../../ui';
   import EntitySection from './EntitySection.svelte';
   import { LibraryStore } from './LibraryStore.svelte';
+  import RecurringTaskSection from './RecurringTaskSection.svelte';
 
   let store = $state<LibraryStore>();
   let creating = $state<EntityKind | null>(null);
@@ -132,6 +133,8 @@
           oncreate={/* create */ (payload) => void handleCreate(payload)}
           oncancelCreate={cancelCreate}
         />
+
+        <RecurringTaskSection store={activeStore} />
 
         {#if activeStore.error}
           <p class="error" role="alert">{activeStore.error}</p>

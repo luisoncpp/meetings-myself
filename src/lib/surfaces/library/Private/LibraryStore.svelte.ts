@@ -4,14 +4,18 @@ import type {
   Classification,
   HabitStrength,
   LibraryView,
+  Recurrence,
+  RecurringTask,
   TaskView,
   WeeklyFocus,
 } from '../../../domain';
 import * as api from '../../../api';
 import type { PlanningActionsHost } from '../../../planning-actions';
+import { libraryStoreMessage, runLibraryMutation } from './library-store-change';
 
 export class LibraryStore implements PlanningActionsHost {
   #view = $state<LibraryView | null>(null);
+  #recurringTasks = $state<RecurringTask[]>([]);
   #includeArchived = $state(false);
   #loading = $state(false);
   #error = $state<string | null>(null);
@@ -44,19 +48,30 @@ export class LibraryStore implements PlanningActionsHost {
     return this.#focus;
   }
 
+  // Used from RecurringTaskSection.svelte template.
+  // fallow-ignore-next-line unused-class-member
+  get recurringTasks(): RecurringTask[] {
+    if (this.#includeArchived) {
+      return this.#recurringTasks;
+    }
+    return this.#recurringTasks.filter((task) => task.lifecycle === 'active');
+  }
+
   async load(): Promise<void> {
     this.#loading = true;
     try {
-      const [view, today] = await Promise.all([
+      const [view, today, recurring] = await Promise.all([
         api.library(this.#includeArchived),
         api.todayView(),
+        api.recurringTasks(),
       ]);
       this.#view = view;
+      this.#recurringTasks = recurring;
       this.#week = today.week;
       this.#focus = await api.weeklyFocus(today.week);
       this.#error = null;
     } catch (failure) {
-      this.#error = message(failure);
+      this.#error = libraryStoreMessage(failure);
     } finally {
       this.#loading = false;
     }
@@ -89,6 +104,22 @@ export class LibraryStore implements PlanningActionsHost {
   // fallow-ignore-next-line unused-class-member
   async createTask(title: string): Promise<void> {
     await this.#change(/* createTask= */ () => api.createTask(title));
+  }
+
+  async createRecurringTask(title: string, recurrence: Recurrence): Promise<void> {
+    await this.#change(/* createRecurringTask= */ () => api.createRecurringTask(title, recurrence));
+  }
+
+  async archiveRecurringTask(id: string): Promise<void> {
+    await this.#change(/* archiveRecurringTask= */ () => api.archiveRecurringTask(id));
+  }
+
+  async restoreRecurringTask(id: string): Promise<void> {
+    await this.#change(/* restoreRecurringTask= */ () => api.restoreRecurringTask(id));
+  }
+
+  async renameRecurringTask(id: string, title: string): Promise<void> {
+    await this.#change(/* renameRecurringTask= */ () => api.renameRecurringTask(id, title));
   }
 
   async archive(end: AssociationEnd): Promise<void> {
@@ -155,17 +186,12 @@ export class LibraryStore implements PlanningActionsHost {
   }
 
   async #change(mutation: () => Promise<unknown>): Promise<void> {
-    try {
-      await mutation();
-      this.#error = null;
-    } catch (failure) {
-      this.#error = message(failure);
-      return;
-    }
-    await this.load();
+    await runLibraryMutation(
+      mutation,
+      /* setError= */ (error) => {
+        this.#error = error;
+      },
+      /* reload= */ () => this.load(),
+    );
   }
-}
-
-function message(failure: unknown): string {
-  return failure instanceof Error ? failure.message : String(failure);
 }

@@ -50,6 +50,17 @@ fn position(day: Weekday) -> usize {
     day.num_days_from_monday() as usize
 }
 
+pub(crate) fn weekday_name(day: Weekday) -> &'static str {
+    NAMES[position(day)]
+}
+
+pub(crate) fn parse_weekday_name(name: &str) -> Option<Weekday> {
+    NAMES
+        .iter()
+        .position(|candidate| *candidate == name)
+        .map(|index| ORDER[index])
+}
+
 impl From<WeekdaySet> for Vec<String> {
     fn from(set: WeekdaySet) -> Self {
         set.weekdays()

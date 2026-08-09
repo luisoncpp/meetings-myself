@@ -195,6 +195,10 @@ export function restoreRecurringTask(rule: string): Promise<void> {
   return call<void>('restore_recurring_task', { rule });
 }
 
+export function renameRecurringTask(rule: string, title: string): Promise<void> {
+  return call<void>('rename_recurring_task', { rule, title });
+}
+
 export function openWeeklyReviewWindow(): Promise<void> {
   return call<void>('open_weekly_review_window');
 }

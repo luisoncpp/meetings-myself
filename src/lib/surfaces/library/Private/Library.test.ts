@@ -6,16 +6,26 @@ import Library from './Library.svelte';
 const library = vi.hoisted(() => vi.fn());
 const todayView = vi.hoisted(() => vi.fn());
 const weeklyFocus = vi.hoisted(() => vi.fn());
+const recurringTasks = vi.hoisted(() => vi.fn());
 const setHabitStrength = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
 const associationsFor = vi.hoisted(() => vi.fn().mockResolvedValue([]));
 const achieveGoal = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
+const createRecurringTask = vi.hoisted(() => vi.fn().mockResolvedValue({ id: 'r-new' }));
+const archiveRecurringTask = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
+const restoreRecurringTask = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
+const renameRecurringTask = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
 
 vi.mock('../../../api', () => ({
   library,
   todayView,
   weeklyFocus,
+  recurringTasks,
   setHabitStrength,
   associationsFor,
+  createRecurringTask,
+  archiveRecurringTask,
+  restoreRecurringTask,
+  renameRecurringTask,
   createValue: vi.fn().mockResolvedValue({ id: 'v1' }),
   createGoal: vi.fn().mockResolvedValue({ id: 'g1' }),
   createTask: vi.fn().mockResolvedValue({ id: 't1' }),
@@ -43,11 +53,32 @@ const emptyLibrary = {
   tasks: [],
 };
 
+const activeRecurring = {
+  id: 'r1',
+  title: 'Daily standup',
+  recurrence: { kind: 'daily' as const },
+  lifecycle: 'active' as const,
+  startsOn: '2026-08-01',
+  materializedThrough: null,
+  createdAt: '2026-08-01',
+};
+
+const archivedRecurring = {
+  id: 'r2',
+  title: 'Old rule',
+  recurrence: { kind: 'weekdays' as const },
+  lifecycle: 'archived' as const,
+  startsOn: '2026-08-01',
+  materializedThrough: '2026-08-07',
+  createdAt: '2026-08-01',
+};
+
 function resetApiMocks(): void {
   vi.clearAllMocks();
   library.mockResolvedValue(emptyLibrary);
   todayView.mockResolvedValue({ date: '2026-08-07', week: '2026-W32', tasks: [], habits: [] });
   weeklyFocus.mockResolvedValue({ id: 'f1', week: '2026-W32', tasks: [], createdAt: '2026-08-01' });
+  recurringTasks.mockResolvedValue([]);
 }
 
 beforeEach(resetApiMocks);
@@ -248,5 +279,67 @@ describe('Library habit creation', () => {
     expect(screen.getByRole('button', { name: /create habit/i })).toBeDisabled();
     await userEvent.click(screen.getByRole('checkbox', { name: 'Monday' }));
     expect(screen.getByRole('button', { name: /create habit/i })).toBeEnabled();
+  });
+});
+
+function recurringSection(): HTMLElement {
+  return screen.getByLabelText(/recurring tasks/i);
+}
+
+describe('Library recurring tasks', () => {
+  it('shows the section heading and empty state', async () => {
+    render(Library);
+    expect(await screen.findByRole('heading', { name: 'Recurring tasks' })).toBeInTheDocument();
+    expect(screen.getByText('No recurring tasks yet.')).toBeInTheDocument();
+  });
+
+  it('creates a recurring task with daily recurrence', async () => {
+    const created = {
+      id: 'r-new',
+      title: 'Water plants',
+      recurrence: { kind: 'daily' as const },
+      lifecycle: 'active' as const,
+      startsOn: '2026-08-01',
+      materializedThrough: null,
+      createdAt: '2026-08-01',
+    };
+    recurringTasks.mockResolvedValueOnce([]).mockResolvedValue([created]);
+
+    render(Library);
+    await screen.findByRole('heading', { name: 'Recurring tasks' });
+
+    const section = recurringSection();
+    await userEvent.click(within(section).getByRole('button', { name: /new recurring task/i }));
+    await userEvent.type(screen.getByLabelText(/recurring task title/i), 'Water plants');
+    await userEvent.click(within(section).getByRole('button', { name: /^create$/i }));
+
+    expect(createRecurringTask).toHaveBeenCalledWith('Water plants', { kind: 'daily' });
+    expect(await screen.findByDisplayValue('Water plants')).toBeInTheDocument();
+  });
+
+  it('hides archived recurring tasks until show archived is toggled', async () => {
+    recurringTasks.mockResolvedValue([activeRecurring, archivedRecurring]);
+
+    render(Library);
+    await screen.findByDisplayValue('Daily standup');
+    expect(screen.queryByText('Old rule')).not.toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole('switch', { name: /show archived/i }));
+
+    const section = recurringSection();
+    expect(await within(section).findByText('Old rule')).toBeInTheDocument();
+    expect(within(section).getByText('Archived')).toBeInTheDocument();
+    expect(within(section).getByRole('button', { name: /restore/i })).toBeInTheDocument();
+  });
+
+  it('archives an active recurring task', async () => {
+    recurringTasks.mockResolvedValue([activeRecurring]);
+
+    render(Library);
+    await screen.findByDisplayValue('Daily standup');
+
+    const section = recurringSection();
+    await userEvent.click(within(section).getByRole('button', { name: /archive/i }));
+    expect(archiveRecurringTask).toHaveBeenCalledWith('r1');
   });
 });

@@ -150,3 +150,15 @@ describe('restoreRecurringTask', () => {
     expect(invoke).toHaveBeenCalledWith('restore_recurring_task', { rule: 'r1' });
   });
 });
+
+describe('renameRecurringTask', () => {
+  it('forwards rule id and title', async () => {
+    invoke.mockResolvedValue(undefined);
+    const { renameRecurringTask } = await import('./index');
+    await renameRecurringTask('r1', 'Evening pages');
+    expect(invoke).toHaveBeenCalledWith('rename_recurring_task', {
+      rule: 'r1',
+      title: 'Evening pages',
+    });
+  });
+});

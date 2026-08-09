@@ -59,9 +59,17 @@ Writes are refused server-side when health is not `ready`; the gate keeps the UI
 | Module | Store | Primary API calls |
 |--------|-------|-------------------|
 | `surfaces/daily-plan` | `DailyPlanStore` | `todayView`, `taskPool`, `reorderPlan`, `completeTask`, `recordCheckIn`, … |
-| `surfaces/library` | `LibraryStore` | `library`, `archiveEntity`, `createTask`, `link`, … |
+| `surfaces/library` | `LibraryStore` | `library` (association entities), `recurringTasks`, `createRecurringTask`, `archiveRecurringTask`, `renameRecurringTask`, `archiveEntity`, `createTask`, `link`, … |
 | `surfaces/weekly-review` | `WeeklyReviewStore` | `openCurrentReview`, `saveReflection`, `weeklySummary`, … |
 | `surfaces/setup` | `SetupStore` | `chooseSyncFolder`, `setHomeZone`, `pickSyncFolder` |
+
+### Library — recurring tasks
+
+`RecurringTask` rules are **not** association `EntityKind` rows. `LibraryStore.load()` fetches `library()` and `recurringTasks()` in parallel; rules never appear in `LibraryView`.
+
+`RecurringTaskSection` (after Tasks in `Library.svelte`): create rule with title + recurrence (recurrence fixed at creation — rows show a read-only label), list active rules (or all when **Show archived**), rename title on active rows, archive/restore rule. All mutations are pessimistic (`#change` → API → `load()`).
+
+Creating a rule stores only the `recurring_task` record (`starts_on` = today). It does **not** materialize Tasks. The next `open_today` runs `materialize_due` first, creating missing `Occurrence` + `Task` pairs into the Task Pool — not auto-selected into the daily plan. See [creating-a-recurring-task.md](../flows/creating-a-recurring-task.md) and [daily-planning.md](daily-planning.md#recurring-task-materialization).
 
 Shared UI primitives live in `src/lib/ui`; surface-specific rows and panels stay inside each surface's `Private/`.
 

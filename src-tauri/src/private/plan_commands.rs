@@ -242,3 +242,18 @@ pub async fn restore_recurring_task(
         .await
         .map_err(app_error_message)
 }
+
+#[tauri::command]
+pub async fn rename_recurring_task(
+    state: tauri::State<'_, AppState>,
+    rule: String,
+    title: String,
+) -> Result<(), String> {
+    state
+        .0
+        .lock()
+        .await
+        .rename_recurring_task(&RecurringTaskId::new(rule), title)
+        .await
+        .map_err(app_error_message)
+}

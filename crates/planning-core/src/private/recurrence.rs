@@ -1,6 +1,27 @@
+use super::cadence::{parse_weekday_name, weekday_name};
 use super::domain_error::DomainError;
 use chrono::{Datelike, Duration, NaiveDate, Weekday};
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
+
+mod weekday_as_name {
+    use super::*;
+
+    pub fn serialize<S>(day: &Weekday, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serializer.serialize_str(weekday_name(*day))
+    }
+
+    pub fn deserialize<'de, D>(deserializer: D) -> Result<Weekday, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let name = String::deserialize(deserializer)?;
+        parse_weekday_name(&name)
+            .ok_or_else(|| serde::de::Error::custom(format!("invalid weekday: {name}")))
+    }
+}
 
 /// The recurrence patterns agreed for v1. A rule is a factory: editing it never
 /// touches occurrences that already materialized (ADR 0002).
@@ -9,7 +30,10 @@ use serde::{Deserialize, Serialize};
 pub enum Recurrence {
     Daily,
     Weekdays,
-    Weekly { weekday: Weekday },
+    Weekly {
+        #[serde(with = "weekday_as_name")]
+        weekday: Weekday,
+    },
     MonthlyDay { day: u8 },
 }
 
@@ -98,5 +122,40 @@ mod tests {
         assert!(Recurrence::monthly(0).is_err());
         assert!(Recurrence::monthly(32).is_err());
         assert!(Recurrence::monthly(1).is_ok());
+    }
+
+    fn round_trip_json(rule: Recurrence, expected: &str) {
+        let json = serde_json::to_string(&rule).unwrap();
+        assert_eq!(json, expected);
+        let parsed: Recurrence = serde_json::from_str(expected).unwrap();
+        assert_eq!(parsed, rule);
+    }
+
+    #[test]
+    fn daily_serializes_as_kind_daily() {
+        round_trip_json(Recurrence::Daily, r#"{"kind":"daily"}"#);
+    }
+
+    #[test]
+    fn weekdays_serializes_as_kind_weekdays() {
+        round_trip_json(Recurrence::Weekdays, r#"{"kind":"weekdays"}"#);
+    }
+
+    #[test]
+    fn weekly_serializes_weekday_as_short_name() {
+        round_trip_json(
+            Recurrence::Weekly {
+                weekday: Weekday::Thu,
+            },
+            r#"{"kind":"weekly","weekday":"thu"}"#,
+        );
+    }
+
+    #[test]
+    fn monthly_day_serializes_kind_and_day() {
+        round_trip_json(
+            Recurrence::MonthlyDay { day: 15 },
+            r#"{"kind":"monthlyDay","day":15}"#,
+        );
     }
 }
