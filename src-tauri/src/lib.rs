@@ -19,8 +19,7 @@ use private::review_commands::{
     open_current_review, open_weekly_review, report_path, save_reflection, weekly_summary,
 };
 use private::window_commands::{
-    attach_weekly_review_lifecycle, available_time_zones, open_weekly_review_window,
-    pick_sync_folder,
+    attach_window_lifecycle, available_time_zones, open_weekly_review_window, pick_sync_folder,
 };
 use std::sync::Arc;
 
@@ -38,7 +37,7 @@ pub fn run() {
         .plugin(tauri_plugin_dialog::init())
         .manage(AppState(Arc::new(tokio::sync::Mutex::new(app))))
         .setup(|app| {
-            attach_weekly_review_lifecycle(app.handle())?;
+            attach_window_lifecycle(app.handle())?;
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![

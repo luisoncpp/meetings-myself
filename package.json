@@ -24,6 +24,7 @@
     "@testing-library/svelte": "5.4.2",
     "@testing-library/user-event": "^14.6.3",
     "@types/node": "24.0.14",
+    "@types/turndown": "^5.0.6",
     "@typescript/native": "npm:typescript@7.0.2",
     "@vitest/coverage-v8": "4.1.10",
     "eslint": "10.8.0",
@@ -40,6 +41,8 @@
   "dependencies": {
     "@tauri-apps/api": "2.11.1",
     "marked": "^18.0.9",
-    "svelte": "5.56.8"
+    "quill-next": "^2.2.6",
+    "svelte": "5.56.8",
+    "turndown": "^7.2.4"
   }
 }

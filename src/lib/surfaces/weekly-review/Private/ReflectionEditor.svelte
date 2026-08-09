@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Textarea } from '../../../ui';
+  import { MarkdownEditor } from '../../../ui';
   import type { SaveState } from './WeeklyReviewStore.svelte';
 
   interface Props {
@@ -14,12 +14,6 @@
   const statusLabel = $derived(
     saveState === 'saving' ? 'Saving…' : saveState === 'unsaved' ? 'Unsaved' : 'Saved',
   );
-
-  function handleInput(event: Event): void {
-    const target = event.currentTarget;
-    if (target === null || !('value' in target) || typeof target.value !== 'string') return;
-    oninput(target.value);
-  }
 </script>
 
 <section class="reflection">
@@ -27,13 +21,7 @@
     <h2>Reflection</h2>
     <span class="status" role="status">{statusLabel}</span>
   </div>
-  <Textarea
-    aria-label="Reflection"
-    rows={8}
-    {value}
-    oninput={/* edit */ handleInput}
-    onblur={/* blur save */ onblur}
-  />
+  <MarkdownEditor aria-label="Reflection" {value} oninput={/* edit */ oninput} onblur={/* blur */ onblur} />
 </section>
 
 <style>

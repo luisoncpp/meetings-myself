@@ -1,5 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/svelte';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import MarkdownEditorHarness from '../../../ui/Private/MarkdownEditor.harness.svelte';
 import WeeklyReview from './WeeklyReview.svelte';
 
 const openCurrentReview = vi.hoisted(() => vi.fn());
@@ -8,6 +9,11 @@ const saveReflection = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
 const todayView = vi.hoisted(() => vi.fn());
 const library = vi.hoisted(() => vi.fn());
 const weeklyFocus = vi.hoisted(() => vi.fn());
+
+vi.mock('../../../ui', async (importOriginal) => {
+  const original = await importOriginal<typeof import('../../../ui')>();
+  return { ...original, MarkdownEditor: MarkdownEditorHarness };
+});
 
 vi.mock('../../../api', () => ({
   openCurrentReview,
@@ -59,7 +65,8 @@ describe('WeeklyReview content', () => {
     expect(await screen.findByRole('heading', { level: 1 })).toHaveTextContent('2026-W32');
     expect(screen.getByText(/Last week happened/)).toBeInTheDocument();
     expect(screen.getByText('Prepare portfolio')).toBeInTheDocument();
-    expect(screen.getByDisplayValue(/A quiet week/)).toBeInTheDocument();
+    const editor = screen.getByRole('textbox', { name: 'Reflection' }) as HTMLTextAreaElement;
+    expect(editor.value).toContain('A quiet week');
   });
 
   it('shows habit counts without scoring them', async () => {

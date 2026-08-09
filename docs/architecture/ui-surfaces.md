@@ -10,7 +10,7 @@ Svelte 5 surfaces for Daily Plan, Library, and Weekly Review. Each surface owns 
 | **Library** | Main | `Navigation` switches `mainView` to `'library'` |
 | **Weekly Review** | Separate Tauri window | `?surface=weekly-review` on load, or `openWeeklyReviewWindow()` |
 
-Closing the Weekly Review window hides it instead of destroying the webview. Reopening calls `open_weekly_review_window`, which shows the hidden window or recreates it from `tauri.conf.json` if it was already closed.
+Closing the Weekly Review window hides it instead of destroying the webview. Reopening calls `open_weekly_review_window`, which shows the hidden window or recreates it from `tauri.conf.json` if it was already closed. Closing the main window quits the app — a hidden Weekly Review window would otherwise keep the Tauri process alive.
 
 `App.svelte` calls `currentSurface(window.location.search)` once at boot. The pure helper in `src/lib/shell/Private/surface.ts` maps `?surface=weekly-review` → `'weekly-review'`; anything else → `'main'`. On `'main'`, `AppShell` toggles Daily Plan vs Library locally; Weekly Review is never embedded in the main window.
 
@@ -67,7 +67,7 @@ Shared UI primitives live in `src/lib/ui`; surface-specific rows and panels stay
 
 **Layout:** `SurfaceLayout` — content column with `max-width: min(var(--content-max-width), 100%)` and horizontal padding; used by Daily Plan, Library, Weekly Review, and Setup.
 
-**Forms:** `Field`, `Input`, `Select`, `Textarea` — labelled controls with token-backed borders and backgrounds.
+**Forms:** `Field`, `Input`, `Select`, `Textarea`, `MarkdownEditor` — labelled controls with token-backed borders and backgrounds. `MarkdownEditor` wraps Quill Next for rich-text editing; the app contract remains a Markdown string (load via `marked`, save via `getSemanticHTML` + `turndown`).
 
 **Other:** `Button`, `Card`, `ListRow`, `OrderableList`, `CheckInControl`, `StateFlag`, `InsetPanel`.
 
