@@ -10,5 +10,3 @@ export { default as OrderableList } from './Private/OrderableList.svelte';
 export { default as Select } from './Private/Select.svelte';
 export { default as StateFlag } from './Private/StateFlag.svelte';
 export { default as SurfaceLayout } from './Private/SurfaceLayout.svelte';
-// fallow-ignore-next-line unused-export
-export { default as Textarea } from './Private/Textarea.svelte';

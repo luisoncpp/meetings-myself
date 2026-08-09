@@ -67,7 +67,7 @@ Shared UI primitives live in `src/lib/ui`; surface-specific rows and panels stay
 
 **Layout:** `SurfaceLayout` — content column with `max-width: min(var(--content-max-width), 100%)` and horizontal padding; used by Daily Plan, Library, Weekly Review, and Setup.
 
-**Forms:** `Field`, `Input`, `Select`, `Textarea`, `MarkdownEditor` — labelled controls with token-backed borders and backgrounds. `MarkdownEditor` wraps Quill Next for rich-text editing; the app contract remains a Markdown string (load via `marked`, save via `getSemanticHTML` + `turndown`).
+**Forms:** `Field`, `Input`, `Select`, `MarkdownEditor` — labelled controls with token-backed borders and backgrounds. `MarkdownEditor` wraps Quill Next for rich-text editing; the app contract remains a Markdown string (load via `marked`, save via `getSemanticHTML` + `turndown`).
 
 **Other:** `Button`, `Card`, `ListRow`, `OrderableList`, `CheckInControl`, `StateFlag`, `InsetPanel`.
 
