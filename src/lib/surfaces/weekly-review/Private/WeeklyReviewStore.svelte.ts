@@ -1,5 +1,6 @@
 import type { LibraryView, WeeklyFocus, WeeklyReviewView } from '../../../domain';
 import * as api from '../../../api';
+import type { PlanningActionsHost } from '../../../planning-actions';
 import { nextWeek } from './week-nav';
 import {
   commitReflectionSave,
@@ -13,7 +14,7 @@ import {
 
 export type { SaveState };
 
-export class WeeklyReviewStore {
+export class WeeklyReviewStore implements PlanningActionsHost {
   #view = $state<WeeklyReviewView | null>(null);
   #currentWeek = $state('');
   #library = $state<LibraryView | null>(null);
@@ -122,6 +123,10 @@ export class WeeklyReviewStore {
     right: { kind: 'value' | 'goal' | 'habit' | 'task'; id: string },
   ): Promise<void> {
     await this.#mutate(/*link=*/ () => api.link(left, right));
+  }
+
+  async unlink(associationId: string): Promise<void> {
+    await this.#mutate(/*unlink=*/ () => api.unlink(associationId));
   }
 
   async addToFocus(taskId: string): Promise<void> {

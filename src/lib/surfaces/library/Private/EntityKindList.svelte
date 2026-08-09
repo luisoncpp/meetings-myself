@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { LibraryView } from '../../../domain';
-  import type { EntityKind } from './associations';
+  import type { EntityKind } from '../../../planning-actions';
   import GoalRow from './GoalRow.svelte';
   import HabitRow from './HabitRow.svelte';
   import TaskRow from './TaskRow.svelte';
@@ -11,11 +11,9 @@
     kind: EntityKind;
     view: LibraryView;
     store: LibraryStore;
-    selectedGoalId?: string | null;
-    onselectGoal?: (goalId: string) => void;
   }
 
-  let { kind, view, store, selectedGoalId = null, onselectGoal }: Props = $props();
+  let { kind, view, store }: Props = $props();
 </script>
 
 {#if kind === 'value'}
@@ -24,12 +22,7 @@
   {/each}
 {:else if kind === 'goal'}
   {#each view.goals as goal (goal.id)}
-    <GoalRow
-      {goal}
-      {store}
-      selected={selectedGoalId === goal.id}
-      onselect={/* select goal */ () => onselectGoal?.(goal.id)}
-    />
+    <GoalRow {goal} {store} />
   {/each}
 {:else if kind === 'habit'}
   {#each view.habits as habit (habit.id)}

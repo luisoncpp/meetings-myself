@@ -28,6 +28,8 @@ Before writing any code or reading any file, add this to your tasks list:
 
 * Check again if you followed the guidelines or if what you just written could be done in a simpler way with no trade-offs.
 
+* Run fallow and fix the new issues.
+
 * If multiple files are going to be needed, consider creating a deep module.
 
 * After implementing a new feature, documenting the architecture is mandatory. Be concise in the documentation, maximizing the information / token ratio (as it will probably be read by future agents and we don't like to waste their context)
@@ -45,6 +47,8 @@ Before writing any code or reading any file, add this to your tasks list:
 * Fix the implementation until the test passes.
 
 * Make sure all the other tests and lint still passes.
+
+* Run fallow and fix the new issues.
 
 * Update any change of behaviour in the architecture documentation.
 

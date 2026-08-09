@@ -10,6 +10,7 @@
       { "name": "api", "patterns": ["src/lib/api/**"] },
       { "name": "domain", "patterns": ["src/lib/domain/**"] },
       { "name": "ui", "patterns": ["src/lib/ui/**"] },
+      { "name": "planning-actions", "patterns": ["src/lib/planning-actions/**"] },
       {
         "name": "surfaces",
         "patterns": ["src/lib/surfaces/**"],
@@ -21,7 +22,8 @@
       { "from": "app", "allow": ["api", "domain", "ui", "surfaces"] },
       { "from": "api", "allow": ["domain"] },
       { "from": "ui", "allow": ["domain"] },
-      { "from": "surfaces", "allow": ["api", "domain", "ui"] },
+      { "from": "surfaces", "allow": ["api", "domain", "ui", "planning-actions"] },
+      { "from": "planning-actions", "allow": ["api", "domain", "ui"] },
       { "from": "domain", "allow": [] }
     ]
   },

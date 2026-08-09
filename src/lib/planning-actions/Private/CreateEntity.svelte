@@ -1,6 +1,6 @@
 <script lang="ts">
-  import type { Cadence, Weekday } from '../../../domain';
-  import { Button, Field, Input } from '../../../ui';
+  import type { Cadence, Weekday } from '../../domain';
+  import { Button, Field, Input } from '../../ui';
   import { createButtonLabel, entityNameLabel } from './create-entity-copy';
   import CreateHabitCadence from './CreateHabitCadence.svelte';
   import type { EntityKind } from './associations';

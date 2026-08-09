@@ -1,6 +1,6 @@
 <script lang="ts">
-  import type { Weekday } from '../../../domain';
-  import { WEEKDAYS } from './labels';
+  import type { Weekday } from '../../domain';
+  import { WEEKDAYS } from './weekdays';
 
   interface Props {
     selectedDays: Weekday[];

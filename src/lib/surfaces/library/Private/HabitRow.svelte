@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { Cadence, HabitView, Weekday } from '../../../domain';
+  import { CreateHabitCadence } from '../../../planning-actions';
   import { Button, Field, ListRow, Select, StateFlag } from '../../../ui';
   import { STRENGTH_OPTIONS, WEEKDAYS } from './labels';
   import type { LibraryStore } from './LibraryStore.svelte';
@@ -44,10 +45,6 @@
     }
     return cadence.days;
   }
-
-  function isDayChecked(day: Weekday): boolean {
-    return currentWeekdays(habit.cadence).includes(day);
-  }
 </script>
 
 <ListRow muted={habit.archived}>
@@ -67,20 +64,10 @@
             {/each}
           </Select>
         </Field>
-        <fieldset class="cadence">
-          <legend>Cadence</legend>
-          {#each WEEKDAYS as day (day.value)}
-            <label>
-              <input
-                type="checkbox"
-                checked={isDayChecked(day.value)}
-                onchange={/* toggle weekday */ (event) =>
-                  onWeekdayToggle(day.value, (event.currentTarget as HTMLInputElement).checked)}
-              />
-              {day.label}
-            </label>
-          {/each}
-        </fieldset>
+        <CreateHabitCadence
+          selectedDays={currentWeekdays(habit.cadence)}
+          ontoggle={/* toggle weekday */ onWeekdayToggle}
+        />
         <label class="pinned">
           <input
             type="checkbox"
@@ -113,20 +100,5 @@
     display: flex;
     align-items: center;
     gap: var(--space-2);
-  }
-
-  .cadence {
-    border: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2);
-  }
-
-  legend {
-    font-size: var(--text-label);
-    color: var(--color-ink-muted);
-    margin-bottom: var(--space-1);
   }
 </style>

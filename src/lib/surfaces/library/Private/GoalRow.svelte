@@ -6,11 +6,9 @@
   interface Props {
     goal: GoalView;
     store: LibraryStore;
-    selected: boolean;
-    onselect: () => void;
   }
 
-  let { goal, store, selected, onselect }: Props = $props();
+  let { goal, store }: Props = $props();
 
   function toggleArchive(): void {
     const end = { kind: 'goal' as const, id: goal.id };
@@ -30,16 +28,7 @@
   }
 </script>
 
-<ListRow muted={goal.archived} onactivate={/* select goal */ onselect}>
-  {#snippet leading()}
-    <input
-      type="radio"
-      name="selected-goal"
-      checked={selected}
-      aria-label={goal.title}
-      onchange={/* select goal */ onselect}
-    />
-  {/snippet}
+<ListRow muted={goal.archived}>
   <span>{goal.title}</span>
   {#snippet trailing()}
     {#if goal.archived}

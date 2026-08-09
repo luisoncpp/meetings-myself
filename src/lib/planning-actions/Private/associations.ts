@@ -1,4 +1,4 @@
-import type { AssociationEnd, LibraryView } from '../../../domain';
+import type { AssociationEnd, LibraryView } from '../../domain';
 
 export type EntityKind = AssociationEnd['kind'];
 

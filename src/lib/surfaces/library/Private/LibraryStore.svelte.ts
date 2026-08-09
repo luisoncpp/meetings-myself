@@ -8,8 +8,9 @@ import type {
   WeeklyFocus,
 } from '../../../domain';
 import * as api from '../../../api';
+import type { PlanningActionsHost } from '../../../planning-actions';
 
-export class LibraryStore {
+export class LibraryStore implements PlanningActionsHost {
   #view = $state<LibraryView | null>(null);
   #includeArchived = $state(false);
   #loading = $state(false);

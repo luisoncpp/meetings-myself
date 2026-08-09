@@ -1,22 +1,22 @@
 <script lang="ts">
-  import type { Association, AssociationEnd, LibraryView } from '../../../domain';
-  import { Button, Field, InsetPanel, Select } from '../../../ui';
-  import * as api from '../../../api';
+  import type { Association, AssociationEnd, LibraryView } from '../../domain';
+  import { Button, Field, InsetPanel, Select } from '../../ui';
+  import * as api from '../../api';
   import {
     candidatesFor,
     entityTitle,
     linkTargetsFor,
     type EntityKind,
   } from './associations';
-  import type { LibraryStore } from './LibraryStore.svelte';
+  import type { PlanningActionsHost } from './planning-actions-host';
 
   interface Props {
     view: LibraryView;
-    store: LibraryStore;
+    host: PlanningActionsHost;
     onclose: () => void;
   }
 
-  let { view, store, onclose }: Props = $props();
+  let { view, host, onclose }: Props = $props();
 
   let fromKind = $state<EntityKind>('goal');
   let fromId = $state('');
@@ -62,7 +62,7 @@
 
   function linkEntities(): void {
     if (!fromEnd || toId === '') return;
-    void store.link(fromEnd, { kind: toKind, id: toId });
+    void host.link(fromEnd, { kind: toKind, id: toId });
   }
 </script>
 
@@ -107,7 +107,7 @@
       {#each links as link (link.id)}
         <li>
           {entityTitle(view, link.left)} ↔ {entityTitle(view, link.right)}
-          <Button variant="quiet" onclick={/* unlink */ () => void store.unlink(link.id)}>
+          <Button variant="quiet" onclick={/* unlink */ () => void host.unlink(link.id)}>
             Unlink
           </Button>
         </li>

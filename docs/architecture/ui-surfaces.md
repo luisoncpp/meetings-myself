@@ -10,6 +10,8 @@ Svelte 5 surfaces for Daily Plan, Library, and Weekly Review. Each surface owns 
 | **Library** | Main | `Navigation` switches `mainView` to `'library'` |
 | **Weekly Review** | Separate Tauri window | `?surface=weekly-review` on load, or `openWeeklyReviewWindow()` |
 
+Closing the Weekly Review window hides it instead of destroying the webview. Reopening calls `open_weekly_review_window`, which shows the hidden window or recreates it from `tauri.conf.json` if it was already closed.
+
 `App.svelte` calls `currentSurface(window.location.search)` once at boot. The pure helper in `src/lib/shell/Private/surface.ts` maps `?surface=weekly-review` → `'weekly-review'`; anything else → `'main'`. On `'main'`, `AppShell` toggles Daily Plan vs Library locally; Weekly Review is never embedded in the main window.
 
 ## Store-class pattern

@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/svelte';
+import { render, screen, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import Library from './Library.svelte';
@@ -8,6 +8,7 @@ const todayView = vi.hoisted(() => vi.fn());
 const weeklyFocus = vi.hoisted(() => vi.fn());
 const setHabitStrength = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
 const associationsFor = vi.hoisted(() => vi.fn().mockResolvedValue([]));
+const achieveGoal = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
 
 vi.mock('../../../api', () => ({
   library,
@@ -21,7 +22,7 @@ vi.mock('../../../api', () => ({
   createHabit: vi.fn().mockResolvedValue({ id: 'h9' }),
   archiveEntity: vi.fn().mockResolvedValue(undefined),
   restoreEntity: vi.fn().mockResolvedValue(undefined),
-  achieveGoal: vi.fn().mockResolvedValue(undefined),
+  achieveGoal,
   unachieveGoal: vi.fn().mockResolvedValue(undefined),
   classifyTask: vi.fn().mockResolvedValue(undefined),
   setTaskDeadline: vi.fn().mockResolvedValue(undefined),
@@ -60,6 +61,74 @@ describe('Library weekly review actions', () => {
     expect(screen.getByRole('button', { name: /mark achieved/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /link/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /weekly focus/i })).toBeInTheDocument();
+  });
+
+  it('opens a goal picker when Mark achieved is clicked', async () => {
+    library.mockResolvedValue({
+      values: [],
+      goals: [{ id: 'g1', title: 'Ship it', achieved: false, archived: false, targetDate: null }],
+      habits: [],
+      tasks: [],
+    });
+
+    render(Library);
+    await screen.findByText('Ship it');
+    const toolbarButtons = screen.getAllByRole('button', { name: /mark achieved/i });
+    await userEvent.click(toolbarButtons[0]);
+    expect(screen.getByLabelText(/goal to mark achieved/i)).toBeInTheDocument();
+    expect(toolbarButtons[0]).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('button', { name: /new goal/i })).toHaveAttribute('aria-pressed', 'false');
+  });
+
+  it('keeps only one action panel open at a time', async () => {
+    library.mockResolvedValue({
+      values: [],
+      goals: [{ id: 'g1', title: 'Ship it', achieved: false, archived: false, targetDate: null }],
+      habits: [],
+      tasks: [],
+    });
+
+    render(Library);
+    await screen.findByText('Ship it');
+    const toolbar = screen.getByRole('toolbar', { name: /quick actions/i });
+
+    await userEvent.click(within(toolbar).getByRole('button', { name: /mark achieved/i }));
+    expect(screen.getByLabelText(/goal to mark achieved/i)).toBeInTheDocument();
+
+    await userEvent.click(within(toolbar).getByRole('button', { name: /^link$/i }));
+    expect(screen.queryByLabelText(/goal to mark achieved/i)).not.toBeInTheDocument();
+    expect(screen.getByLabelText(/association editor/i)).toBeInTheDocument();
+  });
+
+  it('closes the active panel when its button is clicked again', async () => {
+    render(Library);
+    await screen.findByRole('heading', { name: 'Library' });
+    const toolbar = screen.getByRole('toolbar', { name: /quick actions/i });
+
+    const newGoal = within(toolbar).getByRole('button', { name: /new goal/i });
+    await userEvent.click(newGoal);
+    expect(screen.getByLabelText(/goal name/i)).toBeInTheDocument();
+
+    await userEvent.click(newGoal);
+    expect(screen.queryByLabelText(/goal name/i)).not.toBeInTheDocument();
+  });
+
+  it('achieves the selected goal from the picker', async () => {
+    library.mockResolvedValue({
+      values: [],
+      goals: [{ id: 'g1', title: 'Ship it', achieved: false, archived: false, targetDate: null }],
+      habits: [],
+      tasks: [],
+    });
+
+    render(Library);
+    await screen.findByText('Ship it');
+    const toolbarButtons = screen.getAllByRole('button', { name: /mark achieved/i });
+    await userEvent.click(toolbarButtons[0]);
+    await userEvent.selectOptions(screen.getByLabelText(/goal to mark achieved/i), 'g1');
+    const confirmButtons = screen.getAllByRole('button', { name: /mark achieved/i });
+    await userEvent.click(confirmButtons[confirmButtons.length - 1]);
+    expect(achieveGoal).toHaveBeenCalledWith('g1');
   });
 });
 

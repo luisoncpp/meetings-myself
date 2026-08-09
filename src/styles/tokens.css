@@ -89,3 +89,18 @@ input[type='checkbox'] {
   width: 1rem;
   height: 1rem;
 }
+
+/* Shared chrome for text inputs and selects (Input / Select components). */
+.control-field {
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-control);
+  background: var(--color-raised);
+  color: var(--color-ink);
+  font: inherit;
+}
+
+.control-field:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}

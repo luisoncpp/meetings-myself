@@ -1,15 +1,38 @@
 <script lang="ts">
+  import {
+    PlanningActionBar,
+    bindPlanningActionsHost,
+    type CreatePayload,
+    type PlanningAction,
+  } from '../../../planning-actions';
   import { SurfaceLayout } from '../../../ui';
   import { WeeklyReviewStore } from './WeeklyReviewStore.svelte';
   import NextWeekFocus from './NextWeekFocus.svelte';
   import PreviousReport from './PreviousReport.svelte';
   import ReflectionEditor from './ReflectionEditor.svelte';
   import ReportPath from './ReportPath.svelte';
-  import ReviewActions from './ReviewActions.svelte';
   import SummarySection from './SummarySection.svelte';
   import WeekNav from './WeekNav.svelte';
 
   let store = $state<WeeklyReviewStore>();
+  let activeAction = $state<PlanningAction | null>(null);
+
+  function toggleAction(action: PlanningAction): void {
+    activeAction = activeAction === action ? null : action;
+  }
+
+  function closeAction(): void {
+    activeAction = null;
+  }
+
+  async function handleToolbarGoalCreate(
+    reviewStore: WeeklyReviewStore,
+    payload: CreatePayload,
+  ): Promise<void> {
+    if (payload.kind !== 'goal') return;
+    await reviewStore.createGoal(payload.title, payload.targetDate);
+    activeAction = null;
+  }
 
   $effect(() => {
     const created = new WeeklyReviewStore();
@@ -39,7 +62,15 @@
 
         <WeekNav week={view.week} store={activeStore} />
 
-        <ReviewActions store={activeStore} {library} focusWeek={activeStore.focusWeek} />
+        <PlanningActionBar
+          active={activeAction}
+          view={library}
+          host={bindPlanningActionsHost(activeStore)}
+          week={activeStore.focusWeek}
+          ontoggle={toggleAction}
+          onclose={closeAction}
+          oncreateGoal={/* create goal */ (payload) => void handleToolbarGoalCreate(activeStore, payload)}
+        />
 
         <PreviousReport body={view.previousReport} />
         <SummarySection summary={view.summary} />

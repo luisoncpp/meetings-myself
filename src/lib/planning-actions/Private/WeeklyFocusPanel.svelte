@@ -1,18 +1,18 @@
 <script lang="ts">
-  import type { LibraryView } from '../../../domain';
-  import { Button, InsetPanel } from '../../../ui';
-  import type { LibraryStore } from './LibraryStore.svelte';
+  import type { LibraryView } from '../../domain';
+  import { Button, InsetPanel } from '../../ui';
+  import type { PlanningActionsHost } from './planning-actions-host';
 
   interface Props {
     view: LibraryView;
-    store: LibraryStore;
+    host: PlanningActionsHost;
     week: string;
     onclose: () => void;
   }
 
-  let { view, store, week, onclose }: Props = $props();
+  let { view, host, week, onclose }: Props = $props();
 
-  const focusIds = $derived(new Set(store.focus?.tasks ?? []));
+  const focusIds = $derived(new Set(host.focus?.tasks ?? []));
 
   function inFocus(taskId: string): boolean {
     return focusIds.has(taskId);
@@ -25,11 +25,11 @@
       <li>
         <span>{task.title}</span>
         {#if inFocus(task.id)}
-          <Button variant="quiet" onclick={/* remove */ () => void store.removeFromFocus(task.id)}>
+          <Button variant="quiet" onclick={/* remove */ () => void host.removeFromFocus(task.id)}>
             Remove from focus
           </Button>
         {:else}
-          <Button variant="quiet" onclick={/* add */ () => void store.addToFocus(task.id)}>
+          <Button variant="quiet" onclick={/* add */ () => void host.addToFocus(task.id)}>
             Add to focus
           </Button>
         {/if}

@@ -1,7 +1,6 @@
 <script lang="ts">
+  import { CreateEntity, type CreatePayload, type EntityKind } from '../../../planning-actions';
   import { Button, Card } from '../../../ui';
-  import type { EntityKind } from './associations';
-  import CreateEntity, { type CreatePayload } from './CreateEntity.svelte';
   import EntityKindList from './EntityKindList.svelte';
   import type { LibraryStore } from './LibraryStore.svelte';
 
@@ -10,8 +9,6 @@
     title: string;
     emptyLabel: string;
     store: LibraryStore;
-    selectedGoalId?: string | null;
-    onselectGoal?: (goalId: string) => void;
     creating: EntityKind | null;
     onstartCreate: (kind: EntityKind) => void;
     oncreate: (payload: CreatePayload) => void;
@@ -23,8 +20,6 @@
     title,
     emptyLabel,
     store,
-    selectedGoalId = null,
-    onselectGoal,
     creating,
     onstartCreate,
     oncreate,
@@ -68,7 +63,7 @@
       <p class="empty">{emptyLabel}</p>
     {:else if view}
       <div class="list">
-        <EntityKindList {kind} {view} {store} {selectedGoalId} {onselectGoal} />
+        <EntityKindList {kind} {view} {store} />
       </div>
     {/if}
   </Card>

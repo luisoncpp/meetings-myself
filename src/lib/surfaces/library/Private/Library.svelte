@@ -1,17 +1,23 @@
 <script lang="ts">
-  import { Button, SurfaceLayout } from '../../../ui';
-  import AssociationEditor from './AssociationEditor.svelte';
+  import {
+    PlanningActionBar,
+    bindPlanningActionsHost,
+    type CreatePayload,
+    type EntityKind,
+    type PlanningAction,
+  } from '../../../planning-actions';
+  import { SurfaceLayout } from '../../../ui';
   import EntitySection from './EntitySection.svelte';
-  import type { CreatePayload } from './CreateEntity.svelte';
   import { LibraryStore } from './LibraryStore.svelte';
-  import type { EntityKind } from './associations';
-  import WeeklyFocusPanel from './WeeklyFocusPanel.svelte';
 
   let store = $state<LibraryStore>();
   let creating = $state<EntityKind | null>(null);
-  let showLink = $state(false);
-  let showFocus = $state(false);
-  let selectedGoalId = $state<string | null>(null);
+  let activeAction = $state<PlanningAction | null>(null);
+
+  function toggleAction(action: PlanningAction): void {
+    activeAction = activeAction === action ? null : action;
+    if (activeAction !== null) creating = null;
+  }
 
   $effect(() => {
     if (store) return;
@@ -19,8 +25,13 @@
     void store.load();
   });
 
+  function closeAction(): void {
+    activeAction = null;
+  }
+
   function startCreate(kind: EntityKind): void {
     creating = kind;
+    activeAction = null;
   }
 
   function cancelCreate(): void {
@@ -34,18 +45,14 @@
     if (payload.kind === 'habit') await store.createHabit(payload.title, payload.cadence);
     if (payload.kind === 'task') await store.createTask(payload.title);
     creating = null;
+    activeAction = null;
   }
 
-  function markSelectedAchieved(): void {
-    if (!store || !selectedGoalId) return;
-    const goal = store.view?.goals.find((item) => item.id === selectedGoalId);
-    if (!goal || goal.archived) return;
-    if (goal.achieved) {
-      void store.unachieveGoal(goal.id);
-      return;
-    }
-    void store.achieveGoal(goal.id);
+  async function handleToolbarGoalCreate(payload: CreatePayload): Promise<void> {
+    if (payload.kind !== 'goal') return;
+    await handleCreate(payload);
   }
+
 </script>
 
 {#if store}
@@ -72,33 +79,15 @@
           </label>
         </header>
 
-        <div class="toolbar">
-          <Button variant="primary" onclick={/* new goal */ () => startCreate('goal')}>
-            New goal
-          </Button>
-          <Button variant="secondary" onclick={/* mark achieved */ markSelectedAchieved}>
-            Mark achieved
-          </Button>
-          <Button variant="secondary" onclick={/* open link editor */ () => (showLink = !showLink)}>
-            Link
-          </Button>
-          <Button variant="secondary" onclick={/* open weekly focus */ () => (showFocus = !showFocus)}>
-            Weekly focus
-          </Button>
-        </div>
-
-        {#if showLink}
-          <AssociationEditor {view} store={activeStore} onclose={/* close */ () => (showLink = false)} />
-        {/if}
-
-        {#if showFocus}
-          <WeeklyFocusPanel
-            {view}
-            store={activeStore}
-            week={activeStore.week}
-            onclose={/* close */ () => (showFocus = false)}
-          />
-        {/if}
+        <PlanningActionBar
+          active={activeAction}
+          {view}
+          host={bindPlanningActionsHost(activeStore)}
+          week={activeStore.week}
+          ontoggle={toggleAction}
+          onclose={closeAction}
+          oncreateGoal={/* create goal */ (payload) => void handleToolbarGoalCreate(payload)}
+        />
 
         <EntitySection
           kind="value"
@@ -116,8 +105,6 @@
           title="Goals"
           emptyLabel="No goals yet."
           store={activeStore}
-          {selectedGoalId}
-          onselectGoal={/* select */ (goalId) => (selectedGoalId = goalId)}
           {creating}
           onstartCreate={startCreate}
           oncreate={/* create */ (payload) => void handleCreate(payload)}
@@ -175,13 +162,6 @@
     gap: var(--space-2);
     font-size: var(--text-body);
     color: var(--color-ink-muted);
-  }
-
-  .toolbar {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2);
-    margin-bottom: var(--space-4);
   }
 
   .loading {

@@ -18,7 +18,10 @@ use private::plan_commands::{
 use private::review_commands::{
     open_current_review, open_weekly_review, report_path, save_reflection, weekly_summary,
 };
-use private::window_commands::{available_time_zones, open_weekly_review_window, pick_sync_folder};
+use private::window_commands::{
+    attach_weekly_review_lifecycle, available_time_zones, open_weekly_review_window,
+    pick_sync_folder,
+};
 use std::sync::Arc;
 
 /// Builds and runs the desktop application.
@@ -34,6 +37,10 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
         .manage(AppState(Arc::new(tokio::sync::Mutex::new(app))))
+        .setup(|app| {
+            attach_weekly_review_lifecycle(app.handle())?;
+            Ok(())
+        })
         .invoke_handler(tauri::generate_handler![
             app_version,
             store_health,

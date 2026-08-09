@@ -39,6 +39,7 @@
   },
   "dependencies": {
     "@tauri-apps/api": "2.11.1",
+    "marked": "^18.0.9",
     "svelte": "5.56.8"
   }
 }

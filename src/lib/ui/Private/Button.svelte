@@ -4,6 +4,7 @@
   interface Props {
     variant?: 'primary' | 'secondary' | 'quiet';
     disabled?: boolean;
+    pressed?: boolean;
     type?: 'button' | 'submit';
     onclick?: () => void;
     children: Snippet;
@@ -12,13 +13,20 @@
   let {
     variant = 'secondary',
     disabled = false,
+    pressed,
     type = 'button',
     onclick,
     children,
   }: Props = $props();
 </script>
 
-<button class={variant} {type} {disabled} {onclick}>
+<button
+  class={variant}
+  {type}
+  {disabled}
+  aria-pressed={pressed}
+  {onclick}
+>
   {@render children()}
 </button>
 

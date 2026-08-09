@@ -21,7 +21,7 @@
 </script>
 
 <select
-  class="select"
+  class="select control-field"
   {id}
   bind:value
   {disabled}
@@ -30,19 +30,3 @@
 >
   {@render children()}
 </select>
-
-<style>
-  .select {
-    padding: var(--space-2) var(--space-3);
-    border: 1px solid var(--color-hairline);
-    border-radius: var(--radius-control);
-    background: var(--color-raised);
-    color: var(--color-ink);
-    font: inherit;
-  }
-
-  .select:disabled {
-    opacity: 0.55;
-    cursor: not-allowed;
-  }
-</style>

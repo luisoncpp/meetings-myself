@@ -44,8 +44,7 @@
   .header {
     display: flex;
     align-items: baseline;
-    justify-content: space-between;
-    gap: var(--space-2);
+    gap: var(--space-3);
     margin-bottom: var(--space-2);
   }
 
@@ -57,10 +56,7 @@
 
   .status {
     font-size: var(--text-label);
+    font-weight: 500;
     color: var(--color-ink-muted);
-  }
-
-  .reflection :global(textarea) {
-    max-width: 65ch;
   }
 </style>
