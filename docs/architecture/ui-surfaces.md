@@ -28,12 +28,25 @@ Deep modules: folders with `index.ts` are public interfaces; `Private/` holds im
 src/lib/
 ├── api/           ← sole IPC crossing (index.ts + Private/bridge.ts)
 ├── domain/        ← TypeScript mirror of Rust read models
+├── i18n/          ← LocaleStore, catalogs (en/es), t(), localizeError
 ├── shell/         ← AppShell, health gate, navigation, surface routing
 ├── surfaces/      ← daily-plan, library, weekly-review, setup
 └── ui/            ← shared primitives (see below)
 ```
 
 Nothing under `src/` except `api/Private/bridge.ts` may import `@tauri-apps/api`.
+
+## Internationalization (en + es)
+
+All app-authored UI copy, domain labels, health/setup messages, and IPC errors are localized through `src/lib/i18n`:
+
+- `LocaleStore` loads `ui_language` from device settings on boot (`App.svelte` gates rendering until ready).
+- `t(key, params?)` resolves keys from `Private/catalogs/en.json` / `es.json`.
+- `localizeError` maps stable JSON error codes from Rust IPC to catalog strings.
+- Language can be changed on **Setup** and in **Navigation** (`LanguageSelect` in `ui/`). Preference is per-device (`DeviceSettings.ui_language`), not synced.
+- Plan dates use `formatPlanDate(iso, bcp47(locale))`; Weekly Report summary headings and the Reflection starter are generated in Rust from the same language setting.
+
+User-authored content (task titles, reflections, etc.) is never translated.
 
 ## Mutations and optimism
 
@@ -59,7 +72,7 @@ Writes are refused server-side when health is not `ready`; the gate keeps the UI
 | Module | Store | Primary API calls |
 |--------|-------|-------------------|
 | `surfaces/daily-plan` | `DailyPlanStore` | `todayView`, `taskPool`, `reorderPlan`, `completeTask`, `recordCheckIn`, … |
-| `surfaces/library` | `LibraryStore` | `library` (association entities), `recurringTasks`, `createRecurringTask`, `archiveRecurringTask`, `renameRecurringTask`, `archiveEntity`, `createTask`, `link`, … |
+| `surfaces/library` | `LibraryStore` | `library` (association entities), `recurringTasks`, `createRecurringTask`, `archiveRecurringTask`, `renameRecurringTask`, `archiveEntity`, `createTask`, `setTaskOneOff`, `link`, … |
 | `surfaces/weekly-review` | `WeeklyReviewStore` | `openCurrentReview`, `saveReflection`, `weeklySummary`, … |
 | `surfaces/setup` | `SetupStore` | `chooseSyncFolder`, `setHomeZone`, `pickSyncFolder` |
 
@@ -70,6 +83,10 @@ Writes are refused server-side when health is not `ready`; the gate keeps the UI
 `RecurringTaskSection` (after Tasks in `Library.svelte`): create rule with title + recurrence (recurrence fixed at creation — rows show a read-only label), list active rules (or all when **Show archived**), rename title on active rows, archive/restore rule. All mutations are pessimistic (`#change` → API → `load()`).
 
 Creating a rule stores only the `recurring_task` record (`starts_on` = today). It does **not** materialize Tasks. The next `open_today` runs `materialize_due` first, creating missing `Occurrence` + `Task` pairs into the Task Pool — not auto-selected into the daily plan. See [creating-a-recurring-task.md](../flows/creating-a-recurring-task.md) and [daily-planning.md](daily-planning.md#recurring-task-materialization).
+
+### Task completion UI
+
+Only **Daily Plan** (`PlanTaskRow`) and **Library one-off** rows (`TaskRow`) use `TaskCompletionToggle` — a labeled **Mark done** / **Done** pill (not a bare checkbox). Non–one-off Library tasks never surface completion. **Task Pool** never shows completion state.
 
 Shared UI primitives live in `src/lib/ui`; surface-specific rows and panels stay inside each surface's `Private/`.
 

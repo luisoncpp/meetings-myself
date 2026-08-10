@@ -31,7 +31,10 @@ The reversible resting state of a Value, Goal, Habit, or Task that is no longer 
 _Avoid_: delete, trash, remove
 
 **Task Pool**:
-The persistent collection of open Tasks. Selecting a Task into a Weekly Focus or Daily Plan never removes it from the Task Pool.
+The persistent collection of Tasks available for selection into Weekly Focus or a Daily Plan. A Task is poolable while it is active and either open or marked non–one-off (even when completed). One-off Tasks leave the pool when completed. Selecting into focus or a plan never removes a Task from the pool.
+
+**One-off Task**:
+A Task that leaves the Task Pool once completed. Non–one-off Tasks stay poolable while active so recurring work (e.g. monthly payments) remains easy to re-add. Defaults to one-off at creation.
 
 **Task**:
 An actionable item that is open, completed, or archived; completion is reversible. An unfinished Task remains available until deliberately archived.

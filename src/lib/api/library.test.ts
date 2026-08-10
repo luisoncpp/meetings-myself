@@ -14,11 +14,30 @@ describe('library', () => {
 });
 
 describe('createTask', () => {
-  it('forwards the title', async () => {
+  it('forwards the title and oneOff default', async () => {
     invoke.mockResolvedValue({});
     const { createTask } = await import('./index');
     await createTask('Draft the letter');
-    expect(invoke).toHaveBeenCalledWith('create_task', { title: 'Draft the letter' });
+    expect(invoke).toHaveBeenCalledWith('create_task', {
+      title: 'Draft the letter',
+      oneOff: true,
+    });
+  });
+
+  it('forwards oneOff when set to false', async () => {
+    invoke.mockResolvedValue({});
+    const { createTask } = await import('./index');
+    await createTask('Pay rent', /*oneOff=*/false);
+    expect(invoke).toHaveBeenCalledWith('create_task', { title: 'Pay rent', oneOff: false });
+  });
+});
+
+describe('setTaskOneOff', () => {
+  it('forwards task and oneOff', async () => {
+    invoke.mockResolvedValue(undefined);
+    const { setTaskOneOff } = await import('./index');
+    await setTaskOneOff('t1', /*oneOff=*/false);
+    expect(invoke).toHaveBeenCalledWith('set_task_one_off', { task: 't1', oneOff: false });
   });
 });
 

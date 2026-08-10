@@ -85,7 +85,10 @@ mod tests {
         let week = app.calendar().unwrap().current_week(app.clock_ref());
         assert!(app.weekly_focus(week).await.unwrap().tasks.is_empty());
 
-        let task = app.create_task("Prepare portfolio".into()).await.unwrap();
+        let task = app
+            .create_task("Prepare portfolio".into(), /*one_off=*/ true)
+            .await
+            .unwrap();
         app.add_to_focus(FocusChange {
             week,
             task: task.id.clone(),
@@ -99,7 +102,10 @@ mod tests {
     async fn selecting_into_a_focus_never_removes_the_task_from_the_pool() {
         let (_home, _drive, app, _clock) = app_on(7).await;
         let week = app.calendar().unwrap().current_week(app.clock_ref());
-        let task = app.create_task("Prepare portfolio".into()).await.unwrap();
+        let task = app
+            .create_task("Prepare portfolio".into(), /*one_off=*/ true)
+            .await
+            .unwrap();
         app.add_to_focus(FocusChange {
             week,
             task: task.id.clone(),
@@ -121,7 +127,10 @@ mod tests {
     async fn an_archived_task_cannot_be_newly_selected_into_a_focus() {
         let (_home, _drive, app, _clock) = app_on(7).await;
         let week = app.calendar().unwrap().current_week(app.clock_ref());
-        let task = app.create_task("Old idea".into()).await.unwrap();
+        let task = app
+            .create_task("Old idea".into(), /*one_off=*/ true)
+            .await
+            .unwrap();
         app.archive_task(&task.id).await.unwrap();
 
         assert!(matches!(
@@ -139,7 +148,10 @@ mod tests {
     async fn archiving_a_task_already_in_a_focus_leaves_the_entry_in_place() {
         let (_home, _drive, app, _clock) = app_on(7).await;
         let week = app.calendar().unwrap().current_week(app.clock_ref());
-        let task = app.create_task("Prepare portfolio".into()).await.unwrap();
+        let task = app
+            .create_task("Prepare portfolio".into(), /*one_off=*/ true)
+            .await
+            .unwrap();
         app.add_to_focus(FocusChange {
             week,
             task: task.id.clone(),

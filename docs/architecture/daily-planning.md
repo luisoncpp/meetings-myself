@@ -50,6 +50,12 @@ Those ids are stored in the new plan's `habits` list. **Seeding happens once, at
 
 `open_today` calls `materialize_due` first (so the Task Pool is complete), then `open_plan(today)`.
 
+## Task Pool membership
+
+`task_pool` includes every active Task that is either open or non–one-off (completed non–one-off Tasks stay poolable). One-off Tasks that are completed or archived are excluded. Weekly Focus ids still sort into `focus` vs `rest`; membership is independent of focus.
+
+Completion UI is **Daily Plan only** — Task Pool and Library rows never show a completion checkbox or completed flag.
+
 ## Recurring Task materialization
 
 `RecurringTask` rules are factories. `materialize_due` walks active rules from `first_candidate` through today, creating a `Task` and an `Occurrence` record for each missing due date. The `Occurrence` key makes a second call a no-op (acceptance A5).

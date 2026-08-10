@@ -1,12 +1,18 @@
 import type { CheckInOutcome } from '../../domain';
+import { t } from '../../i18n';
+
+function outcomeLabel(value: CheckInOutcome): string {
+  if (value === 'notCompleted') return t('domain.checkIn.notCompleted');
+  return t(`domain.checkIn.${value}`);
+}
 
 export const OUTCOME_OPTIONS: ReadonlyArray<{
   value: CheckInOutcome;
   label: string;
 }> = [
-  { value: 'done', label: 'Done' },
-  { value: 'skipped', label: 'Skipped' },
-  { value: 'notCompleted', label: 'Not completed' },
+  { value: 'done', label: outcomeLabel('done') },
+  { value: 'skipped', label: outcomeLabel('skipped') },
+  { value: 'notCompleted', label: outcomeLabel('notCompleted') },
 ];
 
 const OUTCOME_ORDER: readonly CheckInOutcome[] = OUTCOME_OPTIONS.map(

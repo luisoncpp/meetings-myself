@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { RecurringTask } from '../../../domain';
+  import { t } from '../../../i18n';
   import { Button, Input, ListRow, StateFlag } from '../../../ui';
   import type { LibraryStore } from './LibraryStore.svelte';
   import { recurrenceLabel } from './recurrence-label';
@@ -40,7 +41,7 @@
     {:else}
       <Input
         bind:value={title}
-        aria-label="Recurring task title"
+        aria-label={t('library.recurringTaskTitle')}
         onchange={/* rename */ onTitleChange}
       />
     {/if}
@@ -51,7 +52,7 @@
   </div>
   {#snippet trailing()}
     <Button variant="quiet" onclick={/* archive or restore */ toggleArchive}>
-      {archived ? 'Restore' : 'Archive'}
+      {archived ? t('common.restore') : t('common.archive')}
     </Button>
   {/snippet}
 </ListRow>

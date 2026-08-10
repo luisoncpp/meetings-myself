@@ -25,7 +25,7 @@ describe('plan-date', () => {
   });
 
   it('formats with a long date style', () => {
-    expect(formatPlanDate('2026-08-07')).toMatch(/2026/);
-    expect(formatPlanDate('2026-08-07')).toMatch(/7|07/);
+    expect(formatPlanDate('2026-08-07', 'en-US')).toMatch(/2026/);
+    expect(formatPlanDate('2026-08-07', 'en-US')).toMatch(/7|07/);
   });
 });

@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { Cadence, Weekday } from '../../domain';
+  import { t } from '../../i18n';
   import { Button, Field, Input } from '../../ui';
   import { createButtonLabel, entityNameLabel } from './create-entity-copy';
   import CreateHabitCadence from './CreateHabitCadence.svelte';
@@ -15,13 +16,14 @@
     | { kind: 'value'; title: string }
     | { kind: 'goal'; title: string; targetDate: string | null }
     | { kind: 'habit'; title: string; cadence: Cadence }
-    | { kind: 'task'; title: string };
+    | { kind: 'task'; title: string; oneOff: boolean };
 
   let { kind, oncreate, oncancel }: Props = $props();
 
   let title = $state('');
   let targetDate = $state('');
   let selectedDays = $state<Weekday[]>([]);
+  let oneOff = $state(true);
 
   const nameLabel = $derived(entityNameLabel(kind));
   const submitLabel = $derived(createButtonLabel(kind));
@@ -61,18 +63,18 @@
       oncreate({ kind: 'habit', title: trimmed, cadence: cadenceFromDays(selectedDays) });
       return;
     }
-    oncreate({ kind: 'task', title: trimmed });
+    oncreate({ kind: 'task', title: trimmed, oneOff });
   }
 </script>
 
 <form class="create" onsubmit={/* create entity */ (event) => { event.preventDefault(); submit(); }}>
   <Field label={nameLabel}>
-    <Input bind:value={title} aria-label={kind === 'habit' ? 'Habit name' : undefined} />
+    <Input bind:value={title} aria-label={kind === 'habit' ? entityNameLabel(kind) : undefined} />
   </Field>
 
   {#if kind === 'goal'}
-    <Field label="Target date">
-      <Input type="date" bind:value={targetDate} aria-label="Target date" />
+    <Field label={t('createEntity.targetDate')}>
+      <Input type="date" bind:value={targetDate} aria-label={t('createEntity.targetDate')} />
     </Field>
   {/if}
 
@@ -80,9 +82,16 @@
     <CreateHabitCadence selectedDays={selectedDays} ontoggle={toggleDay} />
   {/if}
 
+  {#if kind === 'task'}
+    <label class="checkbox-label">
+      <input type="checkbox" bind:checked={oneOff} />
+      {t('createEntity.oneOff')}
+    </label>
+  {/if}
+
   <div class="actions">
     <Button type="submit" variant="primary" disabled={!canSubmit}>{submitLabel}</Button>
-    <Button variant="quiet" onclick={/* cancel */ oncancel}>Cancel</Button>
+    <Button variant="quiet" onclick={/* cancel */ oncancel}>{t('common.cancel')}</Button>
   </div>
 </form>
 

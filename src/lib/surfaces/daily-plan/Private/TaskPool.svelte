@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { TaskPoolView, TaskView } from '../../../domain';
+  import { t } from '../../../i18n';
 
   interface Props {
     pool: TaskPoolView;
@@ -9,11 +10,11 @@
   let { pool, onselect }: Props = $props();
 </script>
 
-<div role="region" aria-label="Task pool" class="pool">
-  <h2>Task Pool</h2>
+<div role="region" aria-label={t('dailyPlan.taskPoolRegion')} class="pool">
+  <h2>{t('dailyPlan.taskPool')}</h2>
 
   {#if pool.focus.length > 0}
-    <h3>In this week's focus</h3>
+    <h3>{t('dailyPlan.inFocus')}</h3>
     <ul class="tasks">
       {#each pool.focus as task (task.id)}
         <li>{@render poolRow(task)}</li>
@@ -23,7 +24,7 @@
 
   {#if pool.rest.length > 0}
     {#if pool.focus.length > 0}
-      <h3 class="rest-heading">Everything else</h3>
+      <h3 class="rest-heading">{t('dailyPlan.everythingElse')}</h3>
     {/if}
     <ul class="tasks">
       {#each pool.rest as task (task.id)}
@@ -39,10 +40,10 @@
     <button
       type="button"
       class="add"
-      aria-label="Add to today: {task.title}"
+      aria-label={t('dailyPlan.addToTodayFor', { title: task.title })}
       onclick={/* add to today */ () => onselect(task.id)}
     >
-      Add to today
+      {t('dailyPlan.addToToday')}
     </button>
   </div>
 {/snippet}

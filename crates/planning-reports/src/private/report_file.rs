@@ -7,6 +7,7 @@ use std::path::{Path, PathBuf};
 pub struct WriteReport {
     pub front_matter: ReportFrontMatter,
     pub summary_markdown: String,
+    pub reflection_starter: String,
 }
 
 pub struct SaveBody {
@@ -48,7 +49,7 @@ impl WeeklyReportFile {
     pub fn write(&self, request: WriteReport) -> Result<(), ReportError> {
         let week_label = request.front_matter.week.clone();
         let existing_body = self.read(&week_label)?.map(|document| document.body);
-        let body = existing_body.unwrap_or_else(starter_body);
+        let body = existing_body.unwrap_or_else(|| request.reflection_starter.clone());
 
         let document = ReportDocument {
             front_matter: request.front_matter,
@@ -75,10 +76,6 @@ impl WeeklyReportFile {
     }
 }
 
-fn starter_body() -> String {
-    "\n\n## Reflection\n\n".to_string()
-}
-
 fn create_parent(path: &Path) -> Result<(), ReportError> {
     let Some(parent) = path.parent() else {
         return Ok(());
@@ -90,6 +87,8 @@ fn create_parent(path: &Path) -> Result<(), ReportError> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    const STARTER: &str = "\n\n## Reflection\n\n";
     use chrono::{NaiveDate, TimeZone, Utc};
     use tempfile::TempDir;
 
@@ -121,6 +120,7 @@ mod tests {
             .write(WriteReport {
                 front_matter: front_matter(),
                 summary_markdown: "Old".into(),
+                reflection_starter: STARTER.into(),
             })
             .unwrap();
         reports
@@ -135,6 +135,7 @@ mod tests {
             .write(WriteReport {
                 front_matter: front_matter(),
                 summary_markdown: "New".into(),
+                reflection_starter: STARTER.into(),
             })
             .unwrap();
 
@@ -164,6 +165,7 @@ mod tests {
             .write(WriteReport {
                 front_matter: front_matter(),
                 summary_markdown: "S".into(),
+                reflection_starter: STARTER.into(),
             })
             .unwrap();
 
@@ -180,6 +182,7 @@ mod tests {
             .write(WriteReport {
                 front_matter: front_matter(),
                 summary_markdown: "S2".into(),
+                reflection_starter: STARTER.into(),
             })
             .unwrap();
         let document = reports.read("2026-W32").unwrap().unwrap();

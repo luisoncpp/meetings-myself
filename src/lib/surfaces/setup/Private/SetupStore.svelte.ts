@@ -6,12 +6,9 @@ import {
   type StoreHealth,
 } from '../../../api';
 
-type SetupStep = 'folder' | 'zone';
+import { localizeError } from '../../../i18n';
 
-function errorMessage(error: unknown): string {
-  if (error instanceof Error) return error.message;
-  return String(error);
-}
+type SetupStep = 'folder' | 'zone';
 
 export class SetupStore {
   chosenFolder = $state<string | null>(null);
@@ -36,7 +33,7 @@ export class SetupStore {
     try {
       this.timeZones = await availableTimeZones();
     } catch (error) {
-      this.lastError = errorMessage(error);
+      this.lastError = localizeError(error instanceof Error ? error.message : String(error));
     }
   }
 
@@ -58,7 +55,7 @@ export class SetupStore {
         this.onready();
       }
     } catch (error) {
-      this.lastError = errorMessage(error);
+      this.lastError = localizeError(error instanceof Error ? error.message : String(error));
     }
   }
 
@@ -72,7 +69,7 @@ export class SetupStore {
         this.onready();
       }
     } catch (error) {
-      this.lastError = errorMessage(error);
+      this.lastError = localizeError(error instanceof Error ? error.message : String(error));
     }
   }
 }

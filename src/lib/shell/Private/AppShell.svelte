@@ -1,5 +1,6 @@
 <script lang="ts">
   import { storeHealth, type StoreHealth } from '../../api';
+  import { t } from '../../i18n';
   import { SurfaceLayout } from '../../ui';
   import { Setup } from '../../surfaces/setup';
   import { DailyPlan } from '../../surfaces/daily-plan';
@@ -30,7 +31,7 @@
 <div class="shell">
   {#if health === null}
     <SurfaceLayout>
-      <p class="loading">Loading…</p>
+      <p class="loading">{t('shell.loading')}</p>
     </SurfaceLayout>
   {:else if health.status === 'setupIncomplete'}
     <Setup {health} onready={refreshHealth} />

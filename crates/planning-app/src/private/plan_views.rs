@@ -91,7 +91,9 @@ impl PlanningApp {
         let focus_ids: HashSet<_> = focus.tasks.iter().cloned().collect();
         let tasks = self.tasks().await?;
 
-        let poolable = |task: &Task| task.lifecycle.is_active() && !task.completion.is_complete();
+        let poolable = |task: &Task| {
+            task.lifecycle.is_active() && (!task.completion.is_complete() || !task.one_off)
+        };
 
         let by_id: std::collections::HashMap<_, _> =
             tasks.iter().map(|task| (task.id.clone(), task)).collect();
@@ -136,8 +138,14 @@ mod tests {
     async fn a_plan_entry_whose_entity_was_archived_renders_flagged_and_ordered() {
         let (_home, _drive, app, _clock) = app_on(7).await;
         let today = app.calendar().unwrap().today(app.clock_ref());
-        let kept = app.create_task("Keep".into()).await.unwrap();
-        let archived = app.create_task("Archive me".into()).await.unwrap();
+        let kept = app
+            .create_task("Keep".into(), /*one_off=*/ true)
+            .await
+            .unwrap();
+        let archived = app
+            .create_task("Archive me".into(), /*one_off=*/ true)
+            .await
+            .unwrap();
         for id in [&kept.id, &archived.id] {
             app.select_into_plan(PlanChange {
                 date: today,
@@ -202,10 +210,22 @@ mod tests {
     async fn the_task_pool_puts_weekly_focus_tasks_first_and_excludes_closed_ones() {
         let (_home, _drive, app, _clock) = app_on(7).await;
         let week = app.calendar().unwrap().current_week(app.clock_ref());
-        let focused = app.create_task("Focused".into()).await.unwrap();
-        let other = app.create_task("Other".into()).await.unwrap();
-        let done = app.create_task("Done".into()).await.unwrap();
-        let gone = app.create_task("Archived".into()).await.unwrap();
+        let focused = app
+            .create_task("Focused".into(), /*one_off=*/ true)
+            .await
+            .unwrap();
+        let other = app
+            .create_task("Other".into(), /*one_off=*/ true)
+            .await
+            .unwrap();
+        let done = app
+            .create_task("Done".into(), /*one_off=*/ true)
+            .await
+            .unwrap();
+        let gone = app
+            .create_task("Archived".into(), /*one_off=*/ true)
+            .await
+            .unwrap();
         app.add_to_focus(FocusChange {
             week,
             task: focused.id.clone(),
@@ -227,10 +247,51 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn a_completed_non_one_off_task_stays_in_the_pool() {
+        let (_home, _drive, app, _clock) = app_on(7).await;
+        let reusable = app
+            .create_task("Pay rent".into(), /*one_off=*/ false)
+            .await
+            .unwrap();
+        app.complete_task(&reusable.id).await.unwrap();
+
+        let pool = app.task_pool().await.unwrap();
+        let ids: Vec<_> = pool
+            .focus
+            .iter()
+            .chain(pool.rest.iter())
+            .map(|task| task.id.clone())
+            .collect();
+        assert!(ids.contains(&reusable.id));
+    }
+
+    #[tokio::test]
+    async fn a_completed_one_off_task_leaves_the_pool() {
+        let (_home, _drive, app, _clock) = app_on(7).await;
+        let disposable = app
+            .create_task("Buy milk".into(), /*one_off=*/ true)
+            .await
+            .unwrap();
+        app.complete_task(&disposable.id).await.unwrap();
+
+        let pool = app.task_pool().await.unwrap();
+        let ids: Vec<_> = pool
+            .focus
+            .iter()
+            .chain(pool.rest.iter())
+            .map(|task| task.id.clone())
+            .collect();
+        assert!(!ids.contains(&disposable.id));
+    }
+
+    #[tokio::test]
     async fn an_orphaned_id_in_a_plan_is_skipped_not_an_error() {
         let (_home, _drive, app, _clock) = app_on(7).await;
         let today = app.calendar().unwrap().today(app.clock_ref());
-        let task = app.create_task("Real".into()).await.unwrap();
+        let task = app
+            .create_task("Real".into(), /*one_off=*/ true)
+            .await
+            .unwrap();
         app.select_into_plan(PlanChange {
             date: today,
             task: task.id.clone(),

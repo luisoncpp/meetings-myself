@@ -26,6 +26,7 @@ pub struct TaskView {
     pub deadline: Option<NaiveDate>,
     pub overdue: bool,
     pub archived: bool,
+    pub one_off: bool,
 }
 
 impl TaskView {
@@ -40,6 +41,7 @@ impl TaskView {
             deadline: task.deadline,
             overdue: task.is_overdue(today),
             archived: !task.lifecycle.is_active(),
+            one_off: task.one_off,
         }
     }
 }
@@ -142,8 +144,14 @@ mod tests {
     #[tokio::test]
     async fn the_library_hides_archived_entries_by_default_and_can_show_them() {
         let (_home, _drive, app) = ready_app().await;
-        let kept = app.create_task("Keep".into()).await.unwrap();
-        let gone = app.create_task("Archive me".into()).await.unwrap();
+        let kept = app
+            .create_task("Keep".into(), /*one_off=*/ true)
+            .await
+            .unwrap();
+        let gone = app
+            .create_task("Archive me".into(), /*one_off=*/ true)
+            .await
+            .unwrap();
         app.archive_task(&gone.id).await.unwrap();
 
         let everyday = app
@@ -177,7 +185,10 @@ mod tests {
     #[tokio::test]
     async fn overdue_is_projected_from_the_home_date_not_stored() {
         let (_home, _drive, app) = ready_app().await;
-        let task = app.create_task("File taxes".into()).await.unwrap();
+        let task = app
+            .create_task("File taxes".into(), /*one_off=*/ true)
+            .await
+            .unwrap();
         app.set_task_deadline(SetDeadline {
             task: &task.id,
             deadline: Some(NaiveDate::from_ymd_opt(2026, 8, 6).unwrap()),
@@ -218,10 +229,11 @@ mod tests {
             deadline: Some(NaiveDate::from_ymd_opt(2026, 8, 6).unwrap()),
             overdue: true,
             archived: false,
+            one_off: true,
         };
         assert_eq!(
             serde_json::to_string(&view).unwrap(),
-            r#"{"id":"t1","title":"File taxes","state":"open","importance":"high","urgency":"unclassified","deadline":"2026-08-06","overdue":true,"archived":false}"#
+            r#"{"id":"t1","title":"File taxes","state":"open","importance":"high","urgency":"unclassified","deadline":"2026-08-06","overdue":true,"archived":false,"oneOff":true}"#
         );
     }
 

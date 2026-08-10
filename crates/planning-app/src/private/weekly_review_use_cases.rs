@@ -5,8 +5,16 @@ use super::views::TaskView;
 use super::weekly_summary::WeeklySummary;
 use planning_core::{CalendarWeek, StartReview, WeeklyReview, WeeklyReviewId};
 use planning_reports::{ReportFrontMatter, SaveBody, WriteReport};
+use planning_store::UiLanguage;
 use serde::Serialize;
 use std::path::PathBuf;
+
+fn reflection_starter(language: UiLanguage) -> String {
+    match language {
+        UiLanguage::Es => "\n\n## Reflexión\n\n".to_string(),
+        UiLanguage::En => "\n\n## Reflection\n\n".to_string(),
+    }
+}
 
 pub struct SaveReflection {
     pub week: CalendarWeek,
@@ -89,7 +97,8 @@ impl PlanningApp {
                 schema: ReportFrontMatter::SCHEMA,
                 generated_at: self.clock.now(),
             },
-            summary_markdown: summary_markdown::render(summary),
+            summary_markdown: summary_markdown::render(summary, self.settings.ui_language),
+            reflection_starter: reflection_starter(self.settings.ui_language),
         })?;
         Ok(())
     }
@@ -142,7 +151,10 @@ mod tests {
         let (_home, drive, app, clock) = app_on(7).await;
         let week = app.calendar().unwrap().current_week(app.clock_ref());
 
-        let task = app.create_task("Prepare portfolio".into()).await.unwrap();
+        let task = app
+            .create_task("Prepare portfolio".into(), /*one_off=*/ true)
+            .await
+            .unwrap();
         app.complete_task(&task.id).await.unwrap();
 
         let view = app.open_weekly_review(week).await.unwrap();
@@ -188,7 +200,10 @@ mod tests {
         .unwrap();
 
         clock.advance(Duration::days(21));
-        let task = app.create_task("Late entry".into()).await.unwrap();
+        let task = app
+            .create_task("Late entry".into(), /*one_off=*/ true)
+            .await
+            .unwrap();
         app.complete_task(&task.id).await.unwrap();
 
         let reopened = app.open_weekly_review(week).await.unwrap();
@@ -225,7 +240,10 @@ mod tests {
             })
             .await
             .unwrap();
-        let task = app.create_task("Prepare portfolio".into()).await.unwrap();
+        let task = app
+            .create_task("Prepare portfolio".into(), /*one_off=*/ true)
+            .await
+            .unwrap();
 
         app.achieve_goal(&goal.id).await.unwrap();
         app.add_to_focus(FocusChange {
@@ -277,12 +295,13 @@ mod tests {
                 deadline: None,
                 overdue: false,
                 archived: false,
+                one_off: true,
             }],
             report_path: std::path::PathBuf::from("/sync/weekly-reports/2026-W32-weekly-report.md"),
         };
         assert_eq!(
             serde_json::to_string(&view).unwrap(),
-            r#"{"week":"2026-W32","summary":{"week":"2026-W32","completed":["Prepare portfolio"],"stillOpen":1,"overdue":[],"habits":[{"title":"Writing","done":2,"skipped":0,"notCompleted":1}],"goalsAchieved":[]},"reflection":"A quiet week.","previousReport":"Prior week done.","nextWeekFocus":[{"id":"t1","title":"Call the bank","state":"open","importance":"high","urgency":"low","deadline":null,"overdue":false,"archived":false}],"reportPath":"/sync/weekly-reports/2026-W32-weekly-report.md"}"#
+            r#"{"week":"2026-W32","summary":{"week":"2026-W32","completed":["Prepare portfolio"],"stillOpen":1,"overdue":[],"habits":[{"title":"Writing","done":2,"skipped":0,"notCompleted":1}],"goalsAchieved":[]},"reflection":"A quiet week.","previousReport":"Prior week done.","nextWeekFocus":[{"id":"t1","title":"Call the bank","state":"open","importance":"high","urgency":"low","deadline":null,"overdue":false,"archived":false,"oneOff":true}],"reportPath":"/sync/weekly-reports/2026-W32-weekly-report.md"}"#
         );
     }
 }

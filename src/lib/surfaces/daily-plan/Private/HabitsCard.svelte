@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { CheckInOutcome, PlanHabitView } from '../../../domain';
+  import { t } from '../../../i18n';
   import { Card } from '../../../ui';
   import HabitList from './HabitList.svelte';
 
@@ -12,9 +13,9 @@
 </script>
 
 <Card>
-  <h2>Habits</h2>
+  <h2>{t('dailyPlan.habits')}</h2>
   {#if habits.length === 0}
-    <p class="empty">No habits due today.</p>
+    <p class="empty">{t('dailyPlan.habitsEmpty')}</p>
   {:else}
     <HabitList {habits} {oncheckin} />
   {/if}

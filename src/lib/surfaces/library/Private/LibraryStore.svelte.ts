@@ -49,7 +49,6 @@ export class LibraryStore implements PlanningActionsHost {
   }
 
   // Used from RecurringTaskSection.svelte template.
-  // fallow-ignore-next-line unused-class-member
   get recurringTasks(): RecurringTask[] {
     if (this.#includeArchived) {
       return this.#recurringTasks;
@@ -101,9 +100,8 @@ export class LibraryStore implements PlanningActionsHost {
   }
 
   // Used from Library.svelte script.
-  // fallow-ignore-next-line unused-class-member
-  async createTask(title: string): Promise<void> {
-    await this.#change(/* createTask= */ () => api.createTask(title));
+  async createTask(title: string, oneOff: boolean): Promise<void> {
+    await this.#change(/* createTask= */ () => api.createTask(title, oneOff));
   }
 
   async createRecurringTask(title: string, recurrence: Recurrence): Promise<void> {
@@ -148,6 +146,10 @@ export class LibraryStore implements PlanningActionsHost {
 
   async setDeadline(taskId: string, deadline: string | null): Promise<void> {
     await this.#change(/* setDeadline= */ () => api.setTaskDeadline(taskId, deadline));
+  }
+
+  async setTaskOneOff(taskId: string, oneOff: boolean): Promise<void> {
+    await this.#change(/* setTaskOneOff= */ () => api.setTaskOneOff(taskId, oneOff));
   }
 
   async toggleTask(task: TaskView): Promise<void> {

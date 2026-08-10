@@ -9,6 +9,7 @@
     "zones": [
       { "name": "api", "patterns": ["src/lib/api/**"] },
       { "name": "domain", "patterns": ["src/lib/domain/**"] },
+      { "name": "i18n", "patterns": ["src/lib/i18n/**"] },
       { "name": "ui", "patterns": ["src/lib/ui/**"] },
       { "name": "planning-actions", "patterns": ["src/lib/planning-actions/**"] },
       {
@@ -16,14 +17,17 @@
         "patterns": ["src/lib/surfaces/**"],
         "autoDiscover": ["src/lib/surfaces"]
       },
+      { "name": "shell", "patterns": ["src/lib/shell/**"] },
       { "name": "app", "patterns": ["src/**", "!src/lib/**"] }
     ],
     "rules": [
-      { "from": "app", "allow": ["api", "domain", "ui", "surfaces"] },
+      { "from": "app", "allow": ["api", "domain", "i18n", "ui", "shell", "surfaces"] },
       { "from": "api", "allow": ["domain"] },
-      { "from": "ui", "allow": ["domain"] },
-      { "from": "surfaces", "allow": ["api", "domain", "ui", "planning-actions"] },
-      { "from": "planning-actions", "allow": ["api", "domain", "ui"] },
+      { "from": "i18n", "allow": ["api"] },
+      { "from": "ui", "allow": ["domain", "i18n", "api"] },
+      { "from": "shell", "allow": ["api", "domain", "i18n", "ui", "surfaces"] },
+      { "from": "surfaces", "allow": ["api", "domain", "i18n", "ui", "planning-actions"] },
+      { "from": "planning-actions", "allow": ["api", "domain", "i18n", "ui"] },
       { "from": "domain", "allow": [] }
     ]
   },

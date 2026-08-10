@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { Association, AssociationEnd, LibraryView } from '../../domain';
+  import { t } from '../../i18n';
   import { Button, Field, InsetPanel, Select } from '../../ui';
   import * as api from '../../api';
   import {
@@ -66,31 +67,31 @@
   }
 </script>
 
-<InsetPanel title="Link associations" label="Association editor">
+<InsetPanel title={t('planningActions.linkAssociations')} label={t('planningActions.associationEditor')}>
   <div class="pickers">
-    <Field label="From">
+    <Field label={t('planningActions.from')}>
       <Select bind:value={fromKind}>
-        <option value="value">Value</option>
-        <option value="goal">Goal</option>
-        <option value="habit">Habit</option>
-        <option value="task">Task</option>
+        <option value="value">{t('domain.entityKind.value')}</option>
+        <option value="goal">{t('domain.entityKind.goal')}</option>
+        <option value="habit">{t('domain.entityKind.habit')}</option>
+        <option value="task">{t('domain.entityKind.task')}</option>
       </Select>
       <Select bind:value={fromId}>
-        <option value="">Select…</option>
+        <option value="">{t('common.select')}</option>
         {#each entitiesFor(fromKind) as item (item.id)}
           <option value={item.id}>{item.title}</option>
         {/each}
       </Select>
     </Field>
 
-    <Field label="To">
+    <Field label={t('planningActions.to')}>
       <Select bind:value={toKind}>
         {#each allowedTargets as kind (kind)}
-          <option value={kind}>{kind}</option>
+          <option value={kind}>{t(`domain.entityKind.${kind}`)}</option>
         {/each}
       </Select>
       <Select bind:value={toId}>
-        <option value="">Select…</option>
+        <option value="">{t('common.select')}</option>
         {#each candidatesFor(view, toKind) as end (end.id)}
           <option value={end.id}>{entityTitle(view, end)}</option>
         {/each}
@@ -99,7 +100,7 @@
   </div>
 
   <Button variant="primary" disabled={fromId === '' || toId === ''} onclick={/* link */ linkEntities}>
-    Link
+    {t('common.link')}
   </Button>
 
   {#if links.length > 0}
@@ -108,7 +109,7 @@
         <li>
           {entityTitle(view, link.left)} ↔ {entityTitle(view, link.right)}
           <Button variant="quiet" onclick={/* unlink */ () => void host.unlink(link.id)}>
-            Unlink
+            {t('common.unlink')}
           </Button>
         </li>
       {/each}
@@ -116,7 +117,7 @@
   {/if}
 
   {#snippet footer()}
-    <Button variant="quiet" onclick={/* close */ onclose}>Close</Button>
+    <Button variant="quiet" onclick={/* close */ onclose}>{t('common.close')}</Button>
   {/snippet}
 </InsetPanel>
 

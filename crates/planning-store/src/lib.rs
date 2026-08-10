@@ -9,4 +9,5 @@ pub use private::error::StoreError;
 pub use private::health::{Assessment, SetupGap, StoreHealth};
 pub use private::home_settings::{HomeSettings, HomeSettingsRepository, SetZone};
 pub use private::records::{RecordKey, Records};
+pub use private::ui_language::UiLanguage;
 pub use private::writer_lock::{AcquireLock, WriterLock};

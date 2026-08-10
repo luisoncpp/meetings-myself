@@ -1,6 +1,7 @@
 <script lang="ts">
-  import type { Classification, PlanTaskView } from '../../../domain';
-  import { ListRow, StateFlag } from '../../../ui';
+  import type { PlanTaskView } from '../../../domain';
+  import { t } from '../../../i18n';
+  import { ListRow, StateFlag, TaskCompletionToggle } from '../../../ui';
 
   interface Props {
     task: PlanTaskView;
@@ -8,20 +9,14 @@
   }
 
   let { task, ontoggle }: Props = $props();
-
-  const CLASS_LABELS: Record<Exclude<Classification, 'unclassified'>, string> = {
-    low: 'Low',
-    high: 'High',
-  };
 </script>
 
 <ListRow muted={task.archived || task.state === 'completed'}>
   {#snippet leading()}
-    <input
-      type="checkbox"
-      checked={task.state === 'completed'}
-      aria-label={task.title}
-      onchange={/* toggle completion */ ontoggle}
+    <TaskCompletionToggle
+      completed={task.state === 'completed'}
+      taskTitle={task.title}
+      ontoggle={/* toggle completion */ ontoggle}
     />
   {/snippet}
   <div class="main">
@@ -33,18 +28,19 @@
       {#if task.overdue}
         <StateFlag kind="overdue" />
       {/if}
-      {#if task.state === 'completed'}
-        <StateFlag kind="completed" />
-      {/if}
     </div>
   </div>
   {#snippet trailing()}
     <div class="chips">
-      {#if task.importance !== 'unclassified'}
-        <span class="chip">{CLASS_LABELS[task.importance]} importance</span>
+      {#if task.importance === 'low'}
+        <span class="chip">{t('dailyPlan.lowImportance')}</span>
+      {:else if task.importance === 'high'}
+        <span class="chip">{t('dailyPlan.highImportance')}</span>
       {/if}
-      {#if task.urgency !== 'unclassified'}
-        <span class="chip">{CLASS_LABELS[task.urgency]} urgency</span>
+      {#if task.urgency === 'low'}
+        <span class="chip">{t('dailyPlan.lowUrgency')}</span>
+      {:else if task.urgency === 'high'}
+        <span class="chip">{t('dailyPlan.highUrgency')}</span>
       {/if}
     </div>
   {/snippet}

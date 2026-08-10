@@ -1,4 +1,5 @@
 use super::error::StoreError;
+use super::ui_language::UiLanguage;
 use chrono::{NaiveDate, NaiveTime};
 use directories::ProjectDirs;
 use serde::{Deserialize, Serialize};
@@ -15,6 +16,8 @@ pub struct DeviceSettings {
     pub launch_time: NaiveTime,
     pub retry_window_minutes: u32,
     pub last_missed_prompt: Option<NaiveDate>,
+    #[serde(default)]
+    pub ui_language: UiLanguage,
 }
 
 impl Default for DeviceSettings {
@@ -26,6 +29,7 @@ impl Default for DeviceSettings {
             launch_time: NaiveTime::from_hms_opt(7, 0, 0).expect("07:00 is a valid time"),
             retry_window_minutes: 240,
             last_missed_prompt: None,
+            ui_language: UiLanguage::detect_default(),
         }
     }
 }

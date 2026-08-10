@@ -1,6 +1,8 @@
 <script lang="ts">
   import type { TaskView } from '../../../domain';
 
+  import { t } from '../../../i18n';
+
   interface Props {
     tasks: TaskView[];
   }
@@ -9,9 +11,9 @@
 </script>
 
 <section class="focus" aria-labelledby="next-focus-heading">
-  <h2 id="next-focus-heading">Next week focus</h2>
+  <h2 id="next-focus-heading">{t('weeklyReview.nextWeekFocus')}</h2>
   {#if tasks.length === 0}
-    <p class="empty">Nothing chosen yet.</p>
+    <p class="empty">{t('weeklyReview.nothingChosen')}</p>
   {:else}
     <ul>
       {#each tasks as task (task.id)}

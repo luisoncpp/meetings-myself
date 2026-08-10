@@ -1,4 +1,5 @@
 import type { CheckInOutcome, DailyPlanView, PlanTaskView, TaskPoolView } from '../../../domain';
+import { localizeError } from '../../../i18n';
 import * as api from '../../../api';
 
 /**
@@ -116,5 +117,5 @@ function reindex(order: string[], tasks: PlanTaskView[]): PlanTaskView[] {
 }
 
 function message(failure: unknown): string {
-  return failure instanceof Error ? failure.message : String(failure);
+  return localizeError(failure instanceof Error ? failure.message : String(failure));
 }

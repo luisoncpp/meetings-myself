@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { Recurrence, Weekday } from '../../../domain';
+  import { t } from '../../../i18n';
   import { Field, Input, Select } from '../../../ui';
   import { WEEKDAYS } from './labels';
   import { buildRecurrence, isRecurrenceValid } from './recurrence-label';
@@ -13,10 +14,10 @@
     $props();
 
   const KIND_OPTIONS: { value: Recurrence['kind']; label: string }[] = [
-    { value: 'daily', label: 'Daily' },
-    { value: 'weekdays', label: 'Weekdays' },
-    { value: 'weekly', label: 'Weekly' },
-    { value: 'monthlyDay', label: 'Monthly (day of month)' },
+    { value: 'daily', label: t('domain.recurrence.daily') },
+    { value: 'weekdays', label: t('domain.recurrence.weekdays') },
+    { value: 'weekly', label: t('domain.recurrence.weeklyKind') },
+    { value: 'monthlyDay', label: t('domain.recurrence.monthlyKind') },
   ];
 
   let kind = $state<Recurrence['kind']>('daily');
@@ -42,8 +43,8 @@
 </script>
 
 <div class="recurrence">
-  <Field label="Recurrence">
-    <Select aria-label="Recurrence kind" value={kind} onchange={/* set kind */ onKindChange}>
+  <Field label={t('library.recurrence')}>
+    <Select aria-label={t('library.recurrenceKind')} value={kind} onchange={/* set kind */ onKindChange}>
       {#each KIND_OPTIONS as option (option.value)}
         <option value={option.value}>{option.label}</option>
       {/each}
@@ -51,8 +52,8 @@
   </Field>
 
   {#if kind === 'weekly'}
-    <Field label="Weekday">
-      <Select aria-label="Weekday" value={weekday} onchange={/* set weekday */ onWeekdayChange}>
+    <Field label={t('library.weekday')}>
+      <Select aria-label={t('library.weekday')} value={weekday} onchange={/* set weekday */ onWeekdayChange}>
         {#each WEEKDAYS as day (day.value)}
           <option value={day.value}>{day.label}</option>
         {/each}
@@ -61,11 +62,11 @@
   {/if}
 
   {#if kind === 'monthlyDay'}
-    <Field label="Day of month">
+    <Field label={t('library.dayOfMonth')}>
       <Input
         type="number"
         value={monthlyDay}
-        aria-label="Day of month"
+        aria-label={t('library.dayOfMonth')}
         oninput={/* set day */ onMonthlyDayInput}
       />
     </Field>

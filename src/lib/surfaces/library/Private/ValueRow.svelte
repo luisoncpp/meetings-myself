@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { ValueView } from '../../../domain';
+  import { t } from '../../../i18n';
   import { Button, ListRow, StateFlag } from '../../../ui';
   import type { LibraryStore } from './LibraryStore.svelte';
 
@@ -27,7 +28,7 @@
   {/if}
   {#snippet trailing()}
     <Button variant="quiet" onclick={/* archive or restore */ toggleArchive}>
-      {value.archived ? 'Restore' : 'Archive'}
+      {value.archived ? t('common.restore') : t('common.archive')}
     </Button>
   {/snippet}
 </ListRow>

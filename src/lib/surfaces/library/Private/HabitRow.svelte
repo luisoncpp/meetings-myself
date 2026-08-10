@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { Cadence, HabitView, Weekday } from '../../../domain';
   import { CreateHabitCadence } from '../../../planning-actions';
+  import { t } from '../../../i18n';
   import { Button, Field, ListRow, Select, StateFlag } from '../../../ui';
   import { STRENGTH_OPTIONS, WEEKDAYS } from './labels';
   import type { LibraryStore } from './LibraryStore.svelte';
@@ -53,9 +54,9 @@
       {#if habit.archived}
         <StateFlag kind="archived" />
       {:else}
-        <Field label="Habit Strength">
+        <Field label={t('library.habitStrength')}>
           <Select
-            aria-label="Habit Strength"
+            aria-label={t('library.habitStrength')}
             value={habit.strength}
             onchange={/* set strength */ onStrengthChange}
           >
@@ -74,13 +75,13 @@
             checked={habit.pinned}
             onchange={/* toggle pinned */ onPinnedChange}
           />
-          Pinned
+          {t('library.pinned')}
         </label>
       {/if}
     </div>
   {#snippet trailing()}
     <Button variant="quiet" onclick={/* archive or restore */ toggleArchive}>
-      {habit.archived ? 'Restore' : 'Archive'}
+      {habit.archived ? t('common.restore') : t('common.archive')}
     </Button>
   {/snippet}
 </ListRow>

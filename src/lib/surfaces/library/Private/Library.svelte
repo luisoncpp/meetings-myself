@@ -6,6 +6,7 @@
     type EntityKind,
     type PlanningAction,
   } from '../../../planning-actions';
+  import { t } from '../../../i18n';
   import { SurfaceLayout } from '../../../ui';
   import EntitySection from './EntitySection.svelte';
   import { LibraryStore } from './LibraryStore.svelte';
@@ -44,7 +45,7 @@
     if (payload.kind === 'value') await store.createValue(payload.title);
     if (payload.kind === 'goal') await store.createGoal(payload.title, payload.targetDate);
     if (payload.kind === 'habit') await store.createHabit(payload.title, payload.cadence);
-    if (payload.kind === 'task') await store.createTask(payload.title);
+    if (payload.kind === 'task') await store.createTask(payload.title, payload.oneOff);
     creating = null;
     activeAction = null;
   }
@@ -60,14 +61,14 @@
   {@const activeStore = store}
   {#if activeStore.loading && !activeStore.view}
     <SurfaceLayout>
-      <p class="loading">Loading library…</p>
+      <p class="loading">{t('library.loading')}</p>
     </SurfaceLayout>
   {:else if activeStore.view}
     {@const view = activeStore.view}
     <SurfaceLayout aria-labelledby="library-heading">
       <section class="library">
         <header class="top">
-          <h1 id="library-heading">Library</h1>
+          <h1 id="library-heading">{t('library.title')}</h1>
           <label class="archived-toggle">
             <input
               type="checkbox"
@@ -76,7 +77,7 @@
               onchange={/* toggle archived */ (event) =>
                 void activeStore.setIncludeArchived((event.currentTarget as HTMLInputElement).checked)}
             />
-            Show archived
+            {t('library.showArchived')}
           </label>
         </header>
 
@@ -92,8 +93,8 @@
 
         <EntitySection
           kind="value"
-          title="Values"
-          emptyLabel="No values yet."
+          title={t('library.values')}
+          emptyLabel={t('library.noValues')}
           store={activeStore}
           {creating}
           onstartCreate={startCreate}
@@ -103,8 +104,8 @@
 
         <EntitySection
           kind="goal"
-          title="Goals"
-          emptyLabel="No goals yet."
+          title={t('library.goals')}
+          emptyLabel={t('library.noGoals')}
           store={activeStore}
           {creating}
           onstartCreate={startCreate}
@@ -114,8 +115,8 @@
 
         <EntitySection
           kind="habit"
-          title="Habits"
-          emptyLabel="No habits yet."
+          title={t('library.habits')}
+          emptyLabel={t('library.noHabits')}
           store={activeStore}
           {creating}
           onstartCreate={startCreate}
@@ -125,8 +126,8 @@
 
         <EntitySection
           kind="task"
-          title="Tasks"
-          emptyLabel="No tasks yet."
+          title={t('library.tasks')}
+          emptyLabel={t('library.noTasks')}
           store={activeStore}
           {creating}
           onstartCreate={startCreate}

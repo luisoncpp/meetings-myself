@@ -2,7 +2,9 @@ use super::error::AppError;
 use super::service::{PlanningApp, StartRequest};
 use chrono_tz::Tz;
 use planning_reports::WeeklyReportFile;
-use planning_store::{Database, DeviceSettingsFile, HomeSettingsRepository, SetZone, StoreHealth};
+use planning_store::{
+    Database, DeviceSettingsFile, HomeSettingsRepository, SetZone, StoreHealth, UiLanguage,
+};
 use std::path::PathBuf;
 
 impl PlanningApp {
@@ -55,8 +57,17 @@ impl PlanningApp {
         self.set_home_zone(parsed).await
     }
 
-    /// Re-runs the whole open sequence. Called at start, after choosing a folder,
-    /// and by plan 0008 when synchronization recovers.
+    pub fn ui_language(&self) -> UiLanguage {
+        self.settings.ui_language
+    }
+
+    pub fn set_ui_language(&mut self, language: UiLanguage) -> Result<(), AppError> {
+        self.settings.ui_language = language;
+        self.settings_file.save(&self.settings)?;
+        Ok(())
+    }
+
+    /// Re-runs the whole open sequence.
     pub async fn reconnect(&mut self) -> Result<StoreHealth, AppError> {
         self.lock = None;
         self.database = None;

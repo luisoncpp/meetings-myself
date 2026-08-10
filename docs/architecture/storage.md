@@ -35,6 +35,7 @@ Per-device facts live in the OS config directory (`device-settings.json` via `di
 
 - `device_id`, `device_name`
 - `sync_folder` path (pointer to the Drive folder)
+- `ui_language` (`en` | `es`, default from OS locale on first create)
 - launcher timing (`launch_time`, `retry_window_minutes`, `last_missed_prompt`)
 
 Each machine has its own file. Only planning data and the home time zone travel through Drive.

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '../../i18n';
   import 'quill-next/dist/quill.snow.css';
   import { onMount } from 'svelte';
   import { QuillMarkdownHost } from './QuillMarkdownHost';
@@ -12,10 +13,12 @@
 
   let {
     value = '',
-    'aria-label': ariaLabel = 'Editor',
+    'aria-label': ariaLabel,
     oninput,
     onblur,
   }: Props = $props();
+
+  const editorLabel = $derived(ariaLabel ?? t('ui.editor'));
 
   let mount: HTMLElement | undefined = $state();
   let host: QuillMarkdownHost | undefined;
@@ -34,7 +37,7 @@
     if (mount === undefined) return;
     const mountEl = mount;
     host = new QuillMarkdownHost(mountEl, {
-      ariaLabel,
+      ariaLabel: editorLabel,
       onChange: (text) => handlers.oninput?.(text),
       onBlur: () => handlers.onblur?.(),
     });

@@ -83,7 +83,10 @@ mod tests {
             })
             .await
             .unwrap();
-        let task = app.create_task("Prepare portfolio".into()).await.unwrap();
+        let task = app
+            .create_task("Prepare portfolio".into(), /*one_off=*/ true)
+            .await
+            .unwrap();
 
         let ends = || LinkEnds {
             left: AssociationEnd::Task(task.id.clone()),
@@ -112,7 +115,10 @@ mod tests {
             })
             .await
             .unwrap();
-        let task = app.create_task("Prepare portfolio".into()).await.unwrap();
+        let task = app
+            .create_task("Prepare portfolio".into(), /*one_off=*/ true)
+            .await
+            .unwrap();
         app.link(LinkEnds {
             left: AssociationEnd::Task(task.id.clone()),
             right: AssociationEnd::Goal(goal.id.clone()),
@@ -155,7 +161,10 @@ mod tests {
             })
             .await
             .unwrap();
-        let task = app.create_task("Prepare portfolio".into()).await.unwrap();
+        let task = app
+            .create_task("Prepare portfolio".into(), /*one_off=*/ true)
+            .await
+            .unwrap();
         let link = app
             .link(LinkEnds {
                 left: AssociationEnd::Task(task.id.clone()),

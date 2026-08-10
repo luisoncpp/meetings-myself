@@ -26,6 +26,7 @@ export interface TaskView {
   deadline: string | null;
   overdue: boolean;
   archived: boolean;
+  oneOff: boolean;
 }
 
 export interface ValueView {

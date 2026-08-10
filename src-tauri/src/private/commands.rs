@@ -1,4 +1,6 @@
-use planning_app::{AppError, PlanningApp, StoreHealth};
+use planning_app::{
+    app_error_payload, AppError, AppErrorPayload, PlanningApp, StoreHealth, UiLanguage,
+};
 use std::path::PathBuf;
 use std::sync::Arc;
 use tokio::sync::Mutex;
@@ -8,7 +10,7 @@ use tokio::sync::Mutex;
 pub struct AppState(pub Arc<Mutex<PlanningApp>>);
 
 pub(super) fn app_error_message(error: AppError) -> String {
-    error.to_string()
+    app_error_payload(error).to_ipc_string()
 }
 
 /// Proves the IPC bridge works end to end. Plan 0004 replaces this module's
@@ -21,6 +23,42 @@ pub fn app_version() -> String {
 #[tauri::command]
 pub async fn store_health(state: tauri::State<'_, AppState>) -> Result<StoreHealth, String> {
     Ok(state.0.lock().await.health())
+}
+
+#[tauri::command]
+pub async fn ui_language(state: tauri::State<'_, AppState>) -> Result<String, String> {
+    let language = state.0.lock().await.ui_language();
+    Ok(match language {
+        UiLanguage::En => "en".to_string(),
+        UiLanguage::Es => "es".to_string(),
+    })
+}
+
+#[tauri::command]
+pub async fn set_ui_language(
+    state: tauri::State<'_, AppState>,
+    language: String,
+) -> Result<(), String> {
+    let parsed = match language.as_str() {
+        "en" => UiLanguage::En,
+        "es" => UiLanguage::Es,
+        _ => {
+            return Err(AppErrorPayload {
+                code: "invalidUiLanguage".into(),
+                params: Some(std::collections::HashMap::from([(
+                    "language".into(),
+                    language,
+                )])),
+            }
+            .to_ipc_string())
+        }
+    };
+    state
+        .0
+        .lock()
+        .await
+        .set_ui_language(parsed)
+        .map_err(app_error_message)
 }
 
 #[tauri::command]

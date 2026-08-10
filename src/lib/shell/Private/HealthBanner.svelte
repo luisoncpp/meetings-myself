@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { StoreHealth } from '../../api';
   import { Button } from '../../ui';
+  import { t } from '../../i18n';
   import HealthBannerMessage from './HealthBannerMessage.svelte';
 
   interface Props {
@@ -20,7 +21,7 @@
     <div class="content">
       <HealthBannerMessage {health} />
       {#if canRetry}
-        <Button variant="secondary" onclick={onretry}>Try again</Button>
+        <Button variant="secondary" onclick={onretry}>{t('common.tryAgain')}</Button>
       {/if}
     </div>
   </div>

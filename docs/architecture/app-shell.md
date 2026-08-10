@@ -20,7 +20,7 @@ src-tauri ─────────────┘         │                
 
 `src/lib/api` is the sole crossing point between Svelte and Tauri:
 
-- `index.ts` — public API (`appVersion`, future commands)
+- `index.ts` — public API (`appVersion`, `uiLanguage`, `setUiLanguage`, …)
 - `Private/bridge.ts` — only file that imports `@tauri-apps/api`
 
 Nothing else under `src/` may import `@tauri-apps/api`.

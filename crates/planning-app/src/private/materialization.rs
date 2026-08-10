@@ -88,6 +88,7 @@ impl PlanningApp {
 
         let task = Task::create(CreateTask {
             title: rule.title.clone(),
+            one_off: /*one_off=*/true,
             clock: self.clock.as_ref(),
         })?;
         self.store(TaskId::TABLE, task.id.as_str(), &task).await?;

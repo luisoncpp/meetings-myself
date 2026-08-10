@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '../../../i18n';
   import { Field, Input } from '../../../ui';
 
   interface Props {
@@ -24,7 +25,7 @@
 </script>
 
 <div class="quick-add">
-  <Field label="Add a task" forId="quick-add">
+  <Field label={t('dailyPlan.addTask')} forId="quick-add">
     <Input
       id="quick-add"
       type="text"

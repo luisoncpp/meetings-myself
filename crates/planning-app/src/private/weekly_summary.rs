@@ -146,9 +146,15 @@ mod tests {
         let week = app.calendar().unwrap().current_week(app.clock_ref());
         let today = app.calendar().unwrap().today(app.clock_ref());
 
-        let done = app.create_task("Prepare portfolio".into()).await.unwrap();
+        let done = app
+            .create_task("Prepare portfolio".into(), /*one_off=*/ true)
+            .await
+            .unwrap();
         app.complete_task(&done.id).await.unwrap();
-        let open = app.create_task("Call the bank".into()).await.unwrap();
+        let open = app
+            .create_task("Call the bank".into(), /*one_off=*/ true)
+            .await
+            .unwrap();
         app.set_task_deadline(SetDeadline {
             task: &open.id,
             deadline: Some(today - Duration::days(1)),
@@ -244,7 +250,7 @@ mod tests {
             goals_achieved: vec![],
         };
 
-        let markdown = summary_markdown::render(&summary);
+        let markdown = summary_markdown::render(&summary, planning_store::UiLanguage::En);
         assert!(markdown.contains("Prepare portfolio"));
         assert!(markdown.contains("Writing"));
         for banned in ["%", "streak", "Streak", "score", "Score", "🔥"] {

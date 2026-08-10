@@ -114,7 +114,7 @@ impl PlanningApp {
     /// The Daily Plan's contextual shortcut: create and select in one action.
     pub async fn quick_add_task(&self, title: String) -> Result<Task, AppError> {
         let today = self.calendar()?.today(self.clock.as_ref());
-        let task = self.create_task(title).await?;
+        let task = self.create_task(title, /*one_off=*/ true).await?;
         self.select_into_plan(PlanChange {
             date: today,
             task: task.id.clone(),
@@ -218,7 +218,12 @@ mod tests {
         let today = app.calendar().unwrap().today(app.clock_ref());
         let mut ids = Vec::new();
         for title in ["One", "Two", "Three"] {
-            ids.push(app.create_task(title.into()).await.unwrap().id);
+            ids.push(
+                app.create_task(title.into(), /*one_off=*/ true)
+                    .await
+                    .unwrap()
+                    .id,
+            );
         }
 
         for id in &ids {
@@ -273,7 +278,10 @@ mod tests {
     async fn a_bad_reorder_is_rejected_without_changing_the_plan() {
         let (_home, _drive, app, _clock) = app_on(7).await;
         let today = app.calendar().unwrap().today(app.clock_ref());
-        let task = app.create_task("One".into()).await.unwrap();
+        let task = app
+            .create_task("One".into(), /*one_off=*/ true)
+            .await
+            .unwrap();
         app.select_into_plan(PlanChange {
             date: today,
             task: task.id.clone(),
@@ -297,7 +305,10 @@ mod tests {
     async fn archiving_an_entry_already_in_a_plan_leaves_it_in_place_and_completable() {
         let (_home, _drive, app, _clock) = app_on(7).await;
         let today = app.calendar().unwrap().today(app.clock_ref());
-        let task = app.create_task("Prepare portfolio".into()).await.unwrap();
+        let task = app
+            .create_task("Prepare portfolio".into(), /*one_off=*/ true)
+            .await
+            .unwrap();
         app.select_into_plan(PlanChange {
             date: today,
             task: task.id.clone(),

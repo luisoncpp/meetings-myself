@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { Weekday } from '../../domain';
+  import { t } from '../../i18n';
   import { WEEKDAYS } from './weekdays';
 
   interface Props {
@@ -11,7 +12,7 @@
 </script>
 
 <fieldset class="cadence">
-  <legend>Cadence</legend>
+  <legend>{t('createEntity.cadence')}</legend>
   {#each WEEKDAYS as day (day.value)}
     <label>
       <input

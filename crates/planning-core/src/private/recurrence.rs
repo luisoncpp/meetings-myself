@@ -34,7 +34,9 @@ pub enum Recurrence {
         #[serde(with = "weekday_as_name")]
         weekday: Weekday,
     },
-    MonthlyDay { day: u8 },
+    MonthlyDay {
+        day: u8,
+    },
 }
 
 impl Recurrence {

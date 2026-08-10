@@ -1,8 +1,8 @@
 use super::commands::{app_error_message, AppState};
 use planning_app::{
     Association, AssociationEnd, AssociationId, Cadence, Classification, ClassifyTask, GoalId,
-    HabitId, HabitStrength, LinkEnds, NaiveDate, SetCadence, SetDeadline, SetPinned, SetStrength,
-    TaskId,
+    HabitId, HabitStrength, LinkEnds, NaiveDate, SetCadence, SetDeadline, SetOneOff, SetPinned,
+    SetStrength, TaskId,
 };
 
 #[tauri::command]
@@ -112,6 +112,24 @@ pub async fn set_task_deadline(
         .set_task_deadline(SetDeadline {
             task: &TaskId::new(task),
             deadline,
+        })
+        .await
+        .map_err(app_error_message)
+}
+
+#[tauri::command]
+pub async fn set_task_one_off(
+    state: tauri::State<'_, AppState>,
+    task: String,
+    one_off: bool,
+) -> Result<(), String> {
+    state
+        .0
+        .lock()
+        .await
+        .set_task_one_off(SetOneOff {
+            task: &TaskId::new(task),
+            one_off,
         })
         .await
         .map_err(app_error_message)

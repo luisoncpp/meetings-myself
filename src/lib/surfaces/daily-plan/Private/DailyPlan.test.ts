@@ -129,7 +129,7 @@ describe('DailyPlan rendering', () => {
     todayView.mockResolvedValue(loadedPlan);
     render(DailyPlan);
     expect(await screen.findByRole('heading', { level: 1 })).toHaveTextContent(
-      formatPlanDate('2026-08-07'),
+      formatPlanDate('2026-08-07', 'en-US'),
     );
     expect(screen.getByText('Draft the letter')).toBeInTheDocument();
     expect(screen.getByRole('radiogroup', { name: /Writing practice/ })).toBeInTheDocument();
@@ -148,7 +148,7 @@ describe('DailyPlan actions', () => {
   it('still lets an archived entry be completed', async () => {
     todayView.mockResolvedValue(archivedFixture);
     render(DailyPlan);
-    await userEvent.click(await screen.findByRole('checkbox', { name: /Old idea/ }));
+    await userEvent.click(await screen.findByRole('button', { name: /mark done: old idea/i }));
     expect(completeTask).toHaveBeenCalledWith('t1');
   });
 

@@ -11,6 +11,9 @@ const createRecurringTask = vi.hoisted(() => vi.fn().mockResolvedValue({ id: 'r-
 const archiveRecurringTask = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
 const restoreRecurringTask = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
 const renameRecurringTask = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
+const createTask = vi.hoisted(() => vi.fn().mockResolvedValue({ id: 't1' }));
+const setTaskOneOff = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
+const completeTask = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
 
 vi.mock('../../../api', () => ({
   library,
@@ -26,13 +29,14 @@ vi.mock('../../../api', () => ({
   createValue: vi.fn().mockResolvedValue({ id: 'v1' }),
   createGoal: vi.fn().mockResolvedValue({ id: 'g1' }),
   createHabit: vi.fn().mockResolvedValue({ id: 'h1' }),
-  createTask: vi.fn().mockResolvedValue({ id: 't1' }),
+  createTask,
+  setTaskOneOff,
+  completeTask,
   restoreEntity: vi.fn().mockResolvedValue(undefined),
   achieveGoal: vi.fn().mockResolvedValue(undefined),
   unachieveGoal: vi.fn().mockResolvedValue(undefined),
   classifyTask: vi.fn().mockResolvedValue(undefined),
   setTaskDeadline: vi.fn().mockResolvedValue(undefined),
-  completeTask: vi.fn().mockResolvedValue(undefined),
   reopenTask: vi.fn().mockResolvedValue(undefined),
   setHabitCadence: vi.fn().mockResolvedValue(undefined),
   setHabitPinned: vi.fn().mockResolvedValue(undefined),
@@ -40,6 +44,8 @@ vi.mock('../../../api', () => ({
   unlink: vi.fn().mockResolvedValue(undefined),
   addToFocus: vi.fn().mockResolvedValue(undefined),
   removeFromFocus: vi.fn().mockResolvedValue(undefined),
+  uiLanguage: vi.fn().mockResolvedValue('en'),
+  setUiLanguage: vi.fn().mockResolvedValue(undefined),
 }));
 
 const emptyLibrary = {
@@ -107,6 +113,7 @@ describe('LibraryStore archived toggle', () => {
           urgency: 'unclassified',
           deadline: null,
           overdue: false,
+          oneOff: true,
         },
       ],
     });
@@ -194,5 +201,44 @@ describe('LibraryStore recurring tasks', () => {
     await store.renameRecurringTask('r1', 'New title');
     expect(renameRecurringTask).toHaveBeenCalledWith('r1', 'New title');
     expect(recurringTasks).toHaveBeenCalledTimes(2);
+  });
+
+  it('creates a task with oneOff then reloads', async () => {
+    const store = new LibraryStore();
+    await store.load();
+
+    await store.createTask('Pay rent', /*oneOff=*/false);
+    expect(createTask).toHaveBeenCalledWith('Pay rent', /*oneOff=*/false);
+    expect(library).toHaveBeenCalledTimes(2);
+  });
+
+  it('sets oneOff then reloads', async () => {
+    const store = new LibraryStore();
+    await store.load();
+
+    await store.setTaskOneOff('t1', /*oneOff=*/false);
+    expect(setTaskOneOff).toHaveBeenCalledWith('t1', /*oneOff=*/false);
+    expect(library).toHaveBeenCalledTimes(2);
+  });
+});
+
+describe('LibraryStore task completion', () => {
+  it('toggles completion for one-off tasks', async () => {
+    const store = new LibraryStore();
+    await store.load();
+
+    await store.toggleTask({
+      id: 't1',
+      title: 'File taxes',
+      state: 'open',
+      importance: 'unclassified',
+      urgency: 'unclassified',
+      deadline: null,
+      overdue: false,
+      archived: false,
+      oneOff: true,
+    });
+    expect(completeTask).toHaveBeenCalledWith('t1');
+    expect(library).toHaveBeenCalledTimes(2);
   });
 });

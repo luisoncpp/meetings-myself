@@ -11,12 +11,13 @@ pub use planning_core::{
     RecordCheckIn, Recurrence, RecurringTask, RecurringTaskId, StartFocus, StartPlan, SystemClock,
     Task, TaskId, Value, ValueId, WeeklyFocus, WeeklyFocusId,
 };
-pub use planning_store::{DeviceSettings, DeviceSettingsFile, SetupGap, StoreHealth};
+pub use planning_store::{DeviceSettings, DeviceSettingsFile, SetupGap, StoreHealth, UiLanguage};
 pub use private::associations::LinkEnds;
 pub use private::check_in_use_cases::{CheckInRequest, DateRange};
 pub use private::daily_plan_use_cases::{PlanChange, PlanHabitChange, ReorderPlan};
-pub use private::entity_lifecycle::{ClassifyTask, SetDeadline};
+pub use private::entity_lifecycle::{ClassifyTask, SetDeadline, SetOneOff};
 pub use private::error::AppError;
+pub use private::error_payload::{app_error_payload, AppErrorPayload};
 pub use private::habit_lifecycle::{SetCadence, SetPinned, SetStrength};
 pub use private::library::{NewGoal, NewHabit};
 pub use private::materialization::NewRecurringTask;

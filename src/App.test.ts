@@ -4,6 +4,8 @@ import App from './App.svelte';
 
 vi.mock('./lib/api', () => ({
   storeHealth: vi.fn().mockResolvedValue({ status: 'ready' }),
+  uiLanguage: vi.fn().mockResolvedValue('en'),
+  setUiLanguage: vi.fn().mockResolvedValue(undefined),
   openWeeklyReviewWindow: vi.fn(),
   todayView: vi.fn().mockResolvedValue({
     date: '2026-08-07',

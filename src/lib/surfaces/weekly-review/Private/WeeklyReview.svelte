@@ -5,6 +5,7 @@
     type CreatePayload,
     type PlanningAction,
   } from '../../../planning-actions';
+  import { t } from '../../../i18n';
   import { SurfaceLayout } from '../../../ui';
   import { WeeklyReviewStore } from './WeeklyReviewStore.svelte';
   import NextWeekFocus from './NextWeekFocus.svelte';
@@ -46,7 +47,7 @@
   {@const activeStore = store}
   {#if activeStore.loading && !activeStore.view}
     <SurfaceLayout>
-      <p class="loading">Loading review…</p>
+      <p class="loading">{t('weeklyReview.loading')}</p>
     </SurfaceLayout>
   {:else if activeStore.view && activeStore.library}
     {@const view = activeStore.view}
@@ -56,7 +57,7 @@
         <header class="top">
           <h1 id="review-week">{view.week}</h1>
           {#if activeStore.isHistorical}
-            <p class="historical">Viewing a past week — not the current one.</p>
+            <p class="historical">{t('weeklyReview.historical')}</p>
           {/if}
         </header>
 

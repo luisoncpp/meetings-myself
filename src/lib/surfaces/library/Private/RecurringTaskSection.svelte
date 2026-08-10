@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { Recurrence } from '../../../domain';
+  import { t } from '../../../i18n';
   import { Button, Card } from '../../../ui';
   import CreateRecurringTask from './CreateRecurringTask.svelte';
   import type { LibraryStore } from './LibraryStore.svelte';
@@ -29,11 +30,11 @@
   }
 </script>
 
-<section class="section" aria-label="Recurring tasks">
+<section class="section" aria-label={t('library.recurringTasks')}>
   <Card>
     <div class="header">
-      <h2>Recurring tasks</h2>
-      <Button variant="quiet" onclick={/* start create */ startCreate}>New recurring task</Button>
+      <h2>{t('library.recurringTasks')}</h2>
+      <Button variant="quiet" onclick={/* start create */ startCreate}>{t('library.newRecurringTask')}</Button>
     </div>
 
     {#if creating}
@@ -44,7 +45,7 @@
     {/if}
 
     {#if tasks.length === 0}
-      <p class="empty">No recurring tasks yet.</p>
+      <p class="empty">{t('library.noRecurringTasks')}</p>
     {:else}
       <div class="list">
         {#each tasks as task (task.id)}

@@ -1,19 +1,14 @@
 <script lang="ts">
+  import { t } from '../../i18n';
+
   interface Props {
     kind: 'archived' | 'overdue' | 'unpinned' | 'completed';
   }
 
   let { kind }: Props = $props();
-
-  const LABELS: Record<Props['kind'], string> = {
-    archived: 'Archived',
-    overdue: 'Overdue',
-    unpinned: 'Unpinned',
-    completed: 'Completed',
-  };
 </script>
 
-<span class="flag {kind}">{LABELS[kind]}</span>
+<span class="flag {kind}">{t(`domain.stateFlag.${kind}`)}</span>
 
 <style>
   .flag {

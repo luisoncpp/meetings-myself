@@ -14,6 +14,8 @@ const createRecurringTask = vi.hoisted(() => vi.fn().mockResolvedValue({ id: 'r-
 const archiveRecurringTask = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
 const restoreRecurringTask = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
 const renameRecurringTask = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
+const createTask = vi.hoisted(() => vi.fn().mockResolvedValue({ id: 't1' }));
+const setTaskOneOff = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
 
 vi.mock('../../../api', () => ({
   library,
@@ -28,7 +30,8 @@ vi.mock('../../../api', () => ({
   renameRecurringTask,
   createValue: vi.fn().mockResolvedValue({ id: 'v1' }),
   createGoal: vi.fn().mockResolvedValue({ id: 'g1' }),
-  createTask: vi.fn().mockResolvedValue({ id: 't1' }),
+  createTask,
+  setTaskOneOff,
   createHabit: vi.fn().mockResolvedValue({ id: 'h9' }),
   archiveEntity: vi.fn().mockResolvedValue(undefined),
   restoreEntity: vi.fn().mockResolvedValue(undefined),
@@ -44,6 +47,8 @@ vi.mock('../../../api', () => ({
   unlink: vi.fn().mockResolvedValue(undefined),
   addToFocus: vi.fn().mockResolvedValue(undefined),
   removeFromFocus: vi.fn().mockResolvedValue(undefined),
+  uiLanguage: vi.fn().mockResolvedValue('en'),
+  setUiLanguage: vi.fn().mockResolvedValue(undefined),
 }));
 
 const emptyLibrary = {
@@ -180,6 +185,7 @@ function mockArchivedTaskLibrary(): void {
               urgency: 'unclassified',
               deadline: null,
               overdue: false,
+              oneOff: true,
             },
           ]
         : [],
@@ -258,6 +264,7 @@ describe('Library task fields', () => {
           deadline: null,
           overdue: false,
           archived: false,
+          oneOff: true,
         },
       ],
     });
@@ -267,6 +274,94 @@ describe('Library task fields', () => {
     for (const label of [/importance/i, /urgency/i, /deadline/i]) {
       expect(screen.getByLabelText(label)).toBeInTheDocument();
     }
+    expect(screen.getByRole('checkbox', { name: /one-off/i })).toBeChecked();
+    expect(screen.getByRole('button', { name: /mark done: file taxes/i })).toBeInTheDocument();
+  });
+
+  it('hides completion controls for non-one-off tasks', async () => {
+    library.mockResolvedValue({
+      values: [],
+      goals: [],
+      habits: [],
+      tasks: [
+        {
+          id: 't1',
+          title: 'Pay rent',
+          state: 'completed',
+          importance: 'unclassified',
+          urgency: 'unclassified',
+          deadline: null,
+          overdue: false,
+          archived: false,
+          oneOff: false,
+        },
+      ],
+    });
+
+    render(Library);
+    await screen.findByText('Pay rent');
+    expect(screen.queryByRole('button', { name: /mark done/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /reopen/i })).not.toBeInTheDocument();
+  });
+
+  it('shows done state for completed one-off tasks', async () => {
+    library.mockResolvedValue({
+      values: [],
+      goals: [],
+      habits: [],
+      tasks: [
+        {
+          id: 't1',
+          title: 'Buy milk',
+          state: 'completed',
+          importance: 'unclassified',
+          urgency: 'unclassified',
+          deadline: null,
+          overdue: false,
+          archived: false,
+          oneOff: true,
+        },
+      ],
+    });
+
+    render(Library);
+    await screen.findByText('Buy milk');
+    expect(screen.getByRole('button', { name: /reopen buy milk/i })).toHaveTextContent('Done');
+  });
+
+  it('creates a task with one-off unchecked when requested', async () => {
+    render(Library);
+    await userEvent.click(await screen.findByRole('button', { name: /add task/i }));
+    await userEvent.type(screen.getByLabelText(/task name/i), 'Pay rent');
+    await userEvent.click(screen.getByRole('checkbox', { name: /one-off/i }));
+    await userEvent.click(screen.getByRole('button', { name: /create task/i }));
+    expect(createTask).toHaveBeenCalledWith('Pay rent', /*oneOff=*/false);
+  });
+
+  it('toggles one-off on an existing task', async () => {
+    library.mockResolvedValue({
+      values: [],
+      goals: [],
+      habits: [],
+      tasks: [
+        {
+          id: 't1',
+          title: 'Pay rent',
+          state: 'open',
+          importance: 'unclassified',
+          urgency: 'unclassified',
+          deadline: null,
+          overdue: false,
+          archived: false,
+          oneOff: true,
+        },
+      ],
+    });
+
+    render(Library);
+    await screen.findByText('Pay rent');
+    await userEvent.click(screen.getByRole('checkbox', { name: /one-off/i }));
+    expect(setTaskOneOff).toHaveBeenCalledWith('t1', /*oneOff=*/false);
   });
 });
 

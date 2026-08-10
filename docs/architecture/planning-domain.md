@@ -18,7 +18,7 @@ src-tauri ──► planning-app ──► planning-store ──► planning-cor
 |--------|--------|---------------|
 | **Value** | `id`, `title`, `lifecycle`, `created_at` | Title alone |
 | **Goal** | `id`, `title`, `achievement`, `lifecycle`, `target_date?`, `created_at` | Title alone; optional target date |
-| **Task** | `id`, `title`, `completion`, `lifecycle`, `importance`, `urgency`, `deadline?`, `created_at` | Title alone; importance/urgency default to unclassified |
+| **Task** | `id`, `title`, `completion`, `lifecycle`, `importance`, `urgency`, `deadline?`, `one_off`, `created_at` | Title alone; `one_off` defaults to `true`; importance/urgency default to unclassified |
 | **Habit** | `id`, `title`, `lifecycle`, `strength`, `cadence`, `pinned`, `created_at` | Title **and** cadence required; new habits are pinned and reminder-dependent |
 | **Association** | `id`, `left`, `right`, `lifecycle`, `created_at` | Valid pair only; stored in canonical order |
 
@@ -65,7 +65,7 @@ SurrealDB 3's upsert/select APIs require `SurrealValue`, not plain `Serialize` d
 | Area | Module | Examples |
 |------|--------|----------|
 | Creation | `library.rs` | `create_task`, `create_habit` |
-| Lifecycle | `entity_lifecycle.rs`, `habit_lifecycle.rs` | `archive_task`, `complete_task`, `set_habit_cadence` |
+| Lifecycle | `entity_lifecycle.rs`, `habit_lifecycle.rs` | `archive_task`, `complete_task`, `set_task_one_off`, `set_habit_cadence` |
 | Associations | `associations.rs` | `link`, `unlink` (archives link) |
 | Read models | `views.rs`, `views_entities.rs` | `library(LibraryFilter)` |
 

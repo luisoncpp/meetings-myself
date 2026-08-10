@@ -5,4 +5,5 @@ pub mod error;
 pub mod health;
 pub mod home_settings;
 pub mod records;
+pub mod ui_language;
 pub mod writer_lock;

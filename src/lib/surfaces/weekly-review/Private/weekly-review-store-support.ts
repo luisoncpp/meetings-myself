@@ -1,4 +1,5 @@
 import type { LibraryView, WeeklyFocus, WeeklyReviewView } from '../../../domain';
+import { localizeError } from '../../../i18n';
 import * as api from '../../../api';
 import { nextWeek } from './week-nav';
 
@@ -7,7 +8,7 @@ export type SaveState = 'saved' | 'unsaved' | 'saving';
 export const REFLECTION_DEBOUNCE_MS = 2000;
 
 export function errorMessage(failure: unknown): string {
-  return failure instanceof Error ? failure.message : String(failure);
+  return localizeError(failure instanceof Error ? failure.message : String(failure));
 }
 
 export async function loadReviewSideData(week: string): Promise<{

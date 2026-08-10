@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { LibraryView } from '../../domain';
+  import { t } from '../../i18n';
   import { Button } from '../../ui';
   import AchieveGoalPanel from './AchieveGoalPanel.svelte';
   import AssociationEditor from './AssociationEditor.svelte';
@@ -22,15 +23,15 @@
   let { active, view, host, week, ontoggle, onclose, oncreateGoal }: Props = $props();
 
   const actions: { id: PlanningAction; label: string }[] = [
-    { id: 'new-goal', label: 'New goal' },
-    { id: 'achieve', label: 'Mark achieved' },
-    { id: 'link', label: 'Link' },
-    { id: 'focus', label: 'Weekly focus' },
+    { id: 'new-goal', label: t('planningActions.newGoal') },
+    { id: 'achieve', label: t('planningActions.markAchieved') },
+    { id: 'link', label: t('planningActions.link') },
+    { id: 'focus', label: t('planningActions.weeklyFocus') },
   ];
 </script>
 
-<section class="action-bar" aria-label="Planning actions">
-  <div class="toolbar" role="toolbar" aria-label="Quick actions">
+<section class="action-bar" aria-label={t('planningActions.bar')}>
+  <div class="toolbar" role="toolbar" aria-label={t('planningActions.toolbar')}>
     {#each actions as action (action.id)}
       <Button
         variant={active === action.id ? 'primary' : 'secondary'}

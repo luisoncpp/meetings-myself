@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { GoalView } from '../../domain';
+  import { t } from '../../i18n';
   import { Button, Field, Select } from '../../ui';
   import type { PlanningActionsHost } from './planning-actions-host';
 
@@ -24,16 +25,16 @@
 </script>
 
 <div class="panel">
-  <Field label="Goal">
-    <Select bind:value={selectedGoalId} aria-label="Goal to mark achieved">
-      <option value="">Select…</option>
+  <Field label={t('planningActions.goal')}>
+    <Select bind:value={selectedGoalId} aria-label={t('planningActions.goalToMarkAchieved')}>
+      <option value="">{t('planningActions.selectGoal')}</option>
       {#each openGoals as goal (goal.id)}
         <option value={goal.id}>{goal.title}</option>
       {/each}
     </Select>
   </Field>
   <Button variant="primary" disabled={selectedGoalId === ''} onclick={/* achieve */ markAchieved}>
-    Mark achieved
+    {t('planningActions.markGoalAchieved')}
   </Button>
 </div>
 

@@ -4,7 +4,7 @@ export function parsePlanDate(isoDate: string): Date {
   return new Date(year, month - 1, day);
 }
 
-/** Long-form label for a plan date in the user's locale. */
-export function formatPlanDate(isoDate: string): string {
-  return new Intl.DateTimeFormat(undefined, { dateStyle: 'long' }).format(parsePlanDate(isoDate));
+/** Long-form label for a plan date in the given BCP-47 locale. */
+export function formatPlanDate(isoDate: string, locale: string): string {
+  return new Intl.DateTimeFormat(locale, { dateStyle: 'long' }).format(parsePlanDate(isoDate));
 }

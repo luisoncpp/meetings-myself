@@ -1,15 +1,16 @@
+import { t } from '../../i18n';
 import type { EntityKind } from './associations';
 
 export function entityNameLabel(kind: EntityKind): string {
-  if (kind === 'habit') return 'Habit name';
-  if (kind === 'goal') return 'Goal name';
-  if (kind === 'task') return 'Task name';
-  return 'Value name';
+  if (kind === 'habit') return t('createEntity.habitName');
+  if (kind === 'goal') return t('createEntity.goalName');
+  if (kind === 'task') return t('createEntity.taskName');
+  return t('createEntity.valueName');
 }
 
 export function createButtonLabel(kind: EntityKind): string {
-  if (kind === 'habit') return 'Create habit';
-  if (kind === 'goal') return 'Create goal';
-  if (kind === 'task') return 'Create task';
-  return 'Create value';
+  if (kind === 'habit') return t('createEntity.createHabit');
+  if (kind === 'goal') return t('createEntity.createGoal');
+  if (kind === 'task') return t('createEntity.createTask');
+  return t('createEntity.createValue');
 }

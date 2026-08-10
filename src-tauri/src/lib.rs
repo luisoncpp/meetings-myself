@@ -1,14 +1,17 @@
 mod private;
 
 use planning_app::{DeviceSettingsFile, PlanningApp, StartRequest, SystemClock};
-use private::commands::{app_version, choose_sync_folder, set_home_zone, store_health, AppState};
+use private::commands::{
+    app_version, choose_sync_folder, set_home_zone, set_ui_language, store_health, ui_language,
+    AppState,
+};
 use private::library_commands::{
     associations_for, create_goal, create_habit, create_task, create_value, library,
 };
 use private::lifecycle_commands::{
     achieve_goal, archive_entity, classify_task, complete_task, link, reopen_task, restore_entity,
-    set_habit_cadence, set_habit_pinned, set_habit_strength, set_task_deadline, unachieve_goal,
-    unlink,
+    set_habit_cadence, set_habit_pinned, set_habit_strength, set_task_deadline, set_task_one_off,
+    unachieve_goal, unlink,
 };
 use private::plan_commands::{
     add_habit_to_plan, add_to_focus, archive_recurring_task, create_recurring_task, quick_add_task,
@@ -43,6 +46,8 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             app_version,
             store_health,
+            ui_language,
+            set_ui_language,
             choose_sync_folder,
             set_home_zone,
             library,
@@ -58,6 +63,7 @@ pub fn run() {
             unachieve_goal,
             classify_task,
             set_task_deadline,
+            set_task_one_off,
             set_habit_cadence,
             set_habit_pinned,
             set_habit_strength,

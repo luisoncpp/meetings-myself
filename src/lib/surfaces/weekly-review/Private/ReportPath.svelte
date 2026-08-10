@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { t } from '../../../i18n';
+
   interface Props {
     path: string;
   }
@@ -9,7 +11,7 @@
 </script>
 
 <p class="report-path">
-  Report file:
+  {t('weeklyReview.reportFile')}
   <span class="filename">{filename}</span>
 </p>
 

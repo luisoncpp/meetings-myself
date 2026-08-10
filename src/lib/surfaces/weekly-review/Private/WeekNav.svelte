@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '../../../i18n';
   import { Button } from '../../../ui';
   import type { WeeklyReviewStore } from './WeeklyReviewStore.svelte';
   import { nextWeek, prevWeek } from './week-nav';
@@ -11,7 +12,7 @@
   let { week, store }: Props = $props();
 </script>
 
-<nav class="week-nav" aria-label="Week navigation">
+<nav class="week-nav" aria-label={t('weeklyReview.weekNav')}>
   <Button variant="quiet" onclick={/* previous week */ () => void store.openWeek(prevWeek(week))}>
     ← {prevWeek(week)}
   </Button>

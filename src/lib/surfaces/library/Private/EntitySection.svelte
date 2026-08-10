@@ -1,5 +1,6 @@
 <script lang="ts">
   import { CreateEntity, type CreatePayload, type EntityKind } from '../../../planning-actions';
+  import { t } from '../../../i18n';
   import { Button, Card } from '../../../ui';
   import EntityKindList from './EntityKindList.svelte';
   import type { LibraryStore } from './LibraryStore.svelte';
@@ -37,12 +38,12 @@
 
   const newLabel = $derived(
     kind === 'value'
-      ? 'Add value'
+      ? t('library.addValue')
       : kind === 'goal'
-        ? 'Add goal'
+        ? t('library.addGoal')
         : kind === 'habit'
-          ? 'New habit'
-          : 'Add task',
+          ? t('library.newHabit')
+          : t('library.addTask'),
   );
 </script>
 

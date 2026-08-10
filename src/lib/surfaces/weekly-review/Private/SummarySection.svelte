@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { WeeklySummary } from '../../../domain';
+  import { t } from '../../../i18n';
 
   interface Props {
     summary: WeeklySummary;
@@ -9,10 +10,10 @@
 </script>
 
 <section class="summary" aria-labelledby="summary-heading">
-  <h2 id="summary-heading">This week</h2>
+  <h2 id="summary-heading">{t('weeklyReview.thisWeek')}</h2>
 
   {#if summary.completed.length > 0}
-    <h3>Completed</h3>
+    <h3>{t('weeklyReview.completed')}</h3>
     <ul>
       {#each summary.completed as title (title)}
         <li>{title}</li>
@@ -20,10 +21,10 @@
     </ul>
   {/if}
 
-  <p class="count">Still open: {summary.stillOpen}</p>
+  <p class="count">{t('weeklyReview.stillOpen', { count: summary.stillOpen })}</p>
 
   {#if summary.overdue.length > 0}
-    <h3>Overdue</h3>
+    <h3>{t('weeklyReview.overdue')}</h3>
     <ul>
       {#each summary.overdue as title (title)}
         <li>{title}</li>
@@ -32,14 +33,14 @@
   {/if}
 
   {#if summary.habits.length > 0}
-    <h3>Habits</h3>
-    <table aria-label="Habits">
+    <h3>{t('weeklyReview.habits')}</h3>
+    <table aria-label={t('weeklyReview.habitsTable')}>
       <thead>
         <tr>
-          <th scope="col">Habit</th>
-          <th scope="col">Done</th>
-          <th scope="col">Skipped</th>
-          <th scope="col">Not completed</th>
+          <th scope="col">{t('weeklyReview.habitColumn')}</th>
+          <th scope="col">{t('weeklyReview.doneColumn')}</th>
+          <th scope="col">{t('weeklyReview.skippedColumn')}</th>
+          <th scope="col">{t('weeklyReview.notCompletedColumn')}</th>
         </tr>
       </thead>
       <tbody>
@@ -56,7 +57,7 @@
   {/if}
 
   {#if summary.goalsAchieved.length > 0}
-    <h3>Goals achieved</h3>
+    <h3>{t('weeklyReview.goalsAchieved')}</h3>
     <ul>
       {#each summary.goalsAchieved as title (title)}
         <li>{title}</li>

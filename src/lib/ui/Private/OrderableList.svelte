@@ -1,5 +1,6 @@
 <script lang="ts" generics="T">
   import type { Snippet } from 'svelte';
+  import { t } from '../../i18n';
   import {
     formatPositionAnnouncement,
     move,
@@ -20,8 +21,10 @@
     getId,
     onreorder,
     children,
-    label = 'Reorderable list',
+    label,
   }: Props = $props();
+
+  const listLabel = $derived(label ?? t('ui.reorderableList'));
 
   let focusedIndex = $state(0);
   let statusMessage = $state('');
@@ -100,7 +103,7 @@
   }
 </script>
 
-<ul aria-label={label} class="list">
+<ul aria-label={listLabel} class="list">
   {#each items as item, index (getId(item))}
   {@const id = getId(item)}
     <li
@@ -121,7 +124,7 @@
         type="button"
         class="handle"
         tabindex={-1}
-        aria-label="Reorder {id}"
+        aria-label={t('ui.reorder', { id })}
         draggable={/*enable pointer reorder=*/true}
         ondragstart={(event) => handleDragStart(event, id)}
         ondragend={handleDragEnd}

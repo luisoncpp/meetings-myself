@@ -16,6 +16,16 @@ import type {
   WeeklySummary,
 } from '../domain';
 
+export type UiLanguage = 'en' | 'es';
+
+export function uiLanguage(): Promise<UiLanguage> {
+  return call<UiLanguage>('ui_language');
+}
+
+export function setUiLanguage(language: UiLanguage): Promise<void> {
+  return call<void>('set_ui_language', { language });
+}
+
 export function appVersion(): Promise<string> {
   return call<string>('app_version');
 }
@@ -56,8 +66,8 @@ export function createValue(title: string): Promise<unknown> {
   return call('create_value', { title });
 }
 
-export function createTask(title: string): Promise<unknown> {
-  return call('create_task', { title });
+export function createTask(title: string, oneOff = true): Promise<unknown> {
+  return call('create_task', { title, oneOff });
 }
 
 export function createGoal(title: string, targetDate?: string | null): Promise<unknown> {
@@ -102,6 +112,10 @@ export function classifyTask(
 
 export function setTaskDeadline(task: string, deadline?: string | null): Promise<void> {
   return call<void>('set_task_deadline', { task, deadline: deadline ?? null });
+}
+
+export function setTaskOneOff(task: string, oneOff: boolean): Promise<void> {
+  return call<void>('set_task_one_off', { task, oneOff });
 }
 
 export function setHabitCadence(habit: string, cadence: Cadence): Promise<void> {

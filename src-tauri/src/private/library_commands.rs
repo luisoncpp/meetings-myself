@@ -33,12 +33,16 @@ pub async fn create_value(
 }
 
 #[tauri::command]
-pub async fn create_task(state: tauri::State<'_, AppState>, title: String) -> Result<Task, String> {
+pub async fn create_task(
+    state: tauri::State<'_, AppState>,
+    title: String,
+    one_off: Option<bool>,
+) -> Result<Task, String> {
     state
         .0
         .lock()
         .await
-        .create_task(title)
+        .create_task(title, one_off.unwrap_or(/*one_off=*/ true))
         .await
         .map_err(app_error_message)
 }

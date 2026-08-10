@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { CheckInOutcome } from '../../domain';
+  import { t } from '../../i18n';
   import { nextOutcome, OUTCOME_OPTIONS } from './outcome-navigation';
 
   interface Props {
@@ -26,7 +27,7 @@
 
 <div
   role="radiogroup"
-  aria-label="Check-in for {label}"
+  aria-label={t('domain.checkIn.for', { label })}
   class="group"
   tabindex={-1}
   onkeydown={handleKeydown}

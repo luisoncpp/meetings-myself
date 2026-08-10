@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { LibraryView } from '../../domain';
+  import { t } from '../../i18n';
   import { Button, InsetPanel } from '../../ui';
   import type { PlanningActionsHost } from './planning-actions-host';
 
@@ -19,18 +20,18 @@
   }
 </script>
 
-<InsetPanel title="Weekly focus ({week})" label="Weekly focus">
+<InsetPanel title={t('planningActions.weeklyFocusWithWeek', { week })} label={t('planningActions.weeklyFocus')}>
   <ul class="tasks">
     {#each view.tasks.filter((task) => !task.archived) as task (task.id)}
       <li>
         <span>{task.title}</span>
         {#if inFocus(task.id)}
           <Button variant="quiet" onclick={/* remove */ () => void host.removeFromFocus(task.id)}>
-            Remove from focus
+            {t('planningActions.removeFromFocus')}
           </Button>
         {:else}
           <Button variant="quiet" onclick={/* add */ () => void host.addToFocus(task.id)}>
-            Add to focus
+            {t('planningActions.addToFocus')}
           </Button>
         {/if}
       </li>
@@ -38,7 +39,7 @@
   </ul>
 
   {#snippet footer()}
-    <Button variant="quiet" onclick={/* close */ onclose}>Close</Button>
+    <Button variant="quiet" onclick={/* close */ onclose}>{t('common.close')}</Button>
   {/snippet}
 </InsetPanel>
 

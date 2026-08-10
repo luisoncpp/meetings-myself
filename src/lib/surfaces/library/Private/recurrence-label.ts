@@ -1,19 +1,14 @@
 import type { Recurrence, Weekday } from '../../../domain';
-import { WEEKDAYS } from './labels';
+import { t } from '../../../i18n';
+import { weekdayLabel } from './labels';
 
 export function recurrenceLabel(recurrence: Recurrence): string {
-  if (recurrence.kind === 'daily') return 'Daily';
-  if (recurrence.kind === 'weekdays') return 'Weekdays';
+  if (recurrence.kind === 'daily') return t('domain.recurrence.daily');
+  if (recurrence.kind === 'weekdays') return t('domain.recurrence.weekdays');
   if (recurrence.kind === 'weekly') {
-    const weekday = weekdayLabel(recurrence.weekday);
-    return `Weekly · ${weekday}`;
+    return t('domain.recurrence.weekly', { weekday: weekdayLabel(recurrence.weekday) });
   }
-  return `Monthly · day ${recurrence.day}`;
-}
-
-function weekdayLabel(weekday: Weekday): string {
-  const match = WEEKDAYS.find((day) => day.value === weekday);
-  return match?.label ?? weekday;
+  return t('domain.recurrence.monthly', { day: recurrence.day });
 }
 
 export function buildRecurrence(

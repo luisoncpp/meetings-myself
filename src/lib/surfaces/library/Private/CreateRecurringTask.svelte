@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { Recurrence } from '../../../domain';
+  import { t } from '../../../i18n';
   import { Button, Field, Input } from '../../../ui';
   import CreateRecurrence from './CreateRecurrence.svelte';
 
@@ -30,15 +31,15 @@
     submit();
   }}
 >
-  <Field label="Title">
-    <Input bind:value={title} aria-label="Recurring task title" />
+  <Field label={t('library.fieldTitle')}>
+    <Input bind:value={title} aria-label={t('library.recurringTaskTitle')} />
   </Field>
 
   <CreateRecurrence bind:recurrence bind:valid={recurrenceValid} />
 
   <div class="actions">
-    <Button type="submit" variant="primary" disabled={!canSubmit}>Create</Button>
-    <Button variant="quiet" onclick={/* cancel */ oncancel}>Cancel</Button>
+    <Button type="submit" variant="primary" disabled={!canSubmit}>{t('common.create')}</Button>
+    <Button variant="quiet" onclick={/* cancel */ oncancel}>{t('common.cancel')}</Button>
   </div>
 </form>
 

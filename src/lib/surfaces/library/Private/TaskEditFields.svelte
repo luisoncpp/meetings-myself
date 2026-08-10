@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { TaskView } from '../../../domain';
+  import { t } from '../../../i18n';
   import { Field, Input, Select } from '../../../ui';
   import { CLASSIFICATION_OPTIONS } from './labels';
 
@@ -14,9 +15,9 @@
 </script>
 
 <div class="fields">
-  <Field label="Importance">
+  <Field label={t('library.importance')}>
     <Select
-      aria-label="Importance"
+      aria-label={t('library.importance')}
       value={task.importance}
       onchange={/* set importance */ onimportancechange}
     >
@@ -25,9 +26,9 @@
       {/each}
     </Select>
   </Field>
-  <Field label="Urgency">
+  <Field label={t('library.urgency')}>
     <Select
-      aria-label="Urgency"
+      aria-label={t('library.urgency')}
       value={task.urgency}
       onchange={/* set urgency */ onurgencychange}
     >
@@ -36,10 +37,10 @@
       {/each}
     </Select>
   </Field>
-  <Field label="Deadline">
+  <Field label={t('library.deadline')}>
     <Input
       type="date"
-      aria-label="Deadline"
+      aria-label={t('library.deadline')}
       value={task.deadline ?? ''}
       onchange={/* set deadline */ ondeadlinechange}
     />

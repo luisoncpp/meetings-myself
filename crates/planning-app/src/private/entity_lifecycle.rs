@@ -16,6 +16,11 @@ pub struct SetDeadline<'a> {
     pub deadline: Option<NaiveDate>,
 }
 
+pub struct SetOneOff<'a> {
+    pub task: &'a TaskId,
+    pub one_off: bool,
+}
+
 impl PlanningApp {
     fn today(&self) -> Result<NaiveDate, AppError> {
         Ok(self.calendar()?.today(self.clock.as_ref()))
@@ -113,6 +118,14 @@ impl PlanningApp {
         .await?;
         Ok(())
     }
+
+    pub async fn set_task_one_off(&self, request: SetOneOff<'_>) -> Result<(), AppError> {
+        self.mutate::<Task>((TaskId::TABLE, request.task.to_string()), |found| {
+            found.one_off = request.one_off;
+        })
+        .await?;
+        Ok(())
+    }
 }
 
 #[cfg(test)]
@@ -127,7 +140,10 @@ mod tests {
     #[tokio::test]
     async fn archiving_is_reversible_and_preserves_completion() {
         let (_home, _drive, app) = ready_app().await;
-        let task = app.create_task("File taxes".into()).await.unwrap();
+        let task = app
+            .create_task("File taxes".into(), /*one_off=*/ true)
+            .await
+            .unwrap();
 
         app.complete_task(&task.id).await.unwrap();
         app.archive_task(&task.id).await.unwrap();
@@ -151,7 +167,10 @@ mod tests {
     #[tokio::test]
     async fn completion_is_reversible_and_dated_in_the_home_zone() {
         let (_home, _drive, app) = ready_app().await;
-        let task = app.create_task("Draft the letter".into()).await.unwrap();
+        let task = app
+            .create_task("Draft the letter".into(), /*one_off=*/ true)
+            .await
+            .unwrap();
 
         app.complete_task(&task.id).await.unwrap();
         let completed = app.task(&task.id).await.unwrap().unwrap();

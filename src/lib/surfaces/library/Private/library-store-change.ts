@@ -1,5 +1,8 @@
+import { localizeError } from '../../../i18n';
+
 export function libraryStoreMessage(failure: unknown): string {
-  return failure instanceof Error ? failure.message : String(failure);
+  if (failure instanceof Error) return localizeError(failure.message);
+  return localizeError(String(failure));
 }
 
 export async function runLibraryMutation(

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '../../../i18n';
   import { MarkdownEditor } from '../../../ui';
   import type { SaveState } from './WeeklyReviewStore.svelte';
 
@@ -12,16 +13,20 @@
   let { value, saveState, oninput, onblur }: Props = $props();
 
   const statusLabel = $derived(
-    saveState === 'saving' ? 'Saving…' : saveState === 'unsaved' ? 'Unsaved' : 'Saved',
+    saveState === 'saving'
+      ? t('weeklyReview.saving')
+      : saveState === 'unsaved'
+        ? t('weeklyReview.unsaved')
+        : t('weeklyReview.saved'),
   );
 </script>
 
 <section class="reflection">
   <div class="header">
-    <h2>Reflection</h2>
+    <h2>{t('weeklyReview.reflection')}</h2>
     <span class="status" role="status">{statusLabel}</span>
   </div>
-  <MarkdownEditor aria-label="Reflection" {value} oninput={/* edit */ oninput} onblur={/* blur */ onblur} />
+  <MarkdownEditor aria-label={t('weeklyReview.reflection')} {value} oninput={/* edit */ oninput} onblur={/* blur */ onblur} />
 </section>
 
 <style>

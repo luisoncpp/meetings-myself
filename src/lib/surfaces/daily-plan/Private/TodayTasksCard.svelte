@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { PlanTaskView } from '../../../domain';
+  import { t } from '../../../i18n';
   import { Card, OrderableList } from '../../../ui';
   import PlanTaskRow from './PlanTaskRow.svelte';
   import QuickAdd from './QuickAdd.svelte';
@@ -15,13 +16,13 @@
 </script>
 
 <Card>
-  <h2>Today's Tasks</h2>
+  <h2>{t('dailyPlan.todayTasks')}</h2>
   <QuickAdd onsubmit={/* quick add */ onquickadd} />
   {#if tasks.length === 0}
-    <p class="empty">No tasks for today. Add one above or pull from the task pool.</p>
+    <p class="empty">{t('dailyPlan.todayTasksEmpty')}</p>
   {:else}
     <OrderableList
-      label="Today's tasks"
+      label={t('dailyPlan.todayTasksList')}
       items={tasks}
       getId={(task) => task.id}
       onreorder={/* reorder tasks */ onreorder}

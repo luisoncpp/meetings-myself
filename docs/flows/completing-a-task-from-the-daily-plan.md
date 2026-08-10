@@ -2,7 +2,7 @@
 
 ## Trigger
 
-User toggles the checkbox on a task row in today's plan (`PlanTaskRow`).
+User clicks **Mark done** on a task row in today's plan (`PlanTaskRow` / `TaskCompletionToggle`).
 
 ## Entry point
 
@@ -10,7 +10,7 @@ User toggles the checkbox on a task row in today's plan (`PlanTaskRow`).
 
 ## Steps — complete (open → completed)
 
-1. **UI** — `PlanTaskRow` checkbox `onchange` calls `activeStore.toggleCompletion(task)`.
+1. **UI** — `PlanTaskRow` **Mark done** button calls `activeStore.toggleCompletion(task)`.
 2. **Store** — `task.state !== 'completed'`, so the store calls `api.completeTask(task.id)`.
 3. **IPC** — `src/lib/api/index.ts` → `call('complete_task', { task })` → Tauri `complete_task`.
 4. **Command** — `src-tauri/src/private/lifecycle_commands.rs` locks `AppState` and calls `PlanningApp::complete_task`.
@@ -28,7 +28,7 @@ Completion is reversible at any time (ADR 0002). Reopening is not gated on plan 
 
 ## Archived entry — the surprising case
 
-A task archived from the Library **stays in today's plan** (forward-only propagation). On the next `today_view`, `plan_view` sets `archived: true` on the projected row. The checkbox remains enabled — completion is **never** gated on `lifecycle`.
+A task archived from the Library **stays in today's plan** (forward-only propagation). On the next `today_view`, `plan_view` sets `archived: true` on the projected row. **Mark done** stays enabled — completion is **never** gated on `lifecycle`.
 
 User ticks an archived open task → same `complete_task` path. The Task becomes `archived` **and** `completed` (orthogonal axes). Both `StateFlag` kinds can appear. Restoring from the Library later returns it completed, not open.
 
@@ -50,14 +50,17 @@ Proven by `DailyPlan.test.ts` ("still lets an archived entry be completed") and 
 
 ## Side effects
 
-- Task Pool and Weekly Focus read models reflect the new `state` on next load.
+- Task Pool: one-off completed Tasks drop out on next `task_pool()`; non–one-off completed Tasks stay poolable while active.
+- Weekly Focus read models reflect the new `state` on next load.
 - Weekly summary counts the completion on the stamped date, not necessarily the plan date.
+
+Completion is toggled from the Daily Plan for every task; the Library also offers completion controls for **one-off** tasks only.
 
 ## Files to inspect
 
 | Path | Role |
 |------|------|
-| `src/lib/surfaces/daily-plan/Private/PlanTaskRow.svelte` | Checkbox trigger |
+| `src/lib/surfaces/daily-plan/Private/PlanTaskRow.svelte` | Mark done trigger |
 | `src/lib/surfaces/daily-plan/Private/DailyPlanStore.svelte.ts` | `toggleCompletion`, `#change`, `load` |
 | `src/lib/api/index.ts` | `completeTask`, `reopenTask` |
 | `src-tauri/src/private/lifecycle_commands.rs` | IPC handlers |
@@ -69,5 +72,6 @@ Proven by `DailyPlan.test.ts` ("still lets an archived entry be completed") and 
 | Symptom | Likely cause |
 |---------|--------------|
 | Checkbox toggles then snaps back | IPC error; `#change` catches and leaves prior view (check `store.error`) |
-| Task not in plan | Id not in `daily_plan.tasks` — completion still works if called from Library, but this flow starts from the plan row |
+| Task not in plan | Id not in `daily_plan.tasks` — completion still works from the Daily Plan row when the task is listed there |
 | Cannot complete archived task | Bug — completion must not check `lifecycle` |
+| Completed one-off missing from pool | Expected — only non–one-off completed Tasks stay poolable |

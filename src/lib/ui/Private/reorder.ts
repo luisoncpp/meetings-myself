@@ -1,3 +1,5 @@
+import { t } from '../../i18n';
+
 export interface MoveRequest {
   id: string;
   direction: 'up' | 'down';
@@ -35,7 +37,7 @@ export function reorderByDrop(
 
 export function formatPositionAnnouncement(id: string, order: readonly string[]): string {
   const position = order.indexOf(id) + 1;
-  return `${id} position ${position} of ${order.length}`;
+  return t('ui.positionAnnouncement', { id, position, total: order.length });
 }
 
 export function ordersMatch(left: readonly string[], right: readonly string[]): boolean {

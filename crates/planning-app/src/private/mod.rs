@@ -3,6 +3,7 @@ pub mod check_in_use_cases;
 pub mod daily_plan_use_cases;
 pub mod entity_lifecycle;
 pub mod error;
+pub mod error_payload;
 pub mod habit_lifecycle;
 pub mod library;
 pub mod materialization;

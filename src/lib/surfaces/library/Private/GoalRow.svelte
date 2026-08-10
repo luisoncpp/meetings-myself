@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { GoalView } from '../../../domain';
+  import { t } from '../../../i18n';
   import { Button, ListRow, StateFlag } from '../../../ui';
   import type { LibraryStore } from './LibraryStore.svelte';
 
@@ -33,18 +34,18 @@
   {#snippet trailing()}
     {#if goal.archived}
       <StateFlag kind="archived" />
-      <Button variant="quiet" onclick={/* restore goal */ toggleArchive}>Restore</Button>
+      <Button variant="quiet" onclick={/* restore goal */ toggleArchive}>{t('common.restore')}</Button>
     {:else}
       {#if goal.achieved}
         <StateFlag kind="completed" />
       {/if}
       {#if goal.targetDate}
-        <span class="meta">Target {goal.targetDate}</span>
+        <span class="meta">{t('library.target', { date: goal.targetDate })}</span>
       {/if}
       <Button variant="quiet" onclick={/* toggle achieved */ toggleAchieved}>
-        {goal.achieved ? 'Mark not achieved' : 'Mark achieved'}
+        {goal.achieved ? t('library.markNotAchieved') : t('library.markAchieved')}
       </Button>
-      <Button variant="quiet" onclick={/* archive goal */ toggleArchive}>Archive</Button>
+      <Button variant="quiet" onclick={/* archive goal */ toggleArchive}>{t('common.archive')}</Button>
     {/if}
   {/snippet}
 </ListRow>

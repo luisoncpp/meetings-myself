@@ -1,5 +1,7 @@
 <script lang="ts">
   import { openWeeklyReviewWindow } from '../../api';
+  import { localeStore, t } from '../../i18n';
+  import { LanguageSelect } from '../../ui';
 
   interface Props {
     current: 'daily-plan' | 'library';
@@ -13,29 +15,30 @@
   }
 </script>
 
-<nav class="nav" aria-label="Main">
+<nav class="nav" aria-label={t('nav.main')}>
   <div class="nav-inner">
     <button
       type="button"
       class:selected={current === 'daily-plan'}
       onclick={/* show daily plan */ () => onnavigate('daily-plan')}
     >
-      Daily Plan
+      {t('nav.dailyPlan')}
     </button>
     <button
       type="button"
       class:selected={current === 'library'}
       onclick={/* show library */ () => onnavigate('library')}
     >
-      Library
+      {t('nav.library')}
     </button>
     <button
       type="button"
-      aria-label="Open Weekly Review in a new window"
+      aria-label={t('nav.openWeeklyReview')}
       onclick={openReviewWindow}
     >
-      Weekly Review <span class="external" aria-hidden="true">↗</span>
+      {t('nav.weeklyReview')} <span class="external" aria-hidden="true">↗</span>
     </button>
+    <LanguageSelect compact />
   </div>
 </nav>
 
@@ -51,6 +54,7 @@
     max-width: min(var(--content-max-width), 100%);
     margin-inline: auto;
     padding: var(--space-4) var(--space-6);
+    align-items: center;
   }
 
   button {
@@ -77,5 +81,9 @@
   .external {
     font-size: var(--text-label);
     opacity: 0.7;
+  }
+
+  :global(.language.compact) {
+    margin-left: auto;
   }
 </style>
