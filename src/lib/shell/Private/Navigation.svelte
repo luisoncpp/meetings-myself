@@ -1,6 +1,6 @@
 <script lang="ts">
   import { openWeeklyReviewWindow } from '../../api';
-  import { localeStore, t } from '../../i18n';
+  import { t } from '../../i18n';
   import { LanguageSelect } from '../../ui';
 
   interface Props {

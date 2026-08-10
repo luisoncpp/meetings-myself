@@ -109,11 +109,15 @@ describe('Library weekly review actions', () => {
 
     render(Library);
     await screen.findByText('Ship it');
-    const toolbarButtons = screen.getAllByRole('button', { name: /mark achieved/i });
-    await userEvent.click(toolbarButtons[0]);
+    const toolbar = screen.getByRole('toolbar', { name: /quick actions/i });
+    const markAchieved = within(toolbar).getByRole('button', { name: /mark achieved/i });
+    await userEvent.click(markAchieved);
     expect(screen.getByLabelText(/goal to mark achieved/i)).toBeInTheDocument();
-    expect(toolbarButtons[0]).toHaveAttribute('aria-pressed', 'true');
-    expect(screen.getByRole('button', { name: /new goal/i })).toHaveAttribute('aria-pressed', 'false');
+    expect(markAchieved).toHaveAttribute('aria-pressed', 'true');
+    expect(within(toolbar).getByRole('button', { name: /new goal/i })).toHaveAttribute(
+      'aria-pressed',
+      'false',
+    );
   });
 
   it('keeps only one action panel open at a time', async () => {
@@ -159,11 +163,13 @@ describe('Library weekly review actions', () => {
 
     render(Library);
     await screen.findByText('Ship it');
-    const toolbarButtons = screen.getAllByRole('button', { name: /mark achieved/i });
-    await userEvent.click(toolbarButtons[0]);
+    const toolbar = screen.getByRole('toolbar', { name: /quick actions/i });
+    await userEvent.click(within(toolbar).getByRole('button', { name: /mark achieved/i }));
     await userEvent.selectOptions(screen.getByLabelText(/goal to mark achieved/i), 'g1');
     const confirmButtons = screen.getAllByRole('button', { name: /mark achieved/i });
-    await userEvent.click(confirmButtons[confirmButtons.length - 1]);
+    const confirm = confirmButtons.at(-1);
+    expect(confirm).toBeDefined();
+    await userEvent.click(confirm!);
     expect(achieveGoal).toHaveBeenCalledWith('g1');
   });
 });
