@@ -84,6 +84,13 @@ Writes are refused server-side when health is not `ready`; the gate keeps the UI
 
 Creating a rule stores only the `recurring_task` record (`starts_on` = today). It does **not** materialize Tasks. The next `open_today` runs `materialize_due` first, creating missing `Occurrence` + `Task` pairs into the Task Pool — not auto-selected into the daily plan. See [creating-a-recurring-task.md](../flows/creating-a-recurring-task.md) and [daily-planning.md](daily-planning.md#recurring-task-materialization).
 
+### Library — associations
+
+`LibraryView` carries `associations: Vec<Association>`. Active entity cards (`ValueRow`, `GoalRow`, `HabitRow`, `TaskRow`) render:
+- `AssociationTags`: displays tags for all active links touching the entity, with entity type tooltips (e.g. `Goal: Ship v1`) and an `×` button to unlink immediately.
+- A "Link to…" button on the card that opens `LinkModal` (`planning-actions`).
+- `LinkModal`: tabbed modal presenting target kinds strictly in priority order: `Goal` → `Habit` → `Value` → `Task`, filtered to valid pairs for the entity. The first available tab is selected by default. Clicking a candidate links the entities, reloads `LibraryStore`, and immediately updates the card tags. See [linking-entities-in-library.md](../flows/linking-entities-in-library.md).
+
 ### Task completion UI
 
 Only **Daily Plan** (`PlanTaskRow`) and **Library one-off** rows (`TaskRow`) use `TaskCompletionToggle` — a labeled **Mark done** / **Done** pill (not a bare checkbox). Non–one-off Library tasks never surface completion. **Task Pool** never shows completion state.

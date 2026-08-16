@@ -18,18 +18,18 @@
 
 {#if kind === 'value'}
   {#each view.values as value (value.id)}
-    <ValueRow {value} {store} />
+    <ValueRow {value} {view} {store} />
   {/each}
 {:else if kind === 'goal'}
   {#each view.goals as goal (goal.id)}
-    <GoalRow {goal} {store} />
+    <GoalRow {goal} {view} {store} />
   {/each}
 {:else if kind === 'habit'}
   {#each view.habits as habit (habit.id)}
-    <HabitRow {habit} {store} />
+    <HabitRow {habit} {view} {store} />
   {/each}
 {:else}
   {#each view.tasks as task (task.id)}
-    <TaskRow {task} {store} />
+    <TaskRow {task} {view} {store} />
   {/each}
 {/if}

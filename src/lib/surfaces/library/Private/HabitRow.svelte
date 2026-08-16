@@ -1,20 +1,25 @@
 <script lang="ts">
-  import type { Cadence, HabitView, Weekday } from '../../../domain';
-  import { CreateHabitCadence } from '../../../planning-actions';
+  import type { Cadence, HabitView, LibraryView, Weekday } from '../../../domain';
+  import { CreateHabitCadence, LinkModal } from '../../../planning-actions';
   import { t } from '../../../i18n';
   import { Button, Field, ListRow, Select, StateFlag } from '../../../ui';
+  import AssociationTags from './AssociationTags.svelte';
   import { STRENGTH_OPTIONS, WEEKDAYS } from './labels';
   import type { LibraryStore } from './LibraryStore.svelte';
 
   interface Props {
     habit: HabitView;
+    view: LibraryView;
     store: LibraryStore;
   }
 
-  let { habit, store }: Props = $props();
+  let { habit, view, store }: Props = $props();
+
+  let linkModalOpen = $state(false);
+
+  const end = $derived({ kind: 'habit' as const, id: habit.id });
 
   function toggleArchive(): void {
-    const end = { kind: 'habit' as const, id: habit.id };
     if (habit.archived) {
       void store.restore(end);
       return;
@@ -50,41 +55,57 @@
 
 <ListRow muted={habit.archived}>
   <div class="habit">
-      <span class="title">{habit.title}</span>
-      {#if habit.archived}
-        <StateFlag kind="archived" />
-      {:else}
-        <Field label={t('library.habitStrength')}>
-          <Select
-            aria-label={t('library.habitStrength')}
-            value={habit.strength}
-            onchange={/* set strength */ onStrengthChange}
-          >
-            {#each STRENGTH_OPTIONS as option (option.value)}
-              <option value={option.value}>{option.label}</option>
-            {/each}
-          </Select>
-        </Field>
-        <CreateHabitCadence
-          selectedDays={currentWeekdays(habit.cadence)}
-          ontoggle={/* toggle weekday */ onWeekdayToggle}
+    <span class="title">{habit.title}</span>
+    {#if habit.archived}
+      <StateFlag kind="archived" />
+    {:else}
+      <AssociationTags
+        {end}
+        {view}
+        onunlink={(id) => void store.unlink(id)}
+        onopenLink={() => (linkModalOpen = true)}
+      />
+      <Field label={t('library.habitStrength')}>
+        <Select
+          aria-label={t('library.habitStrength')}
+          value={habit.strength}
+          onchange={/* set strength */ onStrengthChange}
+        >
+          {#each STRENGTH_OPTIONS as option (option.value)}
+            <option value={option.value}>{option.label}</option>
+          {/each}
+        </Select>
+      </Field>
+      <CreateHabitCadence
+        selectedDays={currentWeekdays(habit.cadence)}
+        ontoggle={/* toggle weekday */ onWeekdayToggle}
+      />
+      <label class="pinned">
+        <input
+          type="checkbox"
+          checked={habit.pinned}
+          onchange={/* toggle pinned */ onPinnedChange}
         />
-        <label class="pinned">
-          <input
-            type="checkbox"
-            checked={habit.pinned}
-            onchange={/* toggle pinned */ onPinnedChange}
-          />
-          {t('library.pinned')}
-        </label>
-      {/if}
-    </div>
+        {t('library.pinned')}
+      </label>
+    {/if}
+  </div>
   {#snippet trailing()}
     <Button variant="quiet" onclick={/* archive or restore */ toggleArchive}>
       {habit.archived ? t('common.restore') : t('common.archive')}
     </Button>
   {/snippet}
 </ListRow>
+
+{#if linkModalOpen}
+  <LinkModal
+    fromEnd={end}
+    fromTitle={habit.title}
+    {view}
+    onlink={(toEnd) => store.link(end, toEnd)}
+    onclose={() => (linkModalOpen = false)}
+  />
+{/if}
 
 <style>
   .habit {
@@ -103,3 +124,4 @@
     gap: var(--space-2);
   }
 </style>
+

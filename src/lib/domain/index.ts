@@ -57,6 +57,7 @@ export interface LibraryView {
   goals: GoalView[];
   habits: HabitView[];
   tasks: TaskView[];
+  associations: Association[];
 }
 
 export interface Association {

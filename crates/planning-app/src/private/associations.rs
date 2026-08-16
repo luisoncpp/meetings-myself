@@ -51,6 +51,15 @@ impl PlanningApp {
         self.load_all(AssociationId::TABLE).await
     }
 
+    pub async fn active_associations(&self) -> Result<Vec<Association>, AppError> {
+        Ok(self
+            .all_associations()
+            .await?
+            .into_iter()
+            .filter(|found| found.lifecycle.is_active())
+            .collect())
+    }
+
     /// Active links touching `end`. Archiving an entity does not archive its
     /// links, so a dormant link reappears the moment that entity is restored.
     pub async fn associations_for(
@@ -58,10 +67,10 @@ impl PlanningApp {
         end: &AssociationEnd,
     ) -> Result<Vec<Association>, AppError> {
         Ok(self
-            .all_associations()
+            .active_associations()
             .await?
             .into_iter()
-            .filter(|found| found.lifecycle.is_active() && found.touches(end))
+            .filter(|found| found.touches(end))
             .collect())
     }
 }

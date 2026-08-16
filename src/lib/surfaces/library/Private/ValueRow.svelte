@@ -1,18 +1,24 @@
 <script lang="ts">
-  import type { ValueView } from '../../../domain';
+  import type { LibraryView, ValueView } from '../../../domain';
   import { t } from '../../../i18n';
+  import { LinkModal } from '../../../planning-actions';
   import { Button, ListRow, StateFlag } from '../../../ui';
+  import AssociationTags from './AssociationTags.svelte';
   import type { LibraryStore } from './LibraryStore.svelte';
 
   interface Props {
     value: ValueView;
+    view: LibraryView;
     store: LibraryStore;
   }
 
-  let { value, store }: Props = $props();
+  let { value, view, store }: Props = $props();
+
+  let linkModalOpen = $state(false);
+
+  const end = $derived({ kind: 'value' as const, id: value.id });
 
   function toggleArchive(): void {
-    const end = { kind: 'value' as const, id: value.id };
     if (value.archived) {
       void store.restore(end);
       return;
@@ -22,7 +28,17 @@
 </script>
 
 <ListRow muted={value.archived}>
-  <span>{value.title}</span>
+  <div class="content">
+    <span>{value.title}</span>
+    {#if !value.archived}
+      <AssociationTags
+        {end}
+        {view}
+        onunlink={(id) => void store.unlink(id)}
+        onopenLink={() => (linkModalOpen = true)}
+      />
+    {/if}
+  </div>
   {#if value.archived}
     <StateFlag kind="archived" />
   {/if}
@@ -32,3 +48,22 @@
     </Button>
   {/snippet}
 </ListRow>
+
+{#if linkModalOpen}
+  <LinkModal
+    fromEnd={end}
+    fromTitle={value.title}
+    {view}
+    onlink={(toEnd) => store.link(end, toEnd)}
+    onclose={() => (linkModalOpen = false)}
+  />
+{/if}
+
+<style>
+  .content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+</style>
+

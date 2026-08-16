@@ -1,12 +1,11 @@
 <script lang="ts">
-  import type { Association, AssociationEnd, LibraryView } from '../../domain';
+  import type { AssociationEnd, LibraryView } from '../../domain';
   import { t } from '../../i18n';
   import { Button, Field, InsetPanel, Select } from '../../ui';
-  import * as api from '../../api';
   import {
-    candidatesFor,
-    entityTitle,
     linkTargetsFor,
+    linkedEntitiesFor,
+    unlinkedCandidatesFor,
     type EntityKind,
   } from './associations';
   import type { PlanningActionsHost } from './planning-actions-host';
@@ -23,7 +22,7 @@
   let fromId = $state('');
   let toKind = $state<EntityKind>('value');
   let toId = $state('');
-  let links = $state<Association[]>([]);
+  let linking = $state(false);
 
   const fromEnd = $derived(
     fromId === '' ? null : ({ kind: fromKind, id: fromId } satisfies AssociationEnd),
@@ -38,15 +37,10 @@
     }
   });
 
-  $effect(() => {
-    if (!fromEnd) {
-      links = [];
-      return;
-    }
-    void api.associationsFor(fromEnd).then((result) => {
-      links = result;
-    });
-  });
+  const links = $derived(fromEnd ? linkedEntitiesFor(view, fromEnd) : []);
+  const availableCandidates = $derived(
+    fromEnd ? unlinkedCandidatesFor(view, fromEnd, toKind) : [],
+  );
 
   function entitiesFor(kind: EntityKind): { id: string; title: string }[] {
     switch (kind) {
@@ -61,9 +55,19 @@
     }
   }
 
-  function linkEntities(): void {
-    if (!fromEnd || toId === '') return;
-    void host.link(fromEnd, { kind: toKind, id: toId });
+  async function linkEntities(): Promise<void> {
+    if (!fromEnd || toId === '' || linking) return;
+    linking = true;
+    try {
+      await host.link(fromEnd, { kind: toKind, id: toId });
+      toId = '';
+    } finally {
+      linking = false;
+    }
+  }
+
+  async function unlinkEntity(associationId: string): Promise<void> {
+    await host.unlink(associationId);
   }
 </script>
 
@@ -92,23 +96,27 @@
       </Select>
       <Select bind:value={toId}>
         <option value="">{t('common.select')}</option>
-        {#each candidatesFor(view, toKind) as end (end.id)}
-          <option value={end.id}>{entityTitle(view, end)}</option>
+        {#each availableCandidates as end (end.id)}
+          <option value={end.id}>{end.title}</option>
         {/each}
       </Select>
     </Field>
   </div>
 
-  <Button variant="primary" disabled={fromId === '' || toId === ''} onclick={/* link */ linkEntities}>
+  <Button
+    variant="primary"
+    disabled={fromId === '' || toId === '' || linking}
+    onclick={/* link */ () => void linkEntities()}
+  >
     {t('common.link')}
   </Button>
 
   {#if links.length > 0}
     <ul class="links">
-      {#each links as link (link.id)}
+      {#each links as link (link.associationId)}
         <li>
-          {entityTitle(view, link.left)} ↔ {entityTitle(view, link.right)}
-          <Button variant="quiet" onclick={/* unlink */ () => void host.unlink(link.id)}>
+          <span>{link.title} ({t(`domain.entityKind.${link.kind}`)})</span>
+          <Button variant="quiet" onclick={/* unlink */ () => void unlinkEntity(link.associationId)}>
             {t('common.unlink')}
           </Button>
         </li>

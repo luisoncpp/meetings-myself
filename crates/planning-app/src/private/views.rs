@@ -2,7 +2,7 @@ use super::error::AppError;
 use super::service::PlanningApp;
 use super::views_entities::{GoalView, HabitView, ValueView};
 use chrono::NaiveDate;
-use planning_core::{Classification, Task, TaskId};
+use planning_core::{Association, Classification, Task, TaskId};
 use serde::{Deserialize, Serialize};
 
 /// Display-only collapse of the orthogonal Completion x Lifecycle axes.
@@ -67,6 +67,7 @@ pub struct LibraryView {
     pub goals: Vec<GoalView>,
     pub habits: Vec<HabitView>,
     pub tasks: Vec<TaskView>,
+    pub associations: Vec<Association>,
 }
 
 impl PlanningApp {
@@ -77,6 +78,7 @@ impl PlanningApp {
             goals: self.project_goals(&filter).await?,
             habits: self.project_habits(&filter).await?,
             tasks: self.project_tasks(&filter, today).await?,
+            associations: self.active_associations().await?,
         })
     }
 
@@ -278,6 +280,21 @@ mod tests {
         assert_eq!(
             serde_json::to_string(&view).unwrap(),
             r#"{"id":"v1","title":"Integrity","archived":false}"#
+        );
+    }
+
+    #[test]
+    fn library_views_serialize_associations_for_the_frontend() {
+        let view = LibraryView {
+            values: vec![],
+            goals: vec![],
+            habits: vec![],
+            tasks: vec![],
+            associations: vec![],
+        };
+        assert_eq!(
+            serde_json::to_string(&view).unwrap(),
+            r#"{"values":[],"goals":[],"habits":[],"tasks":[],"associations":[]}"#
         );
     }
 }

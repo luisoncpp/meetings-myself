@@ -56,6 +56,7 @@ const emptyLibrary = {
   goals: [],
   habits: [],
   tasks: [],
+  associations: [],
 };
 
 const activeRecurring = {
