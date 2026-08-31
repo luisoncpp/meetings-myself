@@ -1,8 +1,8 @@
 <script lang="ts">
   import type { TaskView } from '../../../domain';
-  import { t } from '../../../i18n';
+  import { localeStore, t } from '../../../i18n';
   import { Field, Input, Select } from '../../../ui';
-  import { CLASSIFICATION_OPTIONS } from './labels';
+  import { CLASSIFICATION_VALUES, classificationLabel } from './labels';
 
   interface Props {
     task: TaskView;
@@ -12,6 +12,13 @@
   }
 
   let { task, onimportancechange, onurgencychange, ondeadlinechange }: Props = $props();
+
+  const classificationOptions = $derived.by(() => {
+    if (localeStore.locale) {
+      return CLASSIFICATION_VALUES.map((value) => ({ value, label: classificationLabel(value) }));
+    }
+    return [];
+  });
 </script>
 
 <div class="fields">
@@ -21,7 +28,7 @@
       value={task.importance}
       onchange={/* set importance */ onimportancechange}
     >
-      {#each CLASSIFICATION_OPTIONS as option (option.value)}
+      {#each classificationOptions as option (option.value)}
         <option value={option.value}>{option.label}</option>
       {/each}
     </Select>
@@ -32,7 +39,7 @@
       value={task.urgency}
       onchange={/* set urgency */ onurgencychange}
     >
-      {#each CLASSIFICATION_OPTIONS as option (option.value)}
+      {#each classificationOptions as option (option.value)}
         <option value={option.value}>{option.label}</option>
       {/each}
     </Select>

@@ -1,8 +1,8 @@
 <script lang="ts">
   import type { Recurrence, Weekday } from '../../../domain';
-  import { t } from '../../../i18n';
+  import { localeStore, t } from '../../../i18n';
   import { Field, Input, Select } from '../../../ui';
-  import { WEEKDAYS } from './labels';
+  import { weekdayLabel, WEEKDAY_VALUES } from './labels';
   import { buildRecurrence, isRecurrenceValid } from './recurrence-label';
 
   interface Props {
@@ -13,12 +13,24 @@
   let { recurrence = $bindable<Recurrence>({ kind: 'daily' }), valid = $bindable(/* valid= */ false) }: Props =
     $props();
 
-  const KIND_OPTIONS: { value: Recurrence['kind']; label: string }[] = [
-    { value: 'daily', label: t('domain.recurrence.daily') },
-    { value: 'weekdays', label: t('domain.recurrence.weekdays') },
-    { value: 'weekly', label: t('domain.recurrence.weeklyKind') },
-    { value: 'monthlyDay', label: t('domain.recurrence.monthlyKind') },
-  ];
+  const kindOptions = $derived.by(() => {
+    if (localeStore.locale) {
+      return [
+        { value: 'daily' as const, label: t('domain.recurrence.daily') },
+        { value: 'weekdays' as const, label: t('domain.recurrence.weekdays') },
+        { value: 'weekly' as const, label: t('domain.recurrence.weeklyKind') },
+        { value: 'monthlyDay' as const, label: t('domain.recurrence.monthlyKind') },
+      ];
+    }
+    return [];
+  });
+
+  const weekdays = $derived.by(() => {
+    if (localeStore.locale) {
+      return WEEKDAY_VALUES.map((value) => ({ value, label: weekdayLabel(value) }));
+    }
+    return [];
+  });
 
   let kind = $state<Recurrence['kind']>('daily');
   let weekday = $state<Weekday>('mon');
@@ -45,7 +57,7 @@
 <div class="recurrence">
   <Field label={t('library.recurrence')}>
     <Select aria-label={t('library.recurrenceKind')} value={kind} onchange={/* set kind */ onKindChange}>
-      {#each KIND_OPTIONS as option (option.value)}
+      {#each kindOptions as option (option.value)}
         <option value={option.value}>{option.label}</option>
       {/each}
     </Select>
@@ -54,7 +66,7 @@
   {#if kind === 'weekly'}
     <Field label={t('library.weekday')}>
       <Select aria-label={t('library.weekday')} value={weekday} onchange={/* set weekday */ onWeekdayChange}>
-        {#each WEEKDAYS as day (day.value)}
+        {#each weekdays as day (day.value)}
           <option value={day.value}>{day.label}</option>
         {/each}
       </Select>

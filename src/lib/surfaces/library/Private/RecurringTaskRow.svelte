@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { RecurringTask } from '../../../domain';
-  import { t } from '../../../i18n';
+  import { localeStore, t } from '../../../i18n';
   import { Button, Input, ListRow, StateFlag } from '../../../ui';
   import type { LibraryStore } from './LibraryStore.svelte';
   import { recurrenceLabel } from './recurrence-label';
@@ -13,6 +13,12 @@
   let { task, store }: Props = $props();
 
   const archived = $derived(task.lifecycle === 'archived');
+  const recurrenceText = $derived.by(() => {
+    if (localeStore.locale) {
+      return recurrenceLabel(task.recurrence);
+    }
+    return '';
+  });
   let title = $state('');
 
   $effect(() => {
@@ -45,7 +51,7 @@
         onchange={/* rename */ onTitleChange}
       />
     {/if}
-    <span class="recurrence">{recurrenceLabel(task.recurrence)}</span>
+    <span class="recurrence">{recurrenceText}</span>
     {#if archived}
       <StateFlag kind="archived" />
     {/if}

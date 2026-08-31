@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { Weekday } from '../../domain';
-  import { t } from '../../i18n';
-  import { WEEKDAYS } from './weekdays';
+  import { localeStore, t } from '../../i18n';
+  import { weekdayLabel, WEEKDAY_VALUES } from './weekdays';
 
   interface Props {
     selectedDays: Weekday[];
@@ -9,11 +9,18 @@
   }
 
   let { selectedDays, ontoggle }: Props = $props();
+
+  const weekdays = $derived.by(() => {
+    if (localeStore.locale) {
+      return WEEKDAY_VALUES.map((value) => ({ value, label: weekdayLabel(value) }));
+    }
+    return [];
+  });
 </script>
 
 <fieldset class="cadence">
   <legend>{t('createEntity.cadence')}</legend>
-  {#each WEEKDAYS as day (day.value)}
+  {#each weekdays as day (day.value)}
     <label>
       <input
         type="checkbox"
