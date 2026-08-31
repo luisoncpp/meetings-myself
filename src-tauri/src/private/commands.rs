@@ -75,6 +75,18 @@ pub async fn choose_sync_folder(
         .map_err(app_error_message)
 }
 
+/// Re-opens the sync folder after Drive mounts or a lock clears.
+#[tauri::command]
+pub async fn reconnect_store(state: tauri::State<'_, AppState>) -> Result<StoreHealth, String> {
+    state
+        .0
+        .lock()
+        .await
+        .reconnect()
+        .await
+        .map_err(app_error_message)
+}
+
 #[tauri::command]
 pub async fn set_home_zone(
     state: tauri::State<'_, AppState>,

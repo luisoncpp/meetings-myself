@@ -34,6 +34,7 @@
   "health": {
     "finishSetup": "Finish setup before using your planning data.",
     "folderMissing": "The sync folder could not be found at {path}. Check that Google Drive is running and the folder still exists.",
+    "chooseDifferentFolder": "Choose a different folder",
     "lockedByAnotherDevice": "Another device ({deviceName}) has the planning data open since {since}. Close Self-Planning on that device, then try again.",
     "syncConflictIntro": "Google Drive has conflicting copies of your planning files. Resolve them in Drive first:",
     "syncConflictOutro": "After Drive finishes syncing, try again here.",

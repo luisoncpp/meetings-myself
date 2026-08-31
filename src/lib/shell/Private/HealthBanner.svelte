@@ -7,12 +7,14 @@
   interface Props {
     health: StoreHealth;
     onretry?: () => void;
+    onchooseFolder?: () => void;
   }
 
-  let { health, onretry }: Props = $props();
+  let { health, onretry, onchooseFolder }: Props = $props();
 
   const RETRYABLE = new Set(['folderMissing', 'lockedByAnotherDevice']);
   const canRetry = $derived(RETRYABLE.has(health.status) && !!onretry);
+  const canChooseFolder = $derived(health.status === 'folderMissing' && !!onchooseFolder);
 </script>
 
 {#if health.status !== 'ready'}
@@ -20,8 +22,17 @@
     <span class="marker" aria-hidden="true"></span>
     <div class="content">
       <HealthBannerMessage {health} />
-      {#if canRetry}
-        <Button variant="secondary" onclick={onretry}>{t('common.tryAgain')}</Button>
+      {#if canRetry || canChooseFolder}
+        <div class="actions">
+          {#if canRetry}
+            <Button variant="secondary" onclick={onretry}>{t('common.tryAgain')}</Button>
+          {/if}
+          {#if canChooseFolder}
+            <Button variant="primary" onclick={onchooseFolder}>
+              {t('health.chooseDifferentFolder')}
+            </Button>
+          {/if}
+        </div>
       {/if}
     </div>
   </div>
@@ -47,5 +58,11 @@
     display: flex;
     flex-direction: column;
     gap: var(--space-3);
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
   }
 </style>

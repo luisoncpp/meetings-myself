@@ -25,6 +25,16 @@ describe('storeHealth', () => {
   });
 });
 
+describe('reconnectStore', () => {
+  it('forwards to the reconnect_store command', async () => {
+    const health = { status: 'folderMissing', path: 'G:/drive' };
+    invoke.mockResolvedValue(health);
+    const { reconnectStore } = await import('./index');
+    await expect(reconnectStore()).resolves.toEqual(health);
+    expect(invoke).toHaveBeenCalledWith('reconnect_store');
+  });
+});
+
 describe('chooseSyncFolder', () => {
   it('forwards with the folder path', async () => {
     const health = { status: 'ready' };

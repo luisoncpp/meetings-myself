@@ -1,5 +1,11 @@
 <script lang="ts">
-  import { storeHealth, type StoreHealth } from '../../api';
+  import {
+    chooseSyncFolder,
+    pickSyncFolder,
+    reconnectStore,
+    storeHealth,
+    type StoreHealth,
+  } from '../../api';
   import { t } from '../../i18n';
   import { SurfaceLayout } from '../../ui';
   import { Setup } from '../../surfaces/setup';
@@ -23,6 +29,16 @@
     health = await storeHealth();
   }
 
+  async function retryHealth(): Promise<void> {
+    health = await reconnectStore();
+  }
+
+  async function chooseReplacementFolder(): Promise<void> {
+    const folder = await pickSyncFolder();
+    if (folder === null) return;
+    health = await chooseSyncFolder(folder);
+  }
+
   $effect(() => {
     void refreshHealth();
   });
@@ -38,7 +54,11 @@
   {:else if health.status !== 'ready'}
     <SurfaceLayout>
       <div class="health-gate">
-        <HealthBanner health={health} onretry={refreshHealth} />
+        <HealthBanner
+          health={health}
+          onretry={retryHealth}
+          onchooseFolder={chooseReplacementFolder}
+        />
       </div>
     </SurfaceLayout>
   {:else if surface === 'weekly-review'}
