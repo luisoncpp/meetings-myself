@@ -42,17 +42,9 @@
 
   async function handleCreate(payload: CreatePayload): Promise<void> {
     if (!store) return;
-    if (payload.kind === 'value') await store.createValue(payload.title);
-    if (payload.kind === 'goal') await store.createGoal(payload.title, payload.targetDate);
-    if (payload.kind === 'habit') await store.createHabit(payload.title, payload.cadence);
-    if (payload.kind === 'task') await store.createTask(payload.title, payload.oneOff);
+    await store.createEntity(payload);
     creating = null;
     activeAction = null;
-  }
-
-  async function handleToolbarGoalCreate(payload: CreatePayload): Promise<void> {
-    if (payload.kind !== 'goal') return;
-    await handleCreate(payload);
   }
 
 </script>
@@ -88,7 +80,7 @@
           week={activeStore.week}
           ontoggle={toggleAction}
           onclose={closeAction}
-          oncreateGoal={/* create goal */ (payload) => void handleToolbarGoalCreate(payload)}
+          oncreate={/* create */ (payload) => void handleCreate(payload)}
         />
 
         <EntitySection

@@ -27,3 +27,13 @@ describe('HealthBanner', () => {
     expect(screen.getByRole('alert')).toHaveTextContent(/D:\/Drive\/planning/);
   });
 });
+
+describe('HealthBanner retry', () => {
+  it('offers another open attempt when the database is unreadable', () => {
+    render(HealthBanner, {
+      health: { status: 'unreadable', detail: 'Invalid segment name format' },
+      onretry: () => {},
+    });
+    expect(screen.getByRole('button', { name: /try again/i })).toBeInTheDocument();
+  });
+});

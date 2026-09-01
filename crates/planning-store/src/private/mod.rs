@@ -1,6 +1,7 @@
 pub mod conflicts;
 pub mod database;
 pub mod device_settings;
+pub mod engine_sidecars;
 pub mod error;
 pub mod health;
 pub mod home_settings;

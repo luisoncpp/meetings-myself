@@ -59,3 +59,28 @@ describe('Setup', () => {
     expect(screen.getByText(/every device/i)).toBeInTheDocument();
   });
 });
+
+describe('Setup when the engine refuses the folder', () => {
+  beforeEach(() => {
+    chooseSyncFolder.mockReset();
+    pickSyncFolder.mockReset();
+    availableTimeZones.mockReset();
+    availableTimeZones.mockResolvedValue(['Europe/Madrid', 'UTC']);
+  });
+
+  it('leaves setup when the chosen folder cannot be opened', async () => {
+    chooseSyncFolder.mockResolvedValue({
+      status: 'unreadable',
+      detail: 'WAL error',
+    });
+    pickSyncFolder.mockResolvedValue('D:/Drive/self-planning');
+    const onready = vi.fn();
+    render(Setup, {
+      health: { status: 'setupIncomplete', reason: { kind: 'NoSyncFolder' } },
+      onready,
+    });
+
+    await userEvent.click(screen.getByRole('button', { name: /choose folder/i }));
+    expect(onready).toHaveBeenCalled();
+  });
+});

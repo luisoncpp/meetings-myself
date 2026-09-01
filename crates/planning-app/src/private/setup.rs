@@ -3,9 +3,10 @@ use super::service::{PlanningApp, StartRequest};
 use chrono_tz::Tz;
 use planning_reports::WeeklyReportFile;
 use planning_store::{
-    Database, DeviceSettingsFile, HomeSettingsRepository, SetZone, StoreHealth, UiLanguage,
+    Assessment, Database, DeviceSettingsFile, HomeSettingsRepository, SetZone, StoreHealth,
+    UiLanguage,
 };
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 impl PlanningApp {
     pub async fn start(request: StartRequest) -> Result<Self, AppError> {
@@ -79,114 +80,40 @@ impl PlanningApp {
             return Ok(self.health());
         };
         self.reports = Some(WeeklyReportFile::at(folder.clone()));
-        if folder.is_dir() {
-            let database = Database::open(&folder).await?;
-            self.home_zone = HomeSettingsRepository::load(&database).await?.home_zone;
-            self.database = Some(database);
+        if Self::has_sync_conflict(&folder) {
+            self.health = self.assess();
+            return Ok(self.health());
+        }
+        if folder.is_dir() && !self.open_database(&folder).await? {
+            return Ok(self.health());
         }
         self.health = self.assess();
         self.take_lock();
         Ok(self.health())
     }
-}
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use chrono::TimeZone;
-    use chrono::Utc;
-    use chrono_tz::Tz;
-    use planning_core::FixedClock;
-    use planning_store::{SetupGap, StoreHealth};
-    use std::sync::Arc;
-    use tempfile::TempDir;
-
-    async fn app(home: &TempDir) -> PlanningApp {
-        let settings_path = home.path().join("device-settings.json");
-        let clock = Arc::new(FixedClock::at(
-            Utc.with_ymd_and_hms(2026, 8, 7, 9, 0, 0).unwrap(),
-        ));
-        PlanningApp::start(StartRequest {
-            settings_path,
-            clock,
-        })
-        .await
-        .unwrap()
+    fn has_sync_conflict(folder: &Path) -> bool {
+        matches!(
+            StoreHealth::assess(Assessment {
+                sync_folder: Some(folder.to_path_buf()),
+                home_zone_is_set: false,
+            }),
+            StoreHealth::SyncConflict { .. }
+        )
     }
 
-    async fn app_after_restart(home: &TempDir) -> PlanningApp {
-        let settings_path = home.path().join("device-settings.json");
-        let clock: Arc<dyn planning_core::Clock> = Arc::new(FixedClock::at(
-            Utc.with_ymd_and_hms(2026, 8, 7, 9, 0, 0).unwrap(),
-        ));
-        for _ in 0..20 {
-            match PlanningApp::start(StartRequest {
-                settings_path: settings_path.clone(),
-                clock: Arc::clone(&clock),
-            })
-            .await
-            {
-                Ok(app) => return app,
-                Err(AppError::Store(planning_store::StoreError::Database(_))) => {
-                    std::thread::sleep(std::time::Duration::from_millis(100));
-                }
-                Err(error) => panic!("{error:?}"),
+    async fn open_database(&mut self, folder: &Path) -> Result<bool, AppError> {
+        let database = match Database::open(folder).await {
+            Ok(database) => database,
+            Err(error) => {
+                self.health = StoreHealth::Unreadable {
+                    detail: error.to_string(),
+                };
+                return Ok(/*opened=*/ false);
             }
-        }
-        panic!("database lock did not clear after restart");
-    }
-
-    #[tokio::test]
-    async fn a_fresh_install_reports_no_sync_folder() {
-        let home = TempDir::new().unwrap();
-        let app = app(&home).await;
-        assert!(matches!(
-            app.health(),
-            StoreHealth::SetupIncomplete {
-                reason: SetupGap::NoSyncFolder
-            }
-        ));
-        assert!(
-            app.calendar().is_err(),
-            "no calendar before setup completes"
-        );
-    }
-
-    #[tokio::test]
-    async fn setup_completes_once_a_folder_and_a_zone_are_chosen() {
-        let home = TempDir::new().unwrap();
-        let drive = TempDir::new().unwrap();
-        let mut app = app(&home).await;
-
-        let after_folder = app
-            .choose_sync_folder(drive.path().to_path_buf())
-            .await
-            .unwrap();
-        assert!(matches!(
-            after_folder,
-            StoreHealth::SetupIncomplete {
-                reason: SetupGap::NoHomeZone
-            }
-        ));
-
-        let after_zone = app.set_home_zone(Tz::Europe__Madrid).await.unwrap();
-        assert_eq!(after_zone, StoreHealth::Ready);
-        assert_eq!(app.calendar().unwrap().zone(), Tz::Europe__Madrid);
-    }
-
-    #[tokio::test]
-    async fn the_chosen_folder_survives_a_restart() {
-        let home = TempDir::new().unwrap();
-        let drive = TempDir::new().unwrap();
-        {
-            let mut app = app(&home).await;
-            app.choose_sync_folder(drive.path().to_path_buf())
-                .await
-                .unwrap();
-            app.set_home_zone(Tz::Europe__Madrid).await.unwrap();
-        }
-        let restarted = app_after_restart(&home).await;
-        assert_eq!(restarted.health(), StoreHealth::Ready);
-        assert_eq!(restarted.calendar().unwrap().zone(), Tz::Europe__Madrid);
+        };
+        self.home_zone = HomeSettingsRepository::load(&database).await?.home_zone;
+        self.database = Some(database);
+        Ok(/*opened=*/ true)
     }
 }

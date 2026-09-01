@@ -11,7 +11,7 @@
 
   let { health, onretry }: Props = $props();
 
-  const RETRYABLE = new Set(['folderMissing', 'lockedByAnotherDevice']);
+  const RETRYABLE = new Set(['folderMissing', 'lockedByAnotherDevice', 'unreadable']);
   const canRetry = $derived(RETRYABLE.has(health.status) && !!onretry);
 </script>
 

@@ -10,7 +10,11 @@ import type {
   WeeklyFocus,
 } from '../../../domain';
 import * as api from '../../../api';
-import type { PlanningActionsHost } from '../../../planning-actions';
+import {
+  createEntityFromPayload,
+  type CreatePayload,
+  type PlanningActionsHost,
+} from '../../../planning-actions';
 import { libraryStoreMessage, runLibraryMutation } from './library-store-change';
 
 export class LibraryStore implements PlanningActionsHost {
@@ -81,27 +85,31 @@ export class LibraryStore implements PlanningActionsHost {
     await this.load();
   }
 
+  async createEntity(payload: CreatePayload): Promise<void> {
+    await this.#change(/* createEntity= */ () => createEntityFromPayload(payload));
+  }
+
   // Used from Library.svelte script.
   // fallow-ignore-next-line unused-class-member
   async createValue(title: string): Promise<void> {
-    await this.#change(/* createValue= */ () => api.createValue(title));
+    await this.createEntity({ kind: 'value', title });
   }
 
   // Used from Library.svelte script.
   // fallow-ignore-next-line unused-class-member
   async createGoal(title: string, targetDate?: string | null): Promise<void> {
-    await this.#change(/* createGoal= */ () => api.createGoal(title, targetDate));
+    await this.createEntity({ kind: 'goal', title, targetDate: targetDate ?? null });
   }
 
   // Used from Library.svelte script.
   // fallow-ignore-next-line unused-class-member
   async createHabit(title: string, cadence: Cadence): Promise<void> {
-    await this.#change(/* createHabit= */ () => api.createHabit(title, cadence));
+    await this.createEntity({ kind: 'habit', title, cadence });
   }
 
   // Used from Library.svelte script.
   async createTask(title: string, oneOff: boolean): Promise<void> {
-    await this.#change(/* createTask= */ () => api.createTask(title, oneOff));
+    await this.createEntity({ kind: 'task', title, oneOff });
   }
 
   async createRecurringTask(title: string, recurrence: Recurrence): Promise<void> {

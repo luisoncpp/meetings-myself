@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { storeHealth, type StoreHealth } from '../../api';
+  import { reconnect, storeHealth, type StoreHealth } from '../../api';
   import { t } from '../../i18n';
   import { SurfaceLayout } from '../../ui';
   import { Setup } from '../../surfaces/setup';
@@ -23,6 +23,10 @@
     health = await storeHealth();
   }
 
+  async function retryOpen(): Promise<void> {
+    health = await reconnect();
+  }
+
   $effect(() => {
     void refreshHealth();
   });
@@ -38,7 +42,7 @@
   {:else if health.status !== 'ready'}
     <SurfaceLayout>
       <div class="health-gate">
-        <HealthBanner health={health} onretry={refreshHealth} />
+        <HealthBanner health={health} onretry={retryOpen} />
       </div>
     </SurfaceLayout>
   {:else if surface === 'weekly-review'}

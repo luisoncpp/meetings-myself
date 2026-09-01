@@ -3,12 +3,12 @@
   import { t } from '../../i18n';
   import { Button } from '../../ui';
   import AchieveGoalPanel from './AchieveGoalPanel.svelte';
-  import AssociationEditor from './AssociationEditor.svelte';
+  import type { EntityKind } from './associations';
   import CreateEntity, { type CreatePayload } from './CreateEntity.svelte';
   import type { PlanningActionsHost } from './planning-actions-host';
   import WeeklyFocusPanel from './WeeklyFocusPanel.svelte';
 
-  export type PlanningAction = 'new-goal' | 'achieve' | 'link' | 'focus';
+  export type PlanningAction = 'new-task' | 'new-habit' | 'new-goal' | 'achieve' | 'focus';
 
   interface Props {
     active: PlanningAction | null;
@@ -17,17 +17,28 @@
     week: string;
     ontoggle: (action: PlanningAction) => void;
     onclose: () => void;
-    oncreateGoal: (payload: CreatePayload) => void;
+    oncreate: (payload: CreatePayload) => void;
   }
 
-  let { active, view, host, week, ontoggle, onclose, oncreateGoal }: Props = $props();
+  let { active, view, host, week, ontoggle, onclose, oncreate }: Props = $props();
 
   const actions: { id: PlanningAction; label: string }[] = [
+    { id: 'new-task', label: t('planningActions.newTask') },
+    { id: 'new-habit', label: t('planningActions.newHabit') },
     { id: 'new-goal', label: t('planningActions.newGoal') },
     { id: 'achieve', label: t('planningActions.markAchieved') },
-    { id: 'link', label: t('planningActions.link') },
     { id: 'focus', label: t('planningActions.weeklyFocus') },
   ];
+
+  const createKind = $derived<EntityKind | null>(
+    active === 'new-task'
+      ? 'task'
+      : active === 'new-habit'
+        ? 'habit'
+        : active === 'new-goal'
+          ? 'goal'
+          : null,
+  );
 </script>
 
 <section class="action-bar" aria-label={t('planningActions.bar')}>
@@ -45,17 +56,15 @@
 
   {#if active}
     <div class="action-panel" role="region" aria-label={actions.find((item) => item.id === active)?.label}>
-      {#if active === 'new-goal'}
+      {#if createKind !== null}
         <CreateEntity
-          kind="goal"
-          oncreate={oncreateGoal}
+          kind={createKind}
+          {oncreate}
           oncancel={/* close */ onclose}
         />
       {:else if active === 'achieve'}
         <AchieveGoalPanel goals={view.goals} {host} onclose={/* close */ onclose} />
-      {:else if active === 'link'}
-        <AssociationEditor {view} {host} onclose={/* close */ onclose} />
-      {:else}
+      {:else if active === 'focus'}
         <WeeklyFocusPanel {view} {host} {week} onclose={/* close */ onclose} />
       {/if}
     </div>

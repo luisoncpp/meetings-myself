@@ -42,6 +42,10 @@ export function storeHealth(): Promise<StoreHealth> {
   return call<StoreHealth>('store_health');
 }
 
+export function reconnect(): Promise<StoreHealth> {
+  return call<StoreHealth>('reconnect');
+}
+
 export function chooseSyncFolder(folder: string): Promise<StoreHealth> {
   return call<StoreHealth>('choose_sync_folder', { folder });
 }

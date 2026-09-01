@@ -8,12 +8,6 @@ export function bindPlanningActionsHost(source: PlanningActionsHost): PlanningAc
     achieveGoal(goalId: string) {
       return source.achieveGoal(goalId);
     },
-    link(left, right) {
-      return source.link(left, right);
-    },
-    unlink(associationId: string) {
-      return source.unlink(associationId);
-    },
     addToFocus(taskId: string) {
       return source.addToFocus(taskId);
     },
@@ -22,3 +16,4 @@ export function bindPlanningActionsHost(source: PlanningActionsHost): PlanningAc
     },
   };
 }
+

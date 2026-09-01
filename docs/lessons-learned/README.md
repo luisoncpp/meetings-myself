@@ -32,3 +32,4 @@ Avoid: "bug description + fix". Prefer: "what I learned that applies to future w
 | [svelte-5-runes-need-the-svelte-ts-extension.md](svelte-5-runes-need-the-svelte-ts-extension.md) | `$state` only in `.svelte` / `.svelte.ts`; hoist `vi.mock` before dynamic store import | 2026-08-08 |
 | [quill-semantic-html-before-markdown-save.md](quill-semantic-html-before-markdown-save.md) | Use `getSemanticHTML` + Turndown for Quill→Markdown; normalize empty shells | 2026-08-09 |
 | [tauri-hidden-windows-keep-process-alive.md](tauri-hidden-windows-keep-process-alive.md) | Hidden windows with `prevent_close` keep Tauri running; main close must call `exit` | 2026-08-09 |
+| [surrealkv-wal-rejects-sidecar-filenames.md](surrealkv-wal-rejects-sidecar-filenames.md) | SurrealKV WAL parse of every filename; Windows `desktop.ini` / silent release-exit | 2026-08-31 |

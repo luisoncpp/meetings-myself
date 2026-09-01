@@ -61,9 +61,11 @@ User-authored content (task titles, reflections, etc.) is never translated.
 
 `AppShell` calls `storeHealth()` on mount. Until the first response, no surface renders. Then:
 
-1. `setupIncomplete` → `Setup` surface (pick sync folder / home zone).
+1. `setupIncomplete` → `Setup` surface (pick sync folder / home zone). Choosing a folder that cannot be opened leaves setup (`onready`) so the health banner can show `unreadable`.
 2. Any other non-`ready` status → `HealthBanner` blocks all surfaces.
 3. `ready` → route to Weekly Review or main (Daily Plan / Library).
+
+**Try again** (`folderMissing`, `lockedByAnotherDevice`, `unreadable`) calls `reconnect()`, which re-runs database open — not `storeHealth()`, which only reads the last snapshot.
 
 Writes are refused server-side when health is not `ready`; the gate keeps the UI from offering actions that would fail.
 
@@ -90,6 +92,17 @@ Creating a rule stores only the `recurring_task` record (`starts_on` = today). I
 - `AssociationTags`: displays tags for all active links touching the entity, with entity type tooltips (e.g. `Goal: Ship v1`) and an `×` button to unlink immediately.
 - A "Link to…" button on the card that opens `LinkModal` (`planning-actions`).
 - `LinkModal`: tabbed modal presenting target kinds strictly in priority order: `Goal` → `Habit` → `Value` → `Task`, filtered to valid pairs for the entity. The first available tab is selected by default. Clicking a candidate links the entities, reloads `LibraryStore`, and immediately updates the card tags. See [linking-entities-in-library.md](../flows/linking-entities-in-library.md).
+
+### Planning action bar (`planning-actions`)
+
+`PlanningActionBar` provides quick actions across **Weekly Review** and **Library**:
+- `New task`: creates a task directly from the bar.
+- `New habit`: creates a habit with cadence directly from the bar.
+- `New goal`: creates a goal with optional target date directly from the bar.
+- `Mark achieved`: opens goal achievement picker.
+- `Weekly focus`: manages next-week focus tasks.
+
+Entity creation uses `createEntityFromPayload` across both surfaces and stores without duplicating creation logic. Linking is handled directly on entity cards via `LinkModal`, so the legacy bar-level association editor is removed.
 
 ### Task completion UI
 
