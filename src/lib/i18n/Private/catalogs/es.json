@@ -34,6 +34,7 @@
   "health": {
     "finishSetup": "Termina la configuración antes de usar tus datos de planificación.",
     "folderMissing": "No se encontró la carpeta de sincronización en {path}. Comprueba que Google Drive esté en ejecución y que la carpeta siga existiendo.",
+    "chooseDifferentFolder": "Elegir otra carpeta",
     "lockedByAnotherDevice": "Otro dispositivo ({deviceName}) tiene los datos de planificación abiertos desde {since}. Cierra Self-Planning en ese dispositivo e inténtalo de nuevo.",
     "syncConflictIntro": "Google Drive tiene copias en conflicto de tus archivos de planificación. Resuélvelas en Drive primero:",
     "syncConflictOutro": "Cuando Drive termine de sincronizar, inténtalo de nuevo aquí.",

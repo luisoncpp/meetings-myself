@@ -62,7 +62,7 @@ User-authored content (task titles, reflections, etc.) is never translated.
 `AppShell` calls `storeHealth()` on mount. Until the first response, no surface renders. Then:
 
 1. `setupIncomplete` → `Setup` surface (pick sync folder / home zone). Choosing a folder that cannot be opened leaves setup (`onready`) so the health banner can show `unreadable`.
-2. Any other non-`ready` status → `HealthBanner` blocks all surfaces.
+2. Any other non-`ready` status → `HealthBanner` blocks all surfaces. `folderMissing` offers **Try again** (`reconnect_store`) and **Choose a different folder**. Other retryable faults only offer **Try again**.
 3. `ready` → route to Weekly Review or main (Daily Plan / Library).
 
 **Try again** (`folderMissing`, `lockedByAnotherDevice`, `unreadable`) calls `reconnect()`, which re-runs database open — not `storeHealth()`, which only reads the last snapshot.

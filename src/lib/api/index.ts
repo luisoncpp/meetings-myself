@@ -42,6 +42,10 @@ export function storeHealth(): Promise<StoreHealth> {
   return call<StoreHealth>('store_health');
 }
 
+export function reconnectStore(): Promise<StoreHealth> {
+  return call<StoreHealth>('reconnect_store');
+}
+
 export function reconnect(): Promise<StoreHealth> {
   return call<StoreHealth>('reconnect');
 }

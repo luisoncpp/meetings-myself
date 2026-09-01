@@ -17,7 +17,7 @@ User launches the desktop application (or the app restarts after choosing a sync
 5. **Assess health** — `StoreHealth::assess` checks folder presence, conflict artifacts, and whether home zone is set.
 6. **Acquire writer lock** — if health is `Ready`, `WriterLock::acquire` writes or refreshes `writer.lock`.
 
-`reconnect()` reruns steps 3–6 after folder selection, the health banner **Try again** button, or sync recovery (plan 0008). `storeHealth()` only returns the last assessment; it does not reopen the engine.
+`reconnect()` reruns steps 3–6 after folder selection, the health banner **Try again** button, or sync recovery (plan 0008). `store_health` / `storeHealth()` only returns the last assessment; it does not reopen the engine (**Try again** calls `reconnect_store`). When the path is `folderMissing`, the banner also offers **Choose a different folder** (`pick_sync_folder` + `choose_sync_folder`) so a Drive shortcut that is not mounted is not a dead end.
 
 ## Reads
 
@@ -49,6 +49,7 @@ User launches the desktop application (or the app restarts after choosing a sync
 |------|------|
 | `src-tauri/src/lib.rs` | Tauri entry; calls `PlanningApp::start` |
 | `crates/planning-app/src/private/setup.rs` | `start`, `reconnect`, `choose_sync_folder`, `set_home_zone` |
+| `src-tauri/src/private/commands.rs` | `store_health`, `reconnect_store`, `choose_sync_folder` |
 | `crates/planning-app/src/private/service.rs` | `health`, `calendar`, `require_database`, `take_lock` |
 | `crates/planning-store/src/private/device_settings.rs` | Device settings file |
 | `crates/planning-store/src/private/database.rs` | SurrealDB open, sharing-violation retry |
@@ -63,7 +64,7 @@ User launches the desktop application (or the app restarts after choosing a sync
 |---------|--------------|
 | `setupIncomplete / NoSyncFolder` | Fresh install or `sync_folder` cleared from device settings |
 | `setupIncomplete / NoHomeZone` | Folder chosen but time zone not yet set |
-| `folderMissing` | Drive folder not mounted yet (laptop woke before sync client) |
+| `folderMissing` | Drive folder not mounted yet (laptop woke before sync client), or the Google Drive virtual drive is closed |
 | `syncConflict` | Drive duplicated a file — `CURRENT (1)` or `(conflicted copy …)` in sync folder or `planning-db/` |
 | `lockedByAnotherDevice` | Another machine has a fresh `writer.lock` (< 15 min old) |
 | `calendar()` errors despite `ready` | Should not happen — indicates a logic bug |
