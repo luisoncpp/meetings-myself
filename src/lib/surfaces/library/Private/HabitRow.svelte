@@ -1,10 +1,10 @@
 <script lang="ts">
   import type { Cadence, HabitView, LibraryView, Weekday } from '../../../domain';
   import { CreateHabitCadence, LinkModal } from '../../../planning-actions';
-  import { t } from '../../../i18n';
+  import { localeStore, t } from '../../../i18n';
   import { Button, Field, ListRow, Select, StateFlag } from '../../../ui';
   import AssociationTags from './AssociationTags.svelte';
-  import { STRENGTH_OPTIONS, WEEKDAYS } from './labels';
+  import { STRENGTH_VALUES, strengthLabel, WEEKDAY_VALUES } from './labels';
   import type { LibraryStore } from './LibraryStore.svelte';
 
   interface Props {
@@ -16,6 +16,13 @@
   let { habit, view, store }: Props = $props();
 
   let linkModalOpen = $state(false);
+
+  const strengthOptions = $derived.by(() => {
+    if (localeStore.locale) {
+      return STRENGTH_VALUES.map((value) => ({ value, label: strengthLabel(value) }));
+    }
+    return [];
+  });
 
   const end = $derived({ kind: 'habit' as const, id: habit.id });
 
@@ -47,7 +54,7 @@
 
   function currentWeekdays(cadence: Cadence): Weekday[] {
     if (cadence.kind === 'everyDay') {
-      return WEEKDAYS.map((day) => day.value);
+      return [...WEEKDAY_VALUES];
     }
     return cadence.days;
   }
@@ -71,7 +78,7 @@
           value={habit.strength}
           onchange={/* set strength */ onStrengthChange}
         >
-          {#each STRENGTH_OPTIONS as option (option.value)}
+          {#each strengthOptions as option (option.value)}
             <option value={option.value}>{option.label}</option>
           {/each}
         </Select>

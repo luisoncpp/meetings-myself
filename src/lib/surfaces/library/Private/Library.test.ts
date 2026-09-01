@@ -1,6 +1,7 @@
 import { render, screen, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { localeStore } from '../../../i18n';
 import Library from './Library.svelte';
 
 const library = vi.hoisted(() => vi.fn());
@@ -81,6 +82,7 @@ const archivedRecurring = {
 
 function resetApiMocks(): void {
   vi.clearAllMocks();
+  void localeStore.setLocale('en', /*persist=*/ false);
   library.mockResolvedValue(emptyLibrary);
   todayView.mockResolvedValue({ date: '2026-08-07', week: '2026-W32', tasks: [], habits: [] });
   weeklyFocus.mockResolvedValue({ id: 'f1', week: '2026-W32', tasks: [], createdAt: '2026-08-01' });
@@ -255,6 +257,30 @@ describe('Library habit strength', () => {
     expect(screen.getByRole('region', { name: /habits/i }).textContent).not.toMatch(
       /level|\d+\s*\/\s*4/i,
     );
+  });
+
+  it('shows habit strength and weekday labels in Spanish', async () => {
+    await localeStore.setLocale('es', /*persist=*/ false);
+    library.mockResolvedValue({
+      values: [],
+      goals: [],
+      tasks: [],
+      habits: [
+        {
+          id: 'h1',
+          title: 'Writing',
+          cadence: { kind: 'everyDay' },
+          strength: 'reminderDependent',
+          pinned: true,
+          archived: false,
+        },
+      ],
+    });
+
+    render(Library);
+    const strength = await screen.findByLabelText(/fortaleza del hábito/i);
+    expect(strength).toHaveTextContent('Dependiente del recordatorio');
+    expect(screen.getByRole('checkbox', { name: 'Lunes' })).toBeInTheDocument();
   });
 });
 
