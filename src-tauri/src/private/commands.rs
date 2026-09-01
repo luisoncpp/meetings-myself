@@ -26,6 +26,17 @@ pub async fn store_health(state: tauri::State<'_, AppState>) -> Result<StoreHeal
 }
 
 #[tauri::command]
+pub async fn reconnect(state: tauri::State<'_, AppState>) -> Result<StoreHealth, String> {
+    state
+        .0
+        .lock()
+        .await
+        .reconnect()
+        .await
+        .map_err(app_error_message)
+}
+
+#[tauri::command]
 pub async fn ui_language(state: tauri::State<'_, AppState>) -> Result<String, String> {
     let language = state.0.lock().await.ui_language();
     Ok(match language {

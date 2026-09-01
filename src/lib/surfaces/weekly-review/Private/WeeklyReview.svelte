@@ -26,12 +26,11 @@
     activeAction = null;
   }
 
-  async function handleToolbarGoalCreate(
+  async function handleToolbarCreate(
     reviewStore: WeeklyReviewStore,
     payload: CreatePayload,
   ): Promise<void> {
-    if (payload.kind !== 'goal') return;
-    await reviewStore.createGoal(payload.title, payload.targetDate);
+    await reviewStore.createEntity(payload);
     activeAction = null;
   }
 
@@ -70,7 +69,7 @@
           week={activeStore.focusWeek}
           ontoggle={toggleAction}
           onclose={closeAction}
-          oncreateGoal={/* create goal */ (payload) => void handleToolbarGoalCreate(activeStore, payload)}
+          oncreate={/* create */ (payload) => void handleToolbarCreate(activeStore, payload)}
         />
 
         <PreviousReport body={view.previousReport} />

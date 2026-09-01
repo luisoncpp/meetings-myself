@@ -1,6 +1,11 @@
-import type { LibraryView, WeeklyFocus, WeeklyReviewView } from '../../../domain';
+import type { Cadence, LibraryView, WeeklyFocus, WeeklyReviewView } from '../../../domain';
 import * as api from '../../../api';
-import type { PlanningActionsHost } from '../../../planning-actions';
+import {
+  createEntityFromPayload,
+  type CreatePayload,
+  type PlanningActionsHost,
+} from '../../../planning-actions';
+
 import { nextWeek } from './week-nav';
 import {
   commitReflectionSave,
@@ -110,23 +115,25 @@ export class WeeklyReviewStore implements PlanningActionsHost {
     }
   }
 
+  async createEntity(payload: CreatePayload): Promise<void> {
+    await this.#mutate(/*createEntity=*/ () => createEntityFromPayload(payload));
+  }
+
+  // fallow-ignore-next-line unused-class-member
   async createGoal(title: string, targetDate?: string | null): Promise<void> {
-    await this.#mutate(/*createGoal=*/ () => api.createGoal(title, targetDate));
+    await this.createEntity({ kind: 'goal', title, targetDate: targetDate ?? null });
+  }
+
+  async createHabit(title: string, cadence: Cadence): Promise<void> {
+    await this.createEntity({ kind: 'habit', title, cadence });
+  }
+
+  async createTask(title: string, oneOff = true): Promise<void> {
+    await this.createEntity({ kind: 'task', title, oneOff });
   }
 
   async achieveGoal(goalId: string): Promise<void> {
     await this.#mutate(/*achieve=*/ () => api.achieveGoal(goalId));
-  }
-
-  async link(
-    left: { kind: 'value' | 'goal' | 'habit' | 'task'; id: string },
-    right: { kind: 'value' | 'goal' | 'habit' | 'task'; id: string },
-  ): Promise<void> {
-    await this.#mutate(/*link=*/ () => api.link(left, right));
-  }
-
-  async unlink(associationId: string): Promise<void> {
-    await this.#mutate(/*unlink=*/ () => api.unlink(associationId));
   }
 
   async addToFocus(taskId: string): Promise<void> {

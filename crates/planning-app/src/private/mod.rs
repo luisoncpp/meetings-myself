@@ -20,4 +20,6 @@ pub mod weekly_review_use_cases;
 pub mod weekly_summary;
 
 #[cfg(test)]
+mod setup_tests;
+#[cfg(test)]
 pub mod test_support;

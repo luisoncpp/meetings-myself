@@ -10,6 +10,10 @@ const todayView = vi.hoisted(() => vi.fn());
 const library = vi.hoisted(() => vi.fn());
 const weeklyFocus = vi.hoisted(() => vi.fn());
 
+const createGoal = vi.hoisted(() => vi.fn().mockResolvedValue({ id: 'g1' }));
+const createHabit = vi.hoisted(() => vi.fn().mockResolvedValue({ id: 'h1' }));
+const createTask = vi.hoisted(() => vi.fn().mockResolvedValue({ id: 't1' }));
+
 vi.mock('../../../ui', async (importOriginal) => {
   const original = await importOriginal<typeof import('../../../ui')>();
   return { ...original, MarkdownEditor: MarkdownEditorHarness };
@@ -22,9 +26,10 @@ vi.mock('../../../api', () => ({
   todayView,
   library,
   weeklyFocus,
-  createGoal: vi.fn().mockResolvedValue({ id: 'g1' }),
+  createGoal,
+  createHabit,
+  createTask,
   achieveGoal: vi.fn().mockResolvedValue(undefined),
-  link: vi.fn().mockResolvedValue({ id: 'a1' }),
   addToFocus: vi.fn().mockResolvedValue(undefined),
   removeFromFocus: vi.fn().mockResolvedValue(undefined),
 }));
@@ -109,3 +114,45 @@ describe('WeeklyReview reflection', () => {
     expect(saveReflection).toHaveBeenCalled();
   });
 });
+
+describe('WeeklyReview action bar', () => {
+  it('creates a task from the action bar', async () => {
+    render(WeeklyReview);
+    await screen.findByRole('heading', { level: 1 });
+
+    const newTaskBtn = screen.getByRole('button', { name: /new task/i });
+    await fireEvent.click(newTaskBtn);
+
+    const titleInput = screen.getByRole('textbox', { name: /task name/i });
+    await fireEvent.input(titleInput, { target: { value: 'Review quarterly goals' } });
+
+    const submitBtn = screen.getByRole('button', { name: /create task/i });
+    await fireEvent.click(submitBtn);
+
+    expect(createTask).toHaveBeenCalledWith('Review quarterly goals', true);
+  });
+
+  it('creates a habit from the action bar', async () => {
+    render(WeeklyReview);
+    await screen.findByRole('heading', { level: 1 });
+
+    const newHabitBtn = screen.getByRole('button', { name: /new habit/i });
+    await fireEvent.click(newHabitBtn);
+
+    const titleInput = screen.getByRole('textbox', { name: /habit name/i });
+    await fireEvent.input(titleInput, { target: { value: 'Meditation' } });
+
+    const dayCheckbox = screen.getByRole('checkbox', { name: /monday/i });
+    await fireEvent.click(dayCheckbox);
+
+    const submitBtn = screen.getByRole('button', { name: /create habit/i });
+    await fireEvent.click(submitBtn);
+
+    expect(createHabit).toHaveBeenCalledWith('Meditation', {
+      kind: 'onWeekdays',
+      days: ['mon'],
+    });
+  });
+});
+
+

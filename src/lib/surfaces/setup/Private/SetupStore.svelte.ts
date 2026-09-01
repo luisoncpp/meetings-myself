@@ -51,9 +51,7 @@ export class SetupStore {
         this.step = 'zone';
         return;
       }
-      if (health.status === 'ready') {
-        this.onready();
-      }
+      this.onready();
     } catch (error) {
       this.lastError = localizeError(error instanceof Error ? error.message : String(error));
     }

@@ -35,6 +35,16 @@ describe('reconnectStore', () => {
   });
 });
 
+describe('reconnect', () => {
+  it('forwards to the reconnect command', async () => {
+    const health = { status: 'unreadable', detail: 'WAL error' };
+    invoke.mockResolvedValue(health);
+    const { reconnect } = await import('./index');
+    await expect(reconnect()).resolves.toEqual(health);
+    expect(invoke).toHaveBeenCalledWith('reconnect');
+  });
+});
+
 describe('chooseSyncFolder', () => {
   it('forwards with the folder path', async () => {
     const health = { status: 'ready' };

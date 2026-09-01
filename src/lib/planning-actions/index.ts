@@ -5,6 +5,8 @@ export { bindPlanningActionsHost } from './Private/bind-host';
 export { default as CreateEntity } from './Private/CreateEntity.svelte';
 export { default as CreateHabitCadence } from './Private/CreateHabitCadence.svelte';
 export { default as LinkModal } from './Private/LinkModal.svelte';
+export { createEntityFromPayload } from './Private/create-entity-api';
 export type { CreatePayload } from './Private/CreateEntity.svelte';
 export type { EntityKind } from './Private/associations';
 export { linkedEntitiesFor } from './Private/associations';
+

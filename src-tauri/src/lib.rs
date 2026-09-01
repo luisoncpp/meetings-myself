@@ -2,8 +2,8 @@ mod private;
 
 use planning_app::{DeviceSettingsFile, PlanningApp, StartRequest, SystemClock};
 use private::commands::{
-    app_version, choose_sync_folder, reconnect_store, set_home_zone, set_ui_language, store_health,
-    ui_language, AppState,
+    app_version, choose_sync_folder, reconnect, reconnect_store, set_home_zone, set_ui_language,
+    store_health, ui_language, AppState,
 };
 use private::library_commands::{
     associations_for, create_goal, create_habit, create_task, create_value, library,
@@ -46,6 +46,7 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             app_version,
             store_health,
+            reconnect,
             reconnect_store,
             ui_language,
             set_ui_language,

@@ -18,13 +18,27 @@ fn is_conflict_artifact(name: &str) -> bool {
     !rest[..close].is_empty() && rest[..close].chars().all(|c| c.is_ascii_digit())
 }
 
-/// Walks the Synchronization Folder one level deep plus the database directory.
+/// Walks the Synchronization Folder one level, then the whole `planning-db/` tree.
+/// Drive conflict copies of WAL segments live under `planning-db/wal/`, not next
+/// to `writer.lock`.
 pub fn scan(sync_folder: &Path) -> Vec<PathBuf> {
     let mut found = Vec::new();
-    for root in [sync_folder.to_path_buf(), sync_folder.join("planning-db")] {
-        collect_from(&root, &mut found);
-    }
+    collect_from(sync_folder, &mut found);
+    collect_tree(&sync_folder.join("planning-db"), &mut found);
     found
+}
+
+fn collect_tree(directory: &Path, found: &mut Vec<PathBuf>) {
+    collect_from(directory, found);
+    let Ok(entries) = std::fs::read_dir(directory) else {
+        return;
+    };
+    for entry in entries.flatten() {
+        let path = entry.path();
+        if path.is_dir() {
+            collect_tree(&path, found);
+        }
+    }
 }
 
 fn collect_from(directory: &Path, found: &mut Vec<PathBuf>) {
@@ -72,6 +86,20 @@ mod tests {
             2,
             "clean files must not be reported: {found:?}"
         );
+    }
+
+    #[test]
+    fn conflict_copies_inside_the_database_tree_are_detected() {
+        let folder = TempDir::new().unwrap();
+        let wal = folder.path().join("planning-db").join("wal");
+        std::fs::create_dir_all(&wal).unwrap();
+        std::fs::write(wal.join("00000000000000000000.wal (1)"), "").unwrap();
+
+        let found: Vec<String> = scan(folder.path())
+            .iter()
+            .filter_map(|path| path.file_name()?.to_str().map(str::to_string))
+            .collect();
+        assert_eq!(found, vec!["00000000000000000000.wal (1)".to_string()]);
     }
 
     #[test]

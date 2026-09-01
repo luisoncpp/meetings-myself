@@ -12,7 +12,7 @@
 
   let { health, onretry, onchooseFolder }: Props = $props();
 
-  const RETRYABLE = new Set(['folderMissing', 'lockedByAnotherDevice']);
+  const RETRYABLE = new Set(['folderMissing', 'lockedByAnotherDevice', 'unreadable']);
   const canRetry = $derived(RETRYABLE.has(health.status) && !!onretry);
   const canChooseFolder = $derived(health.status === 'folderMissing' && !!onchooseFolder);
 </script>

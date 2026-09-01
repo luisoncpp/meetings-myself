@@ -1,6 +1,7 @@
 import { render, screen, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { localeStore } from '../../../i18n';
 import Library from './Library.svelte';
 
 const library = vi.hoisted(() => vi.fn());
@@ -81,6 +82,7 @@ const archivedRecurring = {
 
 function resetApiMocks(): void {
   vi.clearAllMocks();
+  void localeStore.setLocale('en', /*persist=*/ false);
   library.mockResolvedValue(emptyLibrary);
   todayView.mockResolvedValue({ date: '2026-08-07', week: '2026-W32', tasks: [], habits: [] });
   weeklyFocus.mockResolvedValue({ id: 'f1', week: '2026-W32', tasks: [], createdAt: '2026-08-01' });
@@ -93,11 +95,14 @@ describe('Library weekly review actions', () => {
   it('offers every action the Weekly Review offers', async () => {
     render(Library);
     await screen.findByRole('heading', { name: 'Library' });
+    const toolbar = screen.getByRole('toolbar', { name: /quick actions/i });
 
-    expect(screen.getByRole('button', { name: /new goal/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /mark achieved/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /link/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /weekly focus/i })).toBeInTheDocument();
+    expect(within(toolbar).getByRole('button', { name: /new task/i })).toBeInTheDocument();
+    expect(within(toolbar).getByRole('button', { name: /new habit/i })).toBeInTheDocument();
+    expect(within(toolbar).getByRole('button', { name: /new goal/i })).toBeInTheDocument();
+    expect(within(toolbar).getByRole('button', { name: /mark achieved/i })).toBeInTheDocument();
+    expect(within(toolbar).getByRole('button', { name: /weekly focus/i })).toBeInTheDocument();
+    expect(within(toolbar).queryByRole('button', { name: /^link$/i })).not.toBeInTheDocument();
   });
 
   it('opens a goal picker when Mark achieved is clicked', async () => {
@@ -136,9 +141,9 @@ describe('Library weekly review actions', () => {
     await userEvent.click(within(toolbar).getByRole('button', { name: /mark achieved/i }));
     expect(screen.getByLabelText(/goal to mark achieved/i)).toBeInTheDocument();
 
-    await userEvent.click(within(toolbar).getByRole('button', { name: /^link$/i }));
+    await userEvent.click(within(toolbar).getByRole('button', { name: /new task/i }));
     expect(screen.queryByLabelText(/goal to mark achieved/i)).not.toBeInTheDocument();
-    expect(screen.getByLabelText(/association editor/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/task name/i)).toBeInTheDocument();
   });
 
   it('closes the active panel when its button is clicked again', async () => {
@@ -252,6 +257,30 @@ describe('Library habit strength', () => {
     expect(screen.getByRole('region', { name: /habits/i }).textContent).not.toMatch(
       /level|\d+\s*\/\s*4/i,
     );
+  });
+
+  it('shows habit strength and weekday labels in Spanish', async () => {
+    await localeStore.setLocale('es', /*persist=*/ false);
+    library.mockResolvedValue({
+      values: [],
+      goals: [],
+      tasks: [],
+      habits: [
+        {
+          id: 'h1',
+          title: 'Writing',
+          cadence: { kind: 'everyDay' },
+          strength: 'reminderDependent',
+          pinned: true,
+          archived: false,
+        },
+      ],
+    });
+
+    render(Library);
+    const strength = await screen.findByLabelText(/fortaleza del hábito/i);
+    expect(strength).toHaveTextContent('Dependiente del recordatorio');
+    expect(screen.getByRole('checkbox', { name: 'Lunes' })).toBeInTheDocument();
   });
 });
 
@@ -375,7 +404,8 @@ describe('Library task fields', () => {
 describe('Library habit creation', () => {
   it('requires a cadence before a habit can be created', async () => {
     render(Library);
-    await userEvent.click(await screen.findByRole('button', { name: /new habit/i }));
+    const habitsSection = await screen.findByRole('region', { name: /^habits$/i });
+    await userEvent.click(within(habitsSection).getByRole('button', { name: /new habit/i }));
     await userEvent.type(screen.getByLabelText(/habit name/i), 'Meditation');
 
     expect(screen.getByRole('button', { name: /create habit/i })).toBeDisabled();

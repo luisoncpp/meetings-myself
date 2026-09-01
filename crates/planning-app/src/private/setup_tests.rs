@@ -1,6 +1,6 @@
-use super::*;
-use chrono::TimeZone;
-use chrono::Utc;
+use super::error::AppError;
+use super::service::{PlanningApp, StartRequest};
+use chrono::{TimeZone, Utc};
 use chrono_tz::Tz;
 use planning_core::FixedClock;
 use planning_store::{SetupGap, StoreHealth};
@@ -32,7 +32,13 @@ async fn app_after_restart(home: &TempDir) -> PlanningApp {
         })
         .await
         {
-            Ok(app) => return app,
+            Ok(app) => {
+                if still_waiting_for_engine_lock(&app) {
+                    std::thread::sleep(std::time::Duration::from_millis(100));
+                    continue;
+                }
+                return app;
+            }
             Err(AppError::Store(planning_store::StoreError::Database(_))) => {
                 std::thread::sleep(std::time::Duration::from_millis(100));
             }
@@ -40,6 +46,16 @@ async fn app_after_restart(home: &TempDir) -> PlanningApp {
         }
     }
     panic!("database lock did not clear after restart");
+}
+
+fn still_waiting_for_engine_lock(app: &PlanningApp) -> bool {
+    let StoreHealth::Unreadable { detail } = app.health() else {
+        return false;
+    };
+    detail.contains("os error 32")
+        || detail.contains("os error 33")
+        || detail.contains("being used by another process")
+        || detail.contains("bloqueada una parte del archivo")
 }
 
 #[tokio::test]
@@ -52,10 +68,7 @@ async fn a_fresh_install_reports_no_sync_folder() {
             reason: SetupGap::NoSyncFolder
         }
     ));
-    assert!(
-        app.calendar().is_err(),
-        "no calendar before setup completes"
-    );
+    assert!(app.calendar().is_err(), "no calendar before setup");
 }
 
 #[tokio::test]
@@ -109,6 +122,44 @@ async fn reconnect_recovers_when_the_folder_reappears() {
         }
     }
     panic!("database lock did not clear after the folder reappeared");
+}
+
+#[tokio::test]
+async fn a_wal_the_engine_rejects_is_unreadable_not_a_failed_start() {
+    let home = TempDir::new().unwrap();
+    let drive = TempDir::new().unwrap();
+    let wal = drive.path().join("planning-db").join("wal");
+    std::fs::create_dir_all(&wal).unwrap();
+    std::fs::write(wal.join("not-a-segment"), "junk").unwrap();
+
+    let mut app = app(&home).await;
+    let health = app
+        .choose_sync_folder(drive.path().to_path_buf())
+        .await
+        .expect("start and reconnect must succeed even when the engine cannot open");
+    assert!(
+        matches!(health, StoreHealth::Unreadable { .. }),
+        "got {health:?}"
+    );
+}
+
+#[tokio::test]
+async fn a_conflict_copy_inside_wal_is_reported_without_opening() {
+    let home = TempDir::new().unwrap();
+    let drive = TempDir::new().unwrap();
+    let wal = drive.path().join("planning-db").join("wal");
+    std::fs::create_dir_all(&wal).unwrap();
+    std::fs::write(wal.join("notes (1).txt"), "drive copy").unwrap();
+
+    let mut app = app(&home).await;
+    let health = app
+        .choose_sync_folder(drive.path().to_path_buf())
+        .await
+        .unwrap();
+    assert!(
+        matches!(health, StoreHealth::SyncConflict { .. }),
+        "got {health:?}"
+    );
 }
 
 #[tokio::test]

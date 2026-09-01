@@ -3,9 +3,10 @@ use super::service::{PlanningApp, StartRequest};
 use chrono_tz::Tz;
 use planning_reports::WeeklyReportFile;
 use planning_store::{
-    Database, DeviceSettingsFile, HomeSettingsRepository, SetZone, StoreHealth, UiLanguage,
+    Assessment, Database, DeviceSettingsFile, HomeSettingsRepository, SetZone, StoreHealth,
+    UiLanguage,
 };
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 impl PlanningApp {
     pub async fn start(request: StartRequest) -> Result<Self, AppError> {
@@ -79,17 +80,45 @@ impl PlanningApp {
             return Ok(self.health());
         };
         self.reports = Some(WeeklyReportFile::at(folder.clone()));
-        if folder.is_dir() {
-            let database = Database::open(&folder).await?;
-            self.home_zone = HomeSettingsRepository::load(&database).await?.home_zone;
-            self.database = Some(database);
+        if Self::has_sync_conflict(&folder) {
+            self.health = self.assess();
+            return Ok(self.health());
+        }
+        if folder.is_dir() && !self.open_database(&folder).await? {
+            return Ok(self.health());
         }
         self.health = self.assess();
         self.take_lock();
         Ok(self.health())
+    }
+
+    fn has_sync_conflict(folder: &Path) -> bool {
+        matches!(
+            StoreHealth::assess(Assessment {
+                sync_folder: Some(folder.to_path_buf()),
+                home_zone_is_set: false,
+            }),
+            StoreHealth::SyncConflict { .. }
+        )
+    }
+
+    async fn open_database(&mut self, folder: &Path) -> Result<bool, AppError> {
+        let database = match Database::open(folder).await {
+            Ok(database) => database,
+            Err(error) => {
+                self.health = StoreHealth::Unreadable {
+                    detail: error.to_string(),
+                };
+                return Ok(/*opened=*/ false);
+            }
+        };
+        self.home_zone = HomeSettingsRepository::load(&database).await?.home_zone;
+        self.database = Some(database);
+        Ok(/*opened=*/ true)
     }
 }
 
 #[cfg(test)]
 #[path = "setup_tests.rs"]
 mod tests;
+

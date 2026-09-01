@@ -57,7 +57,7 @@ Stored in SurrealDB as `settings:home` (`HomeSettingsRepository`). Starts **unse
 | `FolderMissing` | Configured path not mounted (Drive still syncing?) |
 | `LockedByAnotherDevice` | Fresh `writer.lock` held by another device |
 | `SyncConflict` | Drive conflict artifacts detected |
-| `Unreadable` | IO or parse failure |
+| `Unreadable` | IO or parse failure, including a SurrealKV directory the engine will not open |
 
 Assessment order is most-blocking first: missing folder beats conflict beats unset zone. `require_database()` and `calendar()` return `Err` unless health is `Ready` — no write path can skip the check.
 
@@ -74,7 +74,7 @@ Deleting `writer.lock` is removal of a transient marker, not planning data — A
 
 ## Conflict detection
 
-`conflicts::scan` walks the sync folder and `planning-db/` one level deep. Two Drive rename patterns flag `SyncConflict`:
+`conflicts::scan` walks the Synchronization Folder **one level** and then the whole `planning-db/` tree (WAL, sstables, …). Two Drive rename patterns flag `SyncConflict`:
 
 - `(conflicted copy …)` suffix (Google Drive desktop)
 - ` (N)` before extension — e.g. `CURRENT (1)`, `MANIFEST-000004 (2)`
@@ -88,6 +88,8 @@ Worth remembering when extending `planning-store`:
 | Quirk | What we do |
 |-------|------------|
 | Path argument | `Surreal::new::<SurrealKv>(path.to_string_lossy().as_ref())` — takes `&str`, not `Path` |
+| WAL directory | SurrealKV `list_segment_ids` parses **every** file in `planning-db/wal/`. A `desktop.ini` or similar sidecar is `Invalid segment name format` and the engine will not open. `engine_sidecars::strip` removes known OS junk (`desktop.ini`, `Thumbs.db`, `.DS_Store`) before connect. Other foreign files stay; open then becomes `StoreHealth::Unreadable`. |
+| Sharing violation | Windows may return "file being used by another process" while Drive/OneDrive has the WAL open. `Database::open` retries a few times, then `Unreadable`. |
 | Record types | Derive `surrealdb::types::SurrealValue` alongside `Serialize`/`Deserialize` |
 | `Tz` storage | Store as IANA string (`zone.name()`), parse with `Tz::from_str` on load |
 | Missing table | `select` on a table that does not exist yet returns an error containing `"does not exist"` — treat as unset, return defaults |

@@ -1,5 +1,7 @@
+use super::engine_sidecars;
 use super::error::StoreError;
 use std::path::Path;
+use std::time::Duration;
 use surrealdb::engine::local::{Db, SurrealKv};
 use surrealdb::Surreal;
 
@@ -15,7 +17,8 @@ impl Database {
     pub async fn open(sync_folder: &Path) -> Result<Self, StoreError> {
         let path = sync_folder.join(Self::DIRECTORY);
         std::fs::create_dir_all(&path)?;
-        let inner = Surreal::new::<SurrealKv>(path.to_string_lossy().as_ref()).await?;
+        engine_sidecars::strip(&path);
+        let inner = connect(&path).await?;
         inner.use_ns(Self::NAMESPACE).use_db(Self::DATABASE).await?;
         Ok(Self { inner })
     }
@@ -23,6 +26,33 @@ impl Database {
     pub fn inner(&self) -> &Surreal<Db> {
         &self.inner
     }
+}
+
+async fn connect(path: &Path) -> Result<Surreal<Db>, StoreError> {
+    let mut delay = Duration::from_millis(100);
+    let mut last = None;
+    for _ in 0..5 {
+        match Surreal::new::<SurrealKv>(path.to_string_lossy().as_ref()).await {
+            Ok(inner) => return Ok(inner),
+            Err(error) if is_transient_lock(&error) => {
+                last = Some(error);
+                std::thread::sleep(delay);
+                delay *= 2;
+            }
+            Err(error) => return Err(error.into()),
+        }
+    }
+    Err(last
+        .expect("transient lock retries always store the last error")
+        .into())
+}
+
+fn is_transient_lock(error: &surrealdb::Error) -> bool {
+    let text = error.to_string();
+    text.contains("being used by another process")
+        || text.contains("os error 32")
+        || text.contains("os error 33")
+        || text.contains("bloqueada una parte del archivo")
 }
 
 #[cfg(test)]
@@ -70,5 +100,20 @@ mod tests {
         let folder = TempDir::new().unwrap();
         let _database = Database::open(folder.path()).await.unwrap();
         assert!(folder.path().join(Database::DIRECTORY).is_dir());
+    }
+
+    #[tokio::test]
+    async fn opening_survives_windows_sidecar_files_in_the_wal() {
+        let folder = TempDir::new().unwrap();
+        let first = Database::open(folder.path()).await.unwrap();
+        drop(first);
+        tokio::time::sleep(Duration::from_millis(100)).await;
+
+        let wal = folder.path().join(Database::DIRECTORY).join("wal");
+        std::fs::write(wal.join("desktop.ini"), "[.ShellClassInfo]\n").unwrap();
+
+        Database::open(folder.path())
+            .await
+            .expect("SurrealKV must ignore Explorer sidecar files in wal/");
     }
 }
