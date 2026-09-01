@@ -3860,7 +3860,7 @@ checksum = "19f132c84eca552bf34cab8ec81f1c1dcc229b811638f9d283dceabe58c5569e"
 
 [[package]]
 name = "planning-app"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "chrono",
  "chrono-tz",
@@ -3876,7 +3876,7 @@ dependencies = [
 
 [[package]]
 name = "planning-core"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "chrono",
  "chrono-tz",
@@ -3888,7 +3888,7 @@ dependencies = [
 
 [[package]]
 name = "planning-reports"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "chrono",
  "serde",
@@ -3899,7 +3899,7 @@ dependencies = [
 
 [[package]]
 name = "planning-store"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aws-lc-sys",
  "chrono",
@@ -4843,7 +4843,7 @@ dependencies = [
 
 [[package]]
 name = "self-planning"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "chrono-tz",
  "planning-app",
