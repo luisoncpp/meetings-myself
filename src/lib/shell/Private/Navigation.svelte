@@ -6,9 +6,10 @@
   interface Props {
     current: 'daily-plan' | 'library';
     onnavigate: (view: 'daily-plan' | 'library') => void;
+    onswitchFolder?: () => void;
   }
 
-  let { current, onnavigate }: Props = $props();
+  let { current, onnavigate, onswitchFolder }: Props = $props();
 
   async function openReviewWindow(): Promise<void> {
     await openWeeklyReviewWindow();
@@ -38,7 +39,19 @@
     >
       {t('nav.weeklyReview')} <span class="external" aria-hidden="true">↗</span>
     </button>
-    <LanguageSelect compact />
+    <div class="actions">
+      {#if onswitchFolder}
+        <button
+          type="button"
+          class="switch-folder"
+          aria-label={t('nav.switchFolder')}
+          onclick={onswitchFolder}
+        >
+          {t('nav.switchFolder')}
+        </button>
+      {/if}
+      <LanguageSelect compact />
+    </div>
   </div>
 </nav>
 
@@ -83,7 +96,10 @@
     opacity: 0.7;
   }
 
-  :global(.language.compact) {
+  .actions {
     margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
   }
 </style>

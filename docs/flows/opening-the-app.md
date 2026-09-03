@@ -17,7 +17,7 @@ User launches the desktop application (or the app restarts after choosing a sync
 5. **Assess health** — `StoreHealth::assess` checks folder presence, conflict artifacts, and whether home zone is set.
 6. **Acquire writer lock** — if health is `Ready`, `WriterLock::acquire` writes or refreshes `writer.lock`.
 
-`reconnect()` reruns steps 3–6 after folder selection, the health banner **Try again** button, or sync recovery (plan 0008). `store_health` / `storeHealth()` only returns the last assessment; it does not reopen the engine (**Try again** calls `reconnect_store`). When the path is `folderMissing`, the banner also offers **Choose a different folder** (`pick_sync_folder` + `choose_sync_folder`) so a Drive shortcut that is not mounted is not a dead end.
+`reconnect()` reruns steps 3–6 after folder selection, the health banner **Try again** button, or sync recovery (plan 0008). `store_health` / `storeHealth()` only returns the last assessment; it does not reopen the engine (**Try again** calls `reconnect_store`). When the path is `folderMissing`, the banner also offers **Choose a different folder** (`pick_sync_folder` + `choose_sync_folder`) so a Drive shortcut that is not mounted is not a dead end. In normal operation, users can also switch the folder anytime from the top navigation bar. See [switching-sync-folder.md](switching-sync-folder.md).
 
 ## Reads
 

@@ -57,6 +57,15 @@ describe('chooseSyncFolder', () => {
   });
 });
 
+describe('syncFolder', () => {
+  it('queries the configured sync folder', async () => {
+    invoke.mockResolvedValue('/drive/sync');
+    const { syncFolder } = await import('./index');
+    await expect(syncFolder()).resolves.toEqual('/drive/sync');
+    expect(invoke).toHaveBeenCalledWith('sync_folder', undefined);
+  });
+});
+
 describe('setHomeZone', () => {
   it('forwards with the zone name', async () => {
     const health = { status: 'ready' };

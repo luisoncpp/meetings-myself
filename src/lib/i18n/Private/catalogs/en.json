@@ -26,7 +26,8 @@
     "dailyPlan": "Daily Plan",
     "library": "Library",
     "weeklyReview": "Weekly Review",
-    "openWeeklyReview": "Open Weekly Review in a new window"
+    "openWeeklyReview": "Open Weekly Review in a new window",
+    "switchFolder": "Switch folder"
   },
   "shell": {
     "loading": "Loading…"

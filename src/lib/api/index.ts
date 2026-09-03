@@ -54,6 +54,10 @@ export function chooseSyncFolder(folder: string): Promise<StoreHealth> {
   return call<StoreHealth>('choose_sync_folder', { folder });
 }
 
+export function syncFolder(): Promise<string | null> {
+  return call<string | null>('sync_folder');
+}
+
 export function setHomeZone(zone: string): Promise<StoreHealth> {
   return call<StoreHealth>('set_home_zone', { zone });
 }

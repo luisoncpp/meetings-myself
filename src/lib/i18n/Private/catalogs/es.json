@@ -26,7 +26,8 @@
     "dailyPlan": "Plan diario",
     "library": "Biblioteca",
     "weeklyReview": "Revisión semanal",
-    "openWeeklyReview": "Abrir la revisión semanal en una ventana nueva"
+    "openWeeklyReview": "Abrir la revisión semanal en una ventana nueva",
+    "switchFolder": "Cambiar carpeta"
   },
   "shell": {
     "loading": "Cargando…"

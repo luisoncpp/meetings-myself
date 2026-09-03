@@ -24,6 +24,7 @@
 
   let health: StoreHealth | null = $state(null);
   let mainView: 'daily-plan' | 'library' = $state('daily-plan');
+  let folderRevision = $state(0);
 
   async function refreshHealth(): Promise<void> {
     health = await storeHealth();
@@ -37,6 +38,7 @@
     const folder = await pickSyncFolder();
     if (folder === null) return;
     health = await chooseSyncFolder(folder);
+    folderRevision += 1;
   }
 
   $effect(() => {
@@ -64,12 +66,18 @@
   {:else if surface === 'weekly-review'}
     <WeeklyReview />
   {:else}
-    <Navigation current={mainView} onnavigate={/* switch main view */ (view) => (mainView = view)} />
-    {#if mainView === 'daily-plan'}
-      <DailyPlan />
-    {:else}
-      <Library />
-    {/if}
+    <Navigation
+      current={mainView}
+      onnavigate={/* switch main view */ (view) => (mainView = view)}
+      onswitchFolder={chooseReplacementFolder}
+    />
+    {#key folderRevision}
+      {#if mainView === 'daily-plan'}
+        <DailyPlan />
+      {:else}
+        <Library />
+      {/if}
+    {/key}
   {/if}
 </div>
 

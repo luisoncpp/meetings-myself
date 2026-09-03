@@ -58,6 +58,10 @@ impl PlanningApp {
         self.set_home_zone(parsed).await
     }
 
+    pub fn sync_folder(&self) -> Option<PathBuf> {
+        self.settings.sync_folder.clone()
+    }
+
     pub fn ui_language(&self) -> UiLanguage {
         self.settings.ui_language
     }

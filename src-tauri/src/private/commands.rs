@@ -73,6 +73,16 @@ pub async fn set_ui_language(
 }
 
 #[tauri::command]
+pub async fn sync_folder(state: tauri::State<'_, AppState>) -> Result<Option<String>, String> {
+    Ok(state
+        .0
+        .lock()
+        .await
+        .sync_folder()
+        .map(|path| path.to_string_lossy().to_string()))
+}
+
+#[tauri::command]
 pub async fn choose_sync_folder(
     state: tauri::State<'_, AppState>,
     folder: PathBuf,

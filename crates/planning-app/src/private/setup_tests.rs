@@ -177,3 +177,14 @@ async fn the_chosen_folder_survives_a_restart() {
     assert_eq!(restarted.health(), StoreHealth::Ready);
     assert_eq!(restarted.calendar().unwrap().zone(), Tz::Europe__Madrid);
 }
+
+#[tokio::test]
+async fn sync_folder_returns_the_configured_path() {
+    let home = TempDir::new().unwrap();
+    let drive = TempDir::new().unwrap();
+    let path = drive.path().to_path_buf();
+    let mut app = app(&home).await;
+    assert_eq!(app.sync_folder(), None);
+    app.choose_sync_folder(path.clone()).await.unwrap();
+    assert_eq!(app.sync_folder(), Some(path));
+}

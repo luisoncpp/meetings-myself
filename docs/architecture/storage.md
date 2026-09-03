@@ -34,7 +34,7 @@ src-tauri / launcher ──► planning-app ──► planning-store ──► p
 Per-device facts live in the OS config directory (`device-settings.json` via `directories`), never inside the Synchronization Folder:
 
 - `device_id`, `device_name`
-- `sync_folder` path (pointer to the Drive folder)
+- `sync_folder` path (pointer to the Drive folder; selectable during setup, missing folder recovery, or anytime via main navigation)
 - `ui_language` (`en` | `es`, default from OS locale on first create)
 - launcher timing (`launch_time`, `retry_window_minutes`, `last_missed_prompt`)
 
