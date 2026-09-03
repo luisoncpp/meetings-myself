@@ -50,6 +50,12 @@ Those ids are stored in the new plan's `habits` list. **Seeding happens once, at
 
 `open_today` calls `materialize_due` first (so the Task Pool is complete), then `open_plan(today)`.
 
+## Yesterday catch-up
+
+`yesterday_view` is the previous home-zone day, projected only if a `DailyPlan` record already exists. It uses `has_plan_for` / load — **never** `open_plan` — so opening today's surface cannot create yesterday's plan as a side effect.
+
+The Daily Plan UI shows that view as a collapsed disclosure **below** today's plan: complete tasks and record check-ins only (no pool, quick-add, or reorder). Completing a leftover calls `complete_task_on` with yesterday's date so Weekly Review counts it on that day. Completing from today or the Library still uses `complete_task` (today). A Task has one completion axis, so a leftover that is also on today's plan shows done on both rows.
+
 ## Task Pool membership
 
 `task_pool` includes every active Task that is either open or non–one-off (completed non–one-off Tasks stay poolable). One-off Tasks that are completed or archived are excluded. Weekly Focus ids still sort into `focus` vs `rest`; membership is independent of focus.
@@ -70,7 +76,7 @@ Completion UI is **Daily Plan only** — Task Pool and Library rows never show a
 
 ## `has_plan_for` is read-only
 
-`has_plan_for(date)` checks whether a `DailyPlan` record exists — it does **not** create one. Plan 0008's launcher depends on this: asking "does today have a plan?" must never materialize a plan as a side effect.
+`has_plan_for(date)` checks whether a `DailyPlan` record exists — it does **not** create one. Plan 0008's launcher depends on this: asking "does today have a plan?" must never materialize a plan as a side effect. `yesterday_view` uses the same rule.
 
 ## Application API — `planning-app`
 
@@ -79,9 +85,10 @@ Completion UI is **Daily Plan only** — Task Pool and Library rows never show a
 | Open plan | `daily_plan_use_cases.rs` | `open_today`, `open_plan`, `has_plan_for` |
 | Plan editing | `daily_plan_use_cases.rs` | `select_into_plan`, `reorder_plan`, `remove_from_plan`, `add_habit_to_plan` |
 | Check-ins | `check_in_use_cases.rs` | `record_check_in` |
+| Completion | `entity_lifecycle.rs` | `complete_task` (today), `complete_task_on` (explicit date, never future) |
 | Weekly Focus | `weekly_focus_use_cases.rs` | `add_to_focus`, `remove_from_focus` |
 | Materialization | `materialization.rs` | `materialize_due`, `create_recurring_task` |
-| Read models | `plan_views.rs` | `today_view`, `plan_view`, `task_pool` |
+| Read models | `plan_views.rs` | `today_view`, `plan_view`, `yesterday_view`, `task_pool` |
 
 All writes go through `PlanningApp::require_database()` — refused unless `StoreHealth` is `Ready`.
 

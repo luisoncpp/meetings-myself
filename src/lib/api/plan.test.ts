@@ -13,6 +13,15 @@ describe('todayView', () => {
   });
 });
 
+describe('yesterdayView', () => {
+  it('calls yesterday_view with no args', async () => {
+    invoke.mockResolvedValue(null);
+    const { yesterdayView } = await import('./index');
+    await yesterdayView();
+    expect(invoke).toHaveBeenCalledWith('yesterday_view');
+  });
+});
+
 describe('taskPool', () => {
   it('calls task_pool with no args', async () => {
     invoke.mockResolvedValue({ focus: [], rest: [] });

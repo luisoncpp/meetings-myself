@@ -5,6 +5,7 @@ import { formatPlanDate } from '../../../domain';
 import DailyPlan from './DailyPlan.svelte';
 
 const todayView = vi.hoisted(() => vi.fn());
+const yesterdayView = vi.hoisted(() => vi.fn());
 const taskPool = vi.hoisted(() => vi.fn());
 const selectIntoPlan = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
 const removeFromPlan = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
@@ -16,6 +17,7 @@ const reopenTask = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
 
 vi.mock('../../../api', () => ({
   todayView,
+  yesterdayView,
   taskPool,
   selectIntoPlan,
   removeFromPlan,
@@ -97,8 +99,8 @@ const focusPool = {
       id: 'f1',
       title: 'Prepare portfolio',
       state: 'open' as const,
-      importance: 'unclassified' as const,
-      urgency: 'unclassified' as const,
+      importance: 'high' as const,
+      urgency: 'high' as const,
       deadline: null,
       overdue: false,
       archived: false,
@@ -109,8 +111,8 @@ const focusPool = {
       id: 'r1',
       title: 'Something else',
       state: 'open' as const,
-      importance: 'unclassified' as const,
-      urgency: 'unclassified' as const,
+      importance: 'low' as const,
+      urgency: 'low' as const,
       deadline: null,
       overdue: false,
       archived: false,
@@ -121,6 +123,7 @@ const focusPool = {
 beforeEach(() => {
   vi.clearAllMocks();
   todayView.mockResolvedValue(emptyPlan);
+  yesterdayView.mockResolvedValue(null);
   taskPool.mockResolvedValue({ focus: [], rest: [] });
 });
 
@@ -133,6 +136,12 @@ describe('DailyPlan rendering', () => {
     );
     expect(screen.getByText('Draft the letter')).toBeInTheDocument();
     expect(screen.getByRole('radiogroup', { name: /Writing practice/ })).toBeInTheDocument();
+  });
+
+  it('does not show yesterday when that day has no plan', async () => {
+    render(DailyPlan);
+    await screen.findByRole('heading', { level: 1 });
+    expect(screen.queryByRole('heading', { name: 'Yesterday' })).not.toBeInTheDocument();
   });
 
   it('shows archived and overdue entries in place with honest labels', async () => {
@@ -149,7 +158,7 @@ describe('DailyPlan actions', () => {
     todayView.mockResolvedValue(archivedFixture);
     render(DailyPlan);
     await userEvent.click(await screen.findByRole('button', { name: /mark done: old idea/i }));
-    expect(completeTask).toHaveBeenCalledWith('t1');
+    expect(completeTask).toHaveBeenCalledWith('t1', '2026-08-07');
   });
 
   it('quick-adds a task into today', async () => {
@@ -164,5 +173,15 @@ describe('DailyPlan actions', () => {
     const pool = await screen.findByRole('region', { name: /task pool/i });
     const titles = within(pool).getAllByRole('button', { name: /add to today/i });
     expect(titles[0]).toHaveAccessibleName(/Prepare portfolio/);
+  });
+
+  it('displays importance and urgency chips in the task pool', async () => {
+    taskPool.mockResolvedValue(focusPool);
+    render(DailyPlan);
+    const pool = await screen.findByRole('region', { name: /task pool/i });
+    expect(within(pool).getByText('High importance')).toBeInTheDocument();
+    expect(within(pool).getByText('High urgency')).toBeInTheDocument();
+    expect(within(pool).getByText('Low importance')).toBeInTheDocument();
+    expect(within(pool).getByText('Low urgency')).toBeInTheDocument();
   });
 });

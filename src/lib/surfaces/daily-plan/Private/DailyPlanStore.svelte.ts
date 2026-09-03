@@ -10,12 +10,17 @@ import * as api from '../../../api';
  */
 export class DailyPlanStore {
   #plan = $state<DailyPlanView | null>(null);
+  #yesterday = $state<DailyPlanView | null>(null);
   #pool = $state<TaskPoolView | null>(null);
   #loading = $state(false);
   #error = $state<string | null>(null);
 
   get plan(): DailyPlanView | null {
     return this.#plan;
+  }
+
+  get yesterday(): DailyPlanView | null {
+    return this.#yesterday;
   }
 
   get pool(): TaskPoolView | null {
@@ -33,9 +38,14 @@ export class DailyPlanStore {
   async load(): Promise<void> {
     this.#loading = true;
     try {
-      const [plan, pool] = await Promise.all([api.todayView(), api.taskPool()]);
+      const [plan, pool, yesterday] = await Promise.all([
+        api.todayView(),
+        api.taskPool(),
+        api.yesterdayView(),
+      ]);
       this.#plan = plan;
       this.#pool = pool;
+      this.#yesterday = yesterday;
       this.#error = null;
     } catch (failure) {
       this.#error = message(failure);
@@ -73,19 +83,15 @@ export class DailyPlanStore {
     await this.#change(/* createAndSelect= */ () => api.quickAddTask(title));
   }
 
-  // Used from DailyPlan.svelte template.
-  // fallow-ignore-next-line unused-class-member
-  async checkIn(habitId: string, outcome: CheckInOutcome): Promise<void> {
-    await this.#change(/* recordTheOutcome= */ () =>
-      api.recordCheckIn(habitId, this.#date(), outcome),
-    );
+  async checkIn(habitId: string, outcome: CheckInOutcome, date: string): Promise<void> {
+    await this.#change(/* recordTheOutcome= */ () => api.recordCheckIn(habitId, date, outcome));
   }
 
   /** Completion is reversible, so this is a toggle, not a one-way action. */
-  async toggleCompletion(task: PlanTaskView): Promise<void> {
+  async toggleCompletion(task: PlanTaskView, date: string): Promise<void> {
     const reopening = task.state === 'completed';
     await this.#change(/* toggleTheOutcome= */ () =>
-      reopening ? api.reopenTask(task.id) : api.completeTask(task.id),
+      reopening ? api.reopenTask(task.id) : api.completeTask(task.id, date),
     );
   }
 

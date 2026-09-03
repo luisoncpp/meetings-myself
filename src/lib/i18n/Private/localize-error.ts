@@ -24,6 +24,7 @@ const ERROR_KEY: Record<string, string> = {
   notSelectable: 'errors.notSelectable',
   invalidOrder: 'errors.invalidOrder',
   invalidZone: 'errors.invalidZone',
+  futureCompletion: 'errors.futureCompletion',
   blankTitle: 'errors.blankTitle',
   unsupportedAssociation: 'errors.unsupportedAssociation',
   emptyCadence: 'errors.emptyCadence',

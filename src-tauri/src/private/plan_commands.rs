@@ -17,6 +17,19 @@ pub async fn today_view(state: tauri::State<'_, AppState>) -> Result<DailyPlanVi
 }
 
 #[tauri::command]
+pub async fn yesterday_view(
+    state: tauri::State<'_, AppState>,
+) -> Result<Option<DailyPlanView>, String> {
+    state
+        .0
+        .lock()
+        .await
+        .yesterday_view()
+        .await
+        .map_err(app_error_message)
+}
+
+#[tauri::command]
 pub async fn task_pool(state: tauri::State<'_, AppState>) -> Result<TaskPoolView, String> {
     state
         .0

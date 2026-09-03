@@ -17,6 +17,7 @@ use private::plan_commands::{
     add_habit_to_plan, add_to_focus, archive_recurring_task, create_recurring_task, quick_add_task,
     record_check_in, recurring_tasks, remove_from_focus, remove_from_plan, rename_recurring_task,
     reorder_plan, restore_recurring_task, select_into_plan, task_pool, today_view, weekly_focus,
+    yesterday_view,
 };
 use private::review_commands::{
     open_current_review, open_weekly_review, report_path, save_reflection, weekly_summary,
@@ -73,6 +74,7 @@ pub fn run() {
             unlink,
             associations_for,
             today_view,
+            yesterday_view,
             task_pool,
             select_into_plan,
             remove_from_plan,

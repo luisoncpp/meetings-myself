@@ -33,3 +33,4 @@ Avoid: "bug description + fix". Prefer: "what I learned that applies to future w
 | [quill-semantic-html-before-markdown-save.md](quill-semantic-html-before-markdown-save.md) | Use `getSemanticHTML` + Turndown for Quill→Markdown; normalize empty shells | 2026-08-09 |
 | [tauri-hidden-windows-keep-process-alive.md](tauri-hidden-windows-keep-process-alive.md) | Hidden windows with `prevent_close` keep Tauri running; main close must call `exit` | 2026-08-09 |
 | [surrealkv-wal-rejects-sidecar-filenames.md](surrealkv-wal-rejects-sidecar-filenames.md) | SurrealKV WAL parse of every filename; Windows `desktop.ini` / silent release-exit | 2026-08-31 |
+| [test-file-cannot-have-two-module-parents.md](test-file-cannot-have-two-module-parents.md) | A `#[path]` test file included from two modules compiles twice with different `super` | 2026-09-01 |

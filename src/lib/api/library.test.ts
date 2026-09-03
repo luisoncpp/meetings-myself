@@ -99,6 +99,13 @@ describe('completeTask', () => {
     await completeTask('t1');
     expect(invoke).toHaveBeenCalledWith('complete_task', { task: 't1' });
   });
+
+  it('forwards an explicit completion date when given', async () => {
+    invoke.mockResolvedValue(undefined);
+    const { completeTask } = await import('./index');
+    await completeTask('t1', '2026-08-06');
+    expect(invoke).toHaveBeenCalledWith('complete_task', { task: 't1', on: '2026-08-06' });
+  });
 });
 
 describe('reopenTask', () => {

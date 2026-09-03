@@ -94,8 +94,8 @@ export function restoreEntity(end: AssociationEnd): Promise<void> {
   return call<void>('restore_entity', { end });
 }
 
-export function completeTask(task: string): Promise<void> {
-  return call<void>('complete_task', { task });
+export function completeTask(task: string, on?: string): Promise<void> {
+  return call<void>('complete_task', on === undefined ? { task } : { task, on });
 }
 
 export function reopenTask(task: string): Promise<void> {
@@ -152,6 +152,10 @@ export function associationsFor(end: AssociationEnd): Promise<Association[]> {
 
 export function todayView(): Promise<DailyPlanView> {
   return call<DailyPlanView>('today_view');
+}
+
+export function yesterdayView(): Promise<DailyPlanView | null> {
+  return call<DailyPlanView | null>('yesterday_view');
 }
 
 export function taskPool(): Promise<TaskPoolView> {

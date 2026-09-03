@@ -47,5 +47,6 @@ Keep these docs operational. Prefer short tables, explicit file names, and seque
 | [archiving-an-entity.md](archiving-an-entity.md) | Library archive → lifecycle mutate → no cascade, no delete |
 | [archiving-a-habit-already-in-a-plan.md](archiving-a-habit-already-in-a-plan.md) | Archive Habit in Library → plan entry stays, `archived: true`, still checkable |
 | [creating-a-recurring-task.md](creating-a-recurring-task.md) | Library create rule → store `recurring_task` → later `materialize_due` → Task Pool |
-| [completing-a-task-from-the-daily-plan.md](completing-a-task-from-the-daily-plan.md) | Tick plan row → `complete_task` / `reopen_task` → home-zone date → reload → reprojection |
+| [completing-a-task-from-the-daily-plan.md](completing-a-task-from-the-daily-plan.md) | Tick plan row → `complete_task` / `reopen_task` → stamp date → reload → reprojection |
+| [catching-up-yesterdays-plan.md](catching-up-yesterdays-plan.md) | Today’s surface → `yesterday_view` (no create) → complete / check in on yesterday |
 | [linking-entities-in-library.md](linking-entities-in-library.md) | Library entity card → "Link to…" modal / unlink tag → reactive view refresh |

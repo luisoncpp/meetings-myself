@@ -6,16 +6,16 @@ User clicks **Mark done** on a task row in today's plan (`PlanTaskRow` / `TaskCo
 
 ## Entry point
 
-`DailyPlanStore.toggleCompletion(task)` in `src/lib/surfaces/daily-plan/Private/DailyPlanStore.svelte.ts`
+`DailyPlanStore.toggleCompletion(task, date)` in `src/lib/surfaces/daily-plan/Private/DailyPlanStore.svelte.ts`
 
 ## Steps — complete (open → completed)
 
-1. **UI** — `PlanTaskRow` **Mark done** button calls `activeStore.toggleCompletion(task)`.
-2. **Store** — `task.state !== 'completed'`, so the store calls `api.completeTask(task.id)`.
-3. **IPC** — `src/lib/api/index.ts` → `call('complete_task', { task })` → Tauri `complete_task`.
-4. **Command** — `src-tauri/src/private/lifecycle_commands.rs` locks `AppState` and calls `PlanningApp::complete_task`.
-5. **Domain** — `entity_lifecycle.rs` resolves **today** in the home time zone (`calendar().today(clock)`), then mutates the Task: `completion = Completed { on: today }`. Lifecycle is untouched.
-6. **Reload** — store `#change` awaits the mutation, then `load()` fetches fresh `todayView()` + `taskPool()`.
+1. **UI** — `PlanTaskRow` **Mark done** button calls `activeStore.toggleCompletion(task, planView.date)`.
+2. **Store** — `task.state !== 'completed'`, so the store calls `api.completeTask(task.id, date)`.
+3. **IPC** — `src/lib/api/index.ts` → `call('complete_task', { task, on })` → Tauri `complete_task`.
+4. **Command** — `src-tauri/src/private/lifecycle_commands.rs` locks `AppState` and calls `PlanningApp::complete_task_on` when `on` is present, otherwise `complete_task`.
+5. **Domain** — `entity_lifecycle.rs` stamps `completion = Completed { on }` with the given date (or home-zone today). Dates after today are refused (`FutureCompletion`). Lifecycle is untouched.
+6. **Reload** — store `#change` awaits the mutation, then `load()` fetches fresh `todayView()`, `yesterdayView()`, and `taskPool()`.
 7. **Reprojection** — `plan_view` resolves stored task ids; sets `state: 'completed'`, `archived`, `overdue`, and position flags at read time. UI re-renders with `StateFlag kind="completed"` and muted row styling.
 
 No write to `daily_plan` — the plan still lists the task id; only the Task entity's `completion` axis changes.
@@ -40,7 +40,7 @@ Proven by `DailyPlan.test.ts` ("still lets an archived entry be completed") and 
 |--------|------|
 | `daily_plan` table | Ordered task ids for the date (unchanged) |
 | `task` table | `completion` and `lifecycle` for projection |
-| Home settings | Today's date for `Completed { on }` stamp |
+| Home settings | Default stamp is today; Daily Plan passes the plan date into `complete_task` |
 
 ## Writes
 
@@ -64,8 +64,8 @@ Completion is toggled from the Daily Plan for every task; the Library also offer
 | `src/lib/surfaces/daily-plan/Private/DailyPlanStore.svelte.ts` | `toggleCompletion`, `#change`, `load` |
 | `src/lib/api/index.ts` | `completeTask`, `reopenTask` |
 | `src-tauri/src/private/lifecycle_commands.rs` | IPC handlers |
-| `crates/planning-app/src/private/entity_lifecycle.rs` | `complete_task`, `reopen_task` |
-| `crates/planning-app/src/private/plan_views.rs` | `today_view`, `plan_view` projection |
+| `crates/planning-app/src/private/entity_lifecycle.rs` | `complete_task`, `complete_task_on`, `reopen_task` |
+| `crates/planning-app/src/private/plan_views.rs` | `today_view`, `yesterday_view`, `plan_view` projection |
 
 ## Common failure modes
 

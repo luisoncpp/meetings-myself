@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { DailyPlanStore } from './DailyPlanStore.svelte';
 
 const todayView = vi.hoisted(() => vi.fn());
+const yesterdayView = vi.hoisted(() => vi.fn());
 const taskPool = vi.hoisted(() => vi.fn());
 const selectIntoPlan = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
 const removeFromPlan = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
@@ -13,6 +14,7 @@ const reopenTask = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
 
 vi.mock('../../../api', () => ({
   todayView,
+  yesterdayView,
   taskPool,
   selectIntoPlan,
   removeFromPlan,
@@ -45,6 +47,7 @@ function planWith(taskIds: string[]) {
 function resetMocks(): void {
   vi.clearAllMocks();
   todayView.mockResolvedValue(planWith(['a', 'b', 'c']));
+  yesterdayView.mockResolvedValue(null);
   taskPool.mockResolvedValue({ focus: [], rest: [] });
 }
 
@@ -56,6 +59,7 @@ describe('DailyPlanStore loading', () => {
     await store.load();
 
     expect(store.plan?.tasks).toHaveLength(3);
+    expect(store.yesterday).toBeNull();
     expect(store.pool).toEqual({ focus: [], rest: [] });
     expect(store.loading).toBe(false);
   });
@@ -98,15 +102,51 @@ describe('DailyPlanStore mutations', () => {
     const store = new DailyPlanStore();
     await store.load();
 
-    await store.toggleCompletion(store.plan!.tasks[0]!);
-    expect(completeTask).toHaveBeenCalledWith('a');
+    await store.toggleCompletion(store.plan!.tasks[0]!, '2026-08-07');
+    expect(completeTask).toHaveBeenCalledWith('a', '2026-08-07');
 
     todayView.mockResolvedValue({
       ...planWith(['a']),
       tasks: [{ ...planWith(['a']).tasks[0]!, state: 'completed' as const }],
     });
     await store.load();
-    await store.toggleCompletion(store.plan!.tasks[0]!);
+    await store.toggleCompletion(store.plan!.tasks[0]!, '2026-08-07');
     expect(reopenTask).toHaveBeenCalledWith('a');
+  });
+});
+
+describe('DailyPlanStore yesterday completion', () => {
+  it('completes a leftover against yesterday', async () => {
+    yesterdayView.mockResolvedValue({ ...planWith(['left']), date: '2026-08-06' });
+    const store = new DailyPlanStore();
+    await store.load();
+
+    await store.toggleCompletion(store.yesterday!.tasks[0]!, '2026-08-06');
+    expect(completeTask).toHaveBeenCalledWith('left', '2026-08-06');
+  });
+});
+
+describe('DailyPlanStore yesterday check-in', () => {
+  it('records a check-in against yesterday', async () => {
+    yesterdayView.mockResolvedValue({
+      date: '2026-08-06',
+      week: '2026-W32',
+      tasks: [],
+      habits: [
+        {
+          id: 'h1',
+          title: 'Writing',
+          cadence: { kind: 'everyDay' as const },
+          archived: false,
+          unpinned: false,
+          outcome: null,
+        },
+      ],
+    });
+    const store = new DailyPlanStore();
+    await store.load();
+
+    await store.checkIn('h1', 'done', '2026-08-06');
+    expect(recordCheckIn).toHaveBeenCalledWith('h1', '2026-08-06', 'done');
   });
 });

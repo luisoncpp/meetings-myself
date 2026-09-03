@@ -36,14 +36,18 @@ pub async fn restore_entity(
 }
 
 #[tauri::command]
-pub async fn complete_task(state: tauri::State<'_, AppState>, task: String) -> Result<(), String> {
-    state
-        .0
-        .lock()
-        .await
-        .complete_task(&TaskId::new(task))
-        .await
-        .map_err(app_error_message)
+pub async fn complete_task(
+    state: tauri::State<'_, AppState>,
+    task: String,
+    on: Option<NaiveDate>,
+) -> Result<(), String> {
+    let app = state.0.lock().await;
+    let id = TaskId::new(task);
+    match on {
+        Some(date) => app.complete_task_on(&id, date).await,
+        None => app.complete_task(&id).await,
+    }
+    .map_err(app_error_message)
 }
 
 #[tauri::command]

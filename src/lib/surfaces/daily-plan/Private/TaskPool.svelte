@@ -36,7 +36,21 @@
 
 {#snippet poolRow(task: TaskView)}
   <div class="row">
-    <span class="title">{task.title}</span>
+    <div class="main">
+      <span class="title">{task.title}</span>
+      <div class="chips">
+        {#if task.importance === 'low'}
+          <span class="chip">{t('dailyPlan.lowImportance')}</span>
+        {:else if task.importance === 'high'}
+          <span class="chip">{t('dailyPlan.highImportance')}</span>
+        {/if}
+        {#if task.urgency === 'low'}
+          <span class="chip">{t('dailyPlan.lowUrgency')}</span>
+        {:else if task.urgency === 'high'}
+          <span class="chip">{t('dailyPlan.highUrgency')}</span>
+        {/if}
+      </div>
+    </div>
     <button
       type="button"
       class="add"
@@ -82,9 +96,25 @@
     gap: var(--space-3);
   }
 
-  .title {
+  .main {
     flex: 1;
     min-width: 0;
+  }
+
+  .title {
+    display: block;
+  }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+    margin-top: var(--space-1);
+  }
+
+  .chip {
+    font-size: var(--text-label);
+    color: var(--color-ink-muted);
   }
 
   .add {
@@ -95,6 +125,7 @@
     color: var(--color-ink-muted);
     font: inherit;
     cursor: pointer;
+    flex-shrink: 0;
   }
 
   .add:hover {

@@ -31,4 +31,7 @@ pub enum AppError {
 
     #[error("'{0}' is not an IANA time zone")]
     InvalidZone(String),
+
+    #[error("cannot complete a task on a future date")]
+    FutureCompletion,
 }

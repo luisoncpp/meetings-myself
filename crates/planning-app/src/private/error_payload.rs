@@ -51,6 +51,10 @@ pub fn app_error_payload(error: AppError) -> AppErrorPayload {
             code: "invalidZone".into(),
             params: Some(HashMap::from([("zone".into(), zone)])),
         },
+        AppError::FutureCompletion => AppErrorPayload {
+            code: "futureCompletion".into(),
+            params: None,
+        },
     }
 }
 

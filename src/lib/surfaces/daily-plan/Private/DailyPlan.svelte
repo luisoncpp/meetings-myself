@@ -6,6 +6,7 @@
   import HabitsCard from './HabitsCard.svelte';
   import TaskPool from './TaskPool.svelte';
   import TodayTasksCard from './TodayTasksCard.svelte';
+  import YesterdayCard from './YesterdayCard.svelte';
 
   let store = $state<DailyPlanStore>();
 
@@ -34,7 +35,8 @@
               tasks={planView.tasks}
               onquickadd={/* quick add */ (title) => void activeStore.quickAdd(title)}
               onreorder={/* reorder tasks */ (order) => void activeStore.reorder(order)}
-              ontoggle={/* toggle completion */ (task) => void activeStore.toggleCompletion(task)}
+              ontoggle={/* toggle completion */ (task) =>
+                void activeStore.toggleCompletion(task, planView.date)}
             />
             {#if activeStore.pool}
               <Card>
@@ -48,8 +50,18 @@
           <HabitsCard
             habits={planView.habits}
             oncheckin={/* record check-in */ (habitId, outcome) =>
-              void activeStore.checkIn(habitId, outcome)}
+              void activeStore.checkIn(habitId, outcome, planView.date)}
           />
+          {#if activeStore.yesterday}
+            {@const yesterday = activeStore.yesterday}
+            <YesterdayCard
+              plan={yesterday}
+              ontoggle={/* toggle yesterday completion */ (task) =>
+                void activeStore.toggleCompletion(task, yesterday.date)}
+              oncheckin={/* record yesterday check-in */ (habitId, outcome) =>
+                void activeStore.checkIn(habitId, outcome, yesterday.date)}
+            />
+          {/if}
         </div>
 
         {#if activeStore.error}
