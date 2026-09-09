@@ -15,7 +15,7 @@ describe('todayView', () => {
 
 describe('yesterdayView', () => {
   it('calls yesterday_view with no args', async () => {
-    invoke.mockResolvedValue(null);
+    invoke.mockResolvedValue({ date: '2026-08-06', week: '2026-W32', tasks: [], habits: [] });
     const { yesterdayView } = await import('./index');
     await yesterdayView();
     expect(invoke).toHaveBeenCalledWith('yesterday_view');

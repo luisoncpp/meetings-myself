@@ -104,11 +104,11 @@ Creating a rule stores only the `recurring_task` record (`starts_on` = today). I
 
 Entity creation uses `createEntityFromPayload` across both surfaces and stores without duplicating creation logic. Linking is handled directly on entity cards via `LinkModal`, so the legacy bar-level association editor is removed.
 
-`DailyPlanStore.load()` fetches `todayView`, `yesterdayView`, and `taskPool` together. `yesterdayView` is `null` when yesterday has no plan; the catch-up card is omitted.
+`DailyPlanStore.load()` fetches `todayView`, `yesterdayView`, and `taskPool` together. `yesterdayView` always returns a plan (created and seeded if yesterday was never opened).
 
 ### Yesterday catch-up
 
-When yesterday already has a plan, a **Yesterday** disclosure sits **below** today's tasks, pool, and habits. It is collapsed by default. Expanding it lists that day's tasks and habits with the same complete / check-in controls. No Task Pool, quick-add, or reorder. Completions pass yesterday's date (`completeTask(id, date)`); check-ins already take a date.
+A **Yesterday** disclosure sits **below** today's tasks, pool, and habits. It is collapsed by default (a visible header button). Expanding it lists that day's tasks and habits with the same complete / check-in controls. No Task Pool, quick-add, or reorder. Completions pass yesterday's date (`completeTask(id, date)`); check-ins already take a date.
 
 ### Task completion UI
 

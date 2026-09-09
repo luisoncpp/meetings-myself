@@ -47,7 +47,7 @@ function planWith(taskIds: string[]) {
 function resetMocks(): void {
   vi.clearAllMocks();
   todayView.mockResolvedValue(planWith(['a', 'b', 'c']));
-  yesterdayView.mockResolvedValue(null);
+  yesterdayView.mockResolvedValue({ ...planWith([]), date: '2026-08-06' });
   taskPool.mockResolvedValue({ focus: [], rest: [] });
 }
 
@@ -59,7 +59,7 @@ describe('DailyPlanStore loading', () => {
     await store.load();
 
     expect(store.plan?.tasks).toHaveLength(3);
-    expect(store.yesterday).toBeNull();
+    expect(store.yesterday?.date).toBe('2026-08-06');
     expect(store.pool).toEqual({ focus: [], rest: [] });
     expect(store.loading).toBe(false);
   });

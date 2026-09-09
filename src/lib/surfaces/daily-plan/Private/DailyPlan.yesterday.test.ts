@@ -60,29 +60,31 @@ const leftoverPlan = {
 beforeEach(() => {
   vi.clearAllMocks();
   todayView.mockResolvedValue(emptyToday);
-  yesterdayView.mockResolvedValue(null);
+  yesterdayView.mockResolvedValue(leftoverPlan);
   taskPool.mockResolvedValue({ focus: [], rest: [] });
 });
 
-async function expandYesterday(): Promise<HTMLDetailsElement> {
-  const heading = await screen.findByRole('heading', { name: 'Yesterday' });
-  const panel = heading.closest('details');
-  const toggle = heading.closest('summary');
-  if (!(panel instanceof HTMLDetailsElement) || !toggle) {
-    throw new Error('Yesterday panel is missing');
-  }
-  expect(panel.open).toBe(false);
+async function expandYesterday(): Promise<void> {
+  const toggle = await screen.findByRole('button', { name: /yesterday/i });
+  expect(toggle).toHaveAttribute('aria-expanded', 'false');
   await userEvent.click(toggle);
-  expect(panel.open).toBe(true);
-  return panel;
+  expect(toggle).toHaveAttribute('aria-expanded', 'true');
 }
 
 describe('DailyPlan yesterday catch-up rendering', () => {
-  it('shows leftovers when yesterday already has a plan', async () => {
+  it('shows a collapsed yesterday control when that day already has a plan', async () => {
     yesterdayView.mockResolvedValue(leftoverPlan);
     render(DailyPlan);
-    const panel = await expandYesterday();
-    expect(panel).toHaveTextContent('Finish the draft');
+    const toggle = await screen.findByRole('button', { name: /yesterday/i });
+    expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.queryByText('Finish the draft')).not.toBeInTheDocument();
+  });
+
+  it('reveals leftovers after the panel is opened', async () => {
+    yesterdayView.mockResolvedValue(leftoverPlan);
+    render(DailyPlan);
+    await expandYesterday();
+    expect(screen.getByText('Finish the draft')).toBeInTheDocument();
     expect(screen.getByRole('radiogroup', { name: /Evening stretch/ })).toBeInTheDocument();
   });
 });

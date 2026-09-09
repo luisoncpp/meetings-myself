@@ -3,8 +3,7 @@ use super::service::PlanningApp;
 use super::views::{TaskState, TaskView};
 use chrono::{Duration, NaiveDate};
 use planning_core::{
-    Cadence, CalendarWeek, CheckInOutcome, Classification, DailyPlan, DailyPlanId, HabitId, Task,
-    TaskId,
+    Cadence, CalendarWeek, CheckInOutcome, Classification, DailyPlan, HabitId, Task, TaskId,
 };
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
@@ -76,11 +75,11 @@ impl PlanningApp {
         self.plan_view(today).await
     }
 
-    /// Yesterday in the home zone, or `None` if that day never had a plan.
-    /// Does not create a plan (unlike `plan_view`).
-    pub async fn yesterday_view(&self) -> Result<Option<DailyPlanView>, AppError> {
+    /// Yesterday in the home zone. Creates that day's plan if it does not exist
+    /// (same seeding as a late open), so catch-up is always available.
+    pub async fn yesterday_view(&self) -> Result<DailyPlanView, AppError> {
         let today = self.calendar()?.today(self.clock.as_ref());
-        self.existing_plan_view(today - Duration::days(1)).await
+        self.plan_view(today - Duration::days(1)).await
     }
 
     /// Resolves every stored id against current entity state. An entity archived
@@ -88,16 +87,6 @@ impl PlanningApp {
     pub async fn plan_view(&self, date: NaiveDate) -> Result<DailyPlanView, AppError> {
         let plan = self.open_plan(date).await?;
         self.view_of(date, &plan).await
-    }
-
-    async fn existing_plan_view(&self, date: NaiveDate) -> Result<Option<DailyPlanView>, AppError> {
-        let found = self
-            .load_one::<DailyPlan>(DailyPlanId::TABLE, &DailyPlan::key(date))
-            .await?;
-        let Some(plan) = found else {
-            return Ok(None);
-        };
-        Ok(Some(self.view_of(date, &plan).await?))
     }
 
     async fn view_of(&self, date: NaiveDate, plan: &DailyPlan) -> Result<DailyPlanView, AppError> {
@@ -382,12 +371,23 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn yesterday_view_is_none_and_does_not_create_a_plan() {
+    async fn yesterday_view_creates_a_seeded_plan_when_none_exists() {
         let (_home, _drive, app, _clock) = app_on(7).await;
-        let yesterday = app.calendar().unwrap().today(app.clock_ref()) - Duration::days(1);
+        let today = app.calendar().unwrap().today(app.clock_ref());
+        let yesterday = today - Duration::days(1);
+        let habit = app
+            .create_habit(NewHabit {
+                title: "Writing".into(),
+                cadence: Cadence::EveryDay,
+            })
+            .await
+            .unwrap();
 
-        assert!(app.yesterday_view().await.unwrap().is_none());
-        assert!(!app.has_plan_for(yesterday).await.unwrap());
+        let view = app.yesterday_view().await.unwrap();
+        assert_eq!(view.date, yesterday);
+        assert_eq!(view.habits[0].id, habit.id);
+        assert!(app.has_plan_for(yesterday).await.unwrap());
+        assert!(!app.has_plan_for(today).await.unwrap());
     }
 
     #[tokio::test]
@@ -414,7 +414,7 @@ mod tests {
 
         clock.advance(Duration::days(1));
         let today = app.calendar().unwrap().today(app.clock_ref());
-        let view = app.yesterday_view().await.unwrap().unwrap();
+        let view = app.yesterday_view().await.unwrap();
 
         assert_eq!(view.date, first_day);
         assert_eq!(view.tasks[0].id, task.id);

@@ -13,75 +13,72 @@
   }
 
   let { plan, ontoggle, oncheckin }: Props = $props();
+  let open = $state(/*expanded=*/ false);
 </script>
 
 <Card>
-  <details>
-    <summary>
+  <h2>
+    <button
+      type="button"
+      class="toggle"
+      aria-expanded={open}
+      aria-controls="yesterday-panel"
+      onclick={/* toggleYesterday= */ () => {
+        open = !open;
+      }}
+    >
       <span class="summary-copy">
-        <h2>{t('dailyPlan.yesterday')}</h2>
+        <span class="title">{t('dailyPlan.yesterday')}</span>
         <span class="when">{formatPlanDate(plan.date, bcp47(localeStore.locale))}</span>
       </span>
-    </summary>
+      <span class="chevron" aria-hidden="true"></span>
+    </button>
+  </h2>
 
-    <h3>{t('dailyPlan.yesterdayTasks')}</h3>
-    {#if plan.tasks.length === 0}
-      <p class="empty">{t('dailyPlan.yesterdayTasksEmpty')}</p>
-    {:else}
-      <ul class="rows">
-        {#each plan.tasks as task (task.id)}
-          <li>
-            <PlanTaskRow {task} ontoggle={/* toggle completion */ () => ontoggle(task)} />
-          </li>
-        {/each}
-      </ul>
-    {/if}
+  {#if open}
+    <div id="yesterday-panel">
+      <h3>{t('dailyPlan.yesterdayTasks')}</h3>
+      {#if plan.tasks.length === 0}
+        <p class="empty">{t('dailyPlan.yesterdayTasksEmpty')}</p>
+      {:else}
+        <ul class="rows">
+          {#each plan.tasks as task (task.id)}
+            <li>
+              <PlanTaskRow {task} ontoggle={/* toggle completion */ () => ontoggle(task)} />
+            </li>
+          {/each}
+        </ul>
+      {/if}
 
-    <h3>{t('dailyPlan.yesterdayHabits')}</h3>
-    {#if plan.habits.length === 0}
-      <p class="empty">{t('dailyPlan.yesterdayHabitsEmpty')}</p>
-    {:else}
-      <HabitList habits={plan.habits} {oncheckin} />
-    {/if}
-  </details>
+      <h3>{t('dailyPlan.yesterdayHabits')}</h3>
+      {#if plan.habits.length === 0}
+        <p class="empty">{t('dailyPlan.yesterdayHabitsEmpty')}</p>
+      {:else}
+        <HabitList habits={plan.habits} {oncheckin} />
+      {/if}
+    </div>
+  {/if}
 </Card>
 
 <style>
-  details {
-    display: block;
+  h2 {
+    margin: 0;
   }
 
-  summary {
-    cursor: pointer;
-    list-style: none;
+  .toggle {
+    width: 100%;
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: var(--space-3);
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
     border-radius: var(--radius-card);
-  }
-
-  summary::-webkit-details-marker {
-    display: none;
-  }
-
-  summary::after {
-    content: '';
-    width: 0.4rem;
-    height: 0.4rem;
-    flex-shrink: 0;
-    border-right: 2px solid var(--color-ink-muted);
-    border-bottom: 2px solid var(--color-ink-muted);
-    transform: rotate(45deg);
-    transition: transform var(--duration-fast) var(--ease-out);
-  }
-
-  details[open] summary::after {
-    transform: rotate(225deg);
-  }
-
-  details[open] summary {
-    margin-bottom: var(--space-4);
   }
 
   .summary-copy {
@@ -91,10 +88,27 @@
     min-width: 0;
   }
 
-  h2 {
-    margin: 0;
+  .title {
     font-size: var(--text-headline);
     font-weight: 600;
+  }
+
+  .chevron {
+    width: 0.4rem;
+    height: 0.4rem;
+    flex-shrink: 0;
+    border-right: 2px solid var(--color-ink-muted);
+    border-bottom: 2px solid var(--color-ink-muted);
+    transform: rotate(45deg);
+    transition: transform var(--duration-fast) var(--ease-out);
+  }
+
+  .toggle[aria-expanded='true'] .chevron {
+    transform: rotate(225deg);
+  }
+
+  .toggle[aria-expanded='true'] {
+    margin-bottom: var(--space-4);
   }
 
   h3 {

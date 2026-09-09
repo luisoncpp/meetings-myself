@@ -35,6 +35,13 @@ const emptyPlan = {
   habits: [] as const,
 };
 
+const emptyYesterday = {
+  date: '2026-08-06',
+  week: '2026-W32',
+  tasks: [] as const,
+  habits: [] as const,
+};
+
 const archivedFixture = {
   date: '2026-08-07',
   week: '2026-W32',
@@ -123,7 +130,7 @@ const focusPool = {
 beforeEach(() => {
   vi.clearAllMocks();
   todayView.mockResolvedValue(emptyPlan);
-  yesterdayView.mockResolvedValue(null);
+  yesterdayView.mockResolvedValue(emptyYesterday);
   taskPool.mockResolvedValue({ focus: [], rest: [] });
 });
 
@@ -138,10 +145,10 @@ describe('DailyPlan rendering', () => {
     expect(screen.getByRole('radiogroup', { name: /Writing practice/ })).toBeInTheDocument();
   });
 
-  it('does not show yesterday when that day has no plan', async () => {
+  it('shows a collapsed yesterday control below today', async () => {
     render(DailyPlan);
-    await screen.findByRole('heading', { level: 1 });
-    expect(screen.queryByRole('heading', { name: 'Yesterday' })).not.toBeInTheDocument();
+    const toggle = await screen.findByRole('button', { name: /yesterday/i });
+    expect(toggle).toHaveAttribute('aria-expanded', 'false');
   });
 
   it('shows archived and overdue entries in place with honest labels', async () => {

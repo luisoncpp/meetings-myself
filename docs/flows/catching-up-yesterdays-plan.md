@@ -2,7 +2,7 @@
 
 ## Trigger
 
-The Daily Plan surface loads and yesterday (home zone) already has a `DailyPlan` record. The user marks a leftover task done or records a habit check-in on the **Yesterday** card.
+The Daily Plan surface loads. The user expands **Yesterday** (Ayer) below today's habits and marks leftover tasks done or records habit check-ins.
 
 ## Entry point
 
@@ -14,8 +14,8 @@ Mutations: `toggleCompletion(task, yesterday.date)` and `checkIn(habitId, outcom
 
 1. **UI** — `DailyPlan` constructs `DailyPlanStore` and calls `load()`.
 2. **Store** — fetches `todayView()`, `taskPool()`, and `yesterdayView()` in parallel.
-3. **Yesterday view** — `yesterday_view` takes home-zone today minus one day, then `existing_plan_view`: load the `daily_plan` row by date key. If missing, return `null` (no create).
-4. **UI** — `null` hides the card. A view renders `YesterdayCard` **below** today's plan as a collapsed `<details>` panel. The user expands it, then completes / checks in.
+3. **Yesterday view** — `yesterday_view` takes home-zone today minus one day, then `open_plan` + project. Missing plans are created and seeded.
+4. **UI** — `YesterdayCard` always renders **below** today's plan as a collapsed header button. The user expands it, then completes / checks in.
 
 ## Steps — complete a leftover task
 
@@ -37,10 +37,11 @@ Same `record_check_in` path as today, with `date` = yesterday. Key `{habitId}:{d
 
 | Target | What changes |
 |--------|--------------|
+| `daily_plan` | Created and seeded if yesterday had no plan |
 | `task` | `completion` when toggling a leftover (`on` = yesterday) |
 | `habit_check_in` | Upsert for `(habit, yesterday)` |
 
-No write to `daily_plan`. Opening today's surface never creates yesterday's plan.
+Opening today's surface may create yesterday's plan. It still does not create extra days beyond yesterday.
 
 ## Side effects
 
@@ -56,14 +57,14 @@ No write to `daily_plan`. Opening today's surface never creates yesterday's plan
 | `src/lib/surfaces/daily-plan/Private/DailyPlanStore.svelte.ts` | Load + dated mutations |
 | `src/lib/api/index.ts` | `yesterdayView`, `completeTask(task, on?)` |
 | `src-tauri/src/private/plan_commands.rs` | `yesterday_view` |
-| `crates/planning-app/src/private/plan_views.rs` | `yesterday_view`, `existing_plan_view` |
+| `crates/planning-app/src/private/plan_views.rs` | `yesterday_view` |
 | `crates/planning-app/src/private/entity_lifecycle.rs` | `complete_task_on` |
 
 ## Common failure modes
 
 | Symptom | Likely cause |
 |---------|--------------|
-| No Yesterday card | Yesterday never had a plan — expected; `yesterday_view` is `null` |
-| Yesterday plan appeared after opening today | Bug — `yesterday_view` must not call `open_plan` |
+| No Yesterday card | `yesterdayView` failed (check `store.error`); header is below habits and starts collapsed |
+| Yesterday created on first catch-up | Expected when that day was never opened |
 | Leftover counted as today in Weekly Review | Completion used `complete_task` without `on` |
 | FutureCompletion error | `on` after home-zone today |

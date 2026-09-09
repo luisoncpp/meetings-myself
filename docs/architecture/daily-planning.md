@@ -52,9 +52,9 @@ Those ids are stored in the new plan's `habits` list. **Seeding happens once, at
 
 ## Yesterday catch-up
 
-`yesterday_view` is the previous home-zone day, projected only if a `DailyPlan` record already exists. It uses `has_plan_for` / load — **never** `open_plan` — so opening today's surface cannot create yesterday's plan as a side effect.
+`yesterday_view` is the previous home-zone day. If that day's plan does not exist yet, it is created and seeded like a late first open (pinned habits due that weekday). Catch-up is therefore always on today's Daily Plan. Completing a leftover calls `complete_task_on` with yesterday's date so Weekly Review counts it on that day. Completing from today or the Library still uses `complete_task` (today). A Task has one completion axis, so a leftover that is also on today's plan shows done on both rows.
 
-The Daily Plan UI shows that view as a collapsed disclosure **below** today's plan: complete tasks and record check-ins only (no pool, quick-add, or reorder). Completing a leftover calls `complete_task_on` with yesterday's date so Weekly Review counts it on that day. Completing from today or the Library still uses `complete_task` (today). A Task has one completion axis, so a leftover that is also on today's plan shows done on both rows.
+`has_plan_for(today)` stays read-only for the launcher — `yesterday_view` does not create **today's** plan.
 
 ## Task Pool membership
 
@@ -76,7 +76,7 @@ Completion UI is **Daily Plan only** — Task Pool and Library rows never show a
 
 ## `has_plan_for` is read-only
 
-`has_plan_for(date)` checks whether a `DailyPlan` record exists — it does **not** create one. Plan 0008's launcher depends on this: asking "does today have a plan?" must never materialize a plan as a side effect. `yesterday_view` uses the same rule.
+`has_plan_for(date)` checks whether a `DailyPlan` record exists — it does **not** create one. Plan 0008's launcher depends on this: asking "does today have a plan?" must never materialize a plan as a side effect. `yesterday_view` is the exception for catch-up: it may create **yesterday's** plan, never today's.
 
 ## Application API — `planning-app`
 

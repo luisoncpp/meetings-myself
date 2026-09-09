@@ -158,8 +158,8 @@ export function todayView(): Promise<DailyPlanView> {
   return call<DailyPlanView>('today_view');
 }
 
-export function yesterdayView(): Promise<DailyPlanView | null> {
-  return call<DailyPlanView | null>('yesterday_view');
+export function yesterdayView(): Promise<DailyPlanView> {
+  return call<DailyPlanView>('yesterday_view');
 }
 
 export function taskPool(): Promise<TaskPoolView> {
