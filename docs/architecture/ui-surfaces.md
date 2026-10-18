@@ -2,17 +2,11 @@
 
 Svelte 5 surfaces for Daily Plan, Library, and Weekly Review. Each surface owns a store class (`.svelte.ts`), renders through deep-module components, and talks to Rust only via `src/lib/api`.
 
-## Two windows, three surfaces
+## One window, three sections
 
-| Surface | Window | How it is reached |
-|---------|--------|-------------------|
-| **Daily Plan** | Main (`index.html`) | Default — `mainView === 'daily-plan'` in `AppShell` |
-| **Library** | Main | `Navigation` switches `mainView` to `'library'` |
-| **Weekly Review** | Separate Tauri window | `?surface=weekly-review` on load, or `openWeeklyReviewWindow()` |
+`AppShell` renders a side rail (`Navigation.svelte`, `MainView = 'today' | 'library' | 'week'`) and one section at a time in the main window: **Today** (`DailyPlan`), **Library**, **Week** (`WeeklyReview`). There is no second Tauri window, no `?surface=` routing, and no window lifecycle code (plan 0009 removed them; see [tauri-hidden-windows-keep-process-alive.md](../lessons-learned/tauri-hidden-windows-keep-process-alive.md), now historical).
 
-Closing the Weekly Review window hides it instead of destroying the webview. Reopening calls `open_weekly_review_window`, which shows the hidden window or recreates it from `tauri.conf.json` if it was already closed. Closing the main window quits the app — a hidden Weekly Review window would otherwise keep the Tauri process alive.
-
-`App.svelte` calls `currentSurface(window.location.search)` once at boot. The pure helper in `src/lib/shell/Private/surface.ts` maps `?surface=weekly-review` → `'weekly-review'`; anything else → `'main'`. On `'main'`, `AppShell` toggles Daily Plan vs Library locally; Weekly Review is never embedded in the main window.
+Sections are **unmounted on switch** (`{#if}` in `AppShell`), so each one reloads on entry. That is the cross-section freshness contract: a focus change in Week shows in Library and Today with no event bus. Leaving Week runs `WeeklyReviewStore.destroy()`, which saves a pending reflection.
 
 ## Store-class pattern
 
@@ -63,7 +57,7 @@ User-authored content (task titles, reflections, etc.) is never translated.
 
 1. `setupIncomplete` → `Setup` surface (pick sync folder / home zone). Choosing a folder that cannot be opened leaves setup (`onready`) so the health banner can show `unreadable`.
 2. Any other non-`ready` status → `HealthBanner` blocks all surfaces. `folderMissing` offers **Try again** (`reconnect_store`) and **Choose a different folder**. Other retryable faults only offer **Try again**.
-3. `ready` → route to Weekly Review or main (Daily Plan / Library).
+3. `ready` → side rail + the current section.
 
 **Try again** (`folderMissing`, `lockedByAnotherDevice`, `unreadable`) calls `reconnect()`, which re-runs database open — not `storeHealth()`, which only reads the last snapshot.
 
@@ -73,54 +67,43 @@ Writes are refused server-side when health is not `ready`; the gate keeps the UI
 
 | Module | Store | Primary API calls |
 |--------|-------|-------------------|
-| `surfaces/daily-plan` | `DailyPlanStore` | `todayView`, `yesterdayView`, `taskPool`, `reorderPlan`, `completeTask`, `recordCheckIn`, … |
-| `surfaces/library` | `LibraryStore` | `library` (association entities), `recurringTasks`, `createRecurringTask`, `archiveRecurringTask`, `renameRecurringTask`, `archiveEntity`, `createTask`, `setTaskOneOff`, `link`, … |
-| `surfaces/weekly-review` | `WeeklyReviewStore` | `openCurrentReview`, `saveReflection`, `weeklySummary`, … |
+| `surfaces/daily-plan` | `DailyPlanStore` | `todayView`, `yesterdayView`, `taskPool`, `weeklyFocus(plan.week)`, `reorderPlan`, `completeTask`, `recordCheckIn`, … |
+| `surfaces/library` | `LibraryStore` | `library(true)`, `recurringTasks`, `weeklyFocus` (this + next week), entity edits, `link`, … |
+| `surfaces/weekly-review` | `WeeklyReviewStore` | `openCurrentReview`, `saveReflection`, `library(false)`, `weeklyFocus(next)`, `createTask` + `addToFocus`, … |
 | `surfaces/setup` | `SetupStore` | `chooseSyncFolder`, `setHomeZone`, `pickSyncFolder` |
 
-### Library — recurring tasks
+## Rows, menu, and focus marks (shared)
 
-`RecurringTask` rules are **not** association `EntityKind` rows. `LibraryStore.load()` fetches `library()` and `recurringTasks()` in parallel; rules never appear in `LibraryView`.
+- **`TaskLine`** (`ui`) — every task row in every section: one line, round check (`role="checkbox"`), title (a button when the row opens details), `meta` snippet, focus mark, `trailing` snippet, `⋯` button. `TaskChips` shows only overdue / high importance / high urgency; low and unclassified live in the detail panel.
+- **Focus marks** — gold dot + `--color-gold-wash` row = this week's focus; gold ring = next week's (Library only). Text for screen readers comes from the mark.
+- **Task menu** — `TaskActions` + `TaskMenuController` + `TaskMenu` in `planning-actions`; each store owns one `TaskActions` wired to its reload. Items and IPC: [right-click-task-actions.md](../flows/right-click-task-actions.md).
+- **Done = archived for one-offs** — the backend archives a one-off on completion. UIs read `PlanTaskView.completed` / `TaskView.completedOn`, never `state === 'completed'` (archived wins in `state`).
 
-`RecurringTaskSection` (after Tasks in `Library.svelte`): create rule with title + recurrence (recurrence fixed at creation — rows show a read-only label), list active rules (or all when **Show archived**), rename title on active rows, archive/restore rule. All mutations are pessimistic (`#change` → API → `load()`).
+## Today
 
-Creating a rule stores only the `recurring_task` record (`starts_on` = today). It does **not** materialize Tasks. The next `open_today` runs `materialize_due` first, creating missing `Occurrence` + `Task` pairs into the Task Pool — not auto-selected into the daily plan. See [creating-a-recurring-task.md](../flows/creating-a-recurring-task.md) and [daily-planning.md](daily-planning.md#recurring-task-materialization).
+Top to bottom: date; **Yesterday** bar (collapsed, shows "n open · m habits unchecked"; expands in place with the same rows and check-ins, completions stamped with yesterday); habit strip (`CheckInControl compact` — ✓ ↷ ✕ symbols, full outcome names as accessible labels); two columns — **Today** (`OrderableList` of rows + `InlineAdd`) and **Up next** (pool: focus first, `←` adds to today).
 
-### Library — associations
+## Library
 
-`LibraryView` carries `associations: Vec<Association>`. Active entity cards (`ValueRow`, `GoalRow`, `HabitRow`, `TaskRow`) render:
-- `AssociationTags`: displays tags for all active links touching the entity, with entity type tooltips (e.g. `Goal: Ship v1`) and an `×` button to unlink immediately.
-- A "Link to…" button on the card that opens `LinkModal` (`planning-actions`).
-- `LinkModal`: tabbed modal presenting target kinds strictly in priority order: `Goal` → `Habit` → `Value` → `Task`, filtered to valid pairs for the entity. The first available tab is selected by default. Clicking a candidate links the entities, reloads `LibraryStore`, and immediately updates the card tags. See [linking-entities-in-library.md](../flows/linking-entities-in-library.md).
+`TabStrip`: Tasks · Habits · Goals · Values · Recurring · Archive. `LibraryStore` loads everything once with archived included; tabs filter. Each tab has `+ New …` (`CreateEntity`). Clicking a row opens `DetailPanel` on the right (`LibraryDetail` → `TaskDetail` / `HabitDetail` / `GoalDetail` / `ValueDetail`); rows never hold form controls.
 
-### Planning action bar (`planning-actions`)
+- **Task detail** — title (`rename_task`), importance, urgency, deadline, one-off, this/next week focus toggles, links, done/reopen, archive.
+- **Habit detail** — title (`rename_habit`), **Show in daily plan** switch (was the pin icon; `pinned` in the model), strength, cadence, links, archive. Unpinned habits show a "Not daily" note on their row.
+- **Archive tab** — tasks grouped **Done** (newest `completedOn` first, date shown) / **Not done**; then archived habits, goals, values and recurring rules. Each row restores; task rows keep the check and menu.
+- **Recurring tab** — `RecurringTaskSection`; rules are not `EntityKind` rows. Creating a rule stores only the `recurring_task` record; the next `open_today` materializes. See [creating-a-recurring-task.md](../flows/creating-a-recurring-task.md).
+- **Links** — `DetailLinks` = `AssociationTags` + `LinkModal` (target kinds Goal → Habit → Value → Task; archived entities are never candidates). See [linking-entities-in-library.md](../flows/linking-entities-in-library.md).
 
-`PlanningActionBar` provides quick actions across **Weekly Review** and **Library**:
-- `New task`: creates a task directly from the bar.
-- `New habit`: creates a habit with cadence directly from the bar.
-- `New goal`: creates a goal with optional target date directly from the bar.
-- `Mark achieved`: opens goal achievement picker.
-- `Weekly focus`: manages next-week focus tasks.
+## Week
 
-Entity creation uses `createEntityFromPayload` across both surfaces and stores without duplicating creation logic. Linking is handled directly on entity cards via `LinkModal`, so the legacy bar-level association editor is removed.
+Header (week label + `WeekNav`), then the **focus board** (`FocusBoard`): *Focus for <next week>* (gold-wash column, `×` removes, `InlineAdd` creates a task **and** adds it to that focus via `createTaskInFocus`) beside *Everything else* (`☆` adds). Below: `PlanningActionBar` (New habit, New goal, Mark achieved — tasks are created on the board), reflection editor, then `ReviewHistory` — this week's summary and the previous report as one-line `<details>` disclosures, and the report path.
 
-`DailyPlanStore.load()` fetches `todayView`, `yesterdayView`, and `taskPool` together. `yesterdayView` always returns a plan (created and seeded if yesterday was never opened).
+Focus edits here target **next week** (`focusWeek = nextWeek(view.week)`); Today uses this week's focus. Library shows both, which is why it has two marks.
 
-### Yesterday catch-up
+## Primitives (`src/lib/ui`)
 
-A **Yesterday** disclosure sits **below** today's tasks, pool, and habits. It is collapsed by default (a visible header button). Expanding it lists that day's tasks and habits with the same complete / check-in controls. No Task Pool, quick-add, or reorder. Completions pass yesterday's date (`completeTask(id, date)`); check-ins already take a date.
-
-### Task completion UI
-
-Only **Daily Plan** (`PlanTaskRow`) and **Library one-off** rows (`TaskRow`) use `TaskCompletionToggle` — a labeled **Mark done** / **Done** pill (not a bare checkbox). Non–one-off Library tasks never surface completion. **Task Pool** never shows completion state.
-
-Shared UI primitives live in `src/lib/ui`; surface-specific rows and panels stay inside each surface's `Private/`.
-
-**Layout:** `SurfaceLayout` — content column with `max-width: min(var(--content-max-width), 100%)` and horizontal padding; used by Daily Plan, Library, Weekly Review, and Setup.
-
-**Forms:** `Field`, `Input`, `Select`, `MarkdownEditor` — labelled controls with token-backed borders and backgrounds. `MarkdownEditor` wraps Quill Next for rich-text editing; the app contract remains a Markdown string (load via `marked`, save via `getSemanticHTML` + `turndown`).
-
-**Other:** `Button`, `Card`, `ListRow`, `OrderableList`, `CheckInControl`, `StateFlag`, `InsetPanel`.
+**Layout:** `SurfaceLayout` (content column, `--content-max-width`), `DetailPanel` (sticky right panel), `TabStrip` (tablist, arrow keys).
+**Rows/menus:** `TaskLine`, `TaskChips`, `ContextMenu` (`MenuItem.keepOpen` swaps content via `children`), `InlineAdd`, `OrderableList`, `ListRow` (recurring rows), `CheckInControl`, `StateFlag`.
+**Forms:** `Field`, `Input`, `Select`, `MarkdownEditor` (Quill Next; Markdown in/out via `marked` / `getSemanticHTML` + `turndown`), `Button`, `Card`, `LanguageSelect`.
 
 ## Accessibility
 
@@ -128,6 +111,7 @@ Verification for Plan 0007 Task 9. Automated checks ran in CI/dev; visual and OS
 
 ### Verified via tests
 
+- **Keyboard — task menu:** right-click, Menu key or the row's `⋯` button opens it; arrows move, Esc/Tab close, focus returns to the row (`DailyPlan.menu.test.ts`, `task-menu-items.test.ts`).
 - **Keyboard — plan reorder:** `OrderableList` reorders with Alt+Arrow, moves focus with arrow keys, and announces position via a live region (`src/lib/ui/Private/OrderableList.test.ts`).
 - **Keyboard — habit check-in:** `CheckInControl` is reachable by Tab, operable with arrow keys, and groups options under the habit label (`src/lib/ui/Private/CheckInControl.test.ts`).
 - **State not by colour alone:** `StateFlag` renders visible text for every kind (Archived, Overdue, Unpinned, Completed) (`src/lib/ui/Private/StateFlag.test.ts`).

@@ -19,18 +19,10 @@
     }
     return '';
   });
-  let title = $state('');
-
-  $effect(() => {
-    title = task.title;
-  });
+  let title = $derived(task.title);
 
   function toggleArchive(): void {
-    if (archived) {
-      void store.restoreRecurringTask(task.id);
-      return;
-    }
-    void store.archiveRecurringTask(task.id);
+    void store.setRecurringArchived(task.id, !archived);
   }
 
   function onTitleChange(): void {

@@ -14,8 +14,10 @@ const quickAddTask = vi.hoisted(() => vi.fn().mockResolvedValue({ id: 't9' }));
 const recordCheckIn = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
 const completeTask = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
 const reopenTask = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
+const weeklyFocus = vi.hoisted(() => vi.fn());
 
 vi.mock('../../../api', () => ({
+  weeklyFocus,
   todayView,
   yesterdayView,
   taskPool,
@@ -55,6 +57,7 @@ const archivedFixture = {
       deadline: null,
       overdue: false,
       archived: true,
+      completed: false,
       position: 0,
     },
     {
@@ -66,6 +69,7 @@ const archivedFixture = {
       deadline: '2026-08-06',
       overdue: true,
       archived: false,
+      completed: false,
       position: 1,
     },
   ],
@@ -85,6 +89,7 @@ const loadedPlan = {
       deadline: null,
       overdue: false,
       archived: false,
+      completed: false,
       position: 0,
     },
   ],
@@ -111,6 +116,8 @@ const focusPool = {
       deadline: null,
       overdue: false,
       archived: false,
+      oneOff: true,
+      completedOn: null,
     },
   ],
   rest: [
@@ -123,6 +130,8 @@ const focusPool = {
       deadline: null,
       overdue: false,
       archived: false,
+      oneOff: true,
+      completedOn: null,
     },
   ],
 };
@@ -132,6 +141,7 @@ beforeEach(() => {
   todayView.mockResolvedValue(emptyPlan);
   yesterdayView.mockResolvedValue(emptyYesterday);
   taskPool.mockResolvedValue({ focus: [], rest: [] });
+  weeklyFocus.mockResolvedValue({ id: 'f', week: '2026-W32', tasks: [], createdAt: '' });
 });
 
 describe('DailyPlan rendering', () => {
@@ -151,12 +161,19 @@ describe('DailyPlan rendering', () => {
     expect(toggle).toHaveAttribute('aria-expanded', 'false');
   });
 
-  it('shows archived and overdue entries in place with honest labels', async () => {
+  it('keeps archived entries in place and labels overdue ones', async () => {
     todayView.mockResolvedValue(archivedFixture);
     render(DailyPlan);
     expect(await screen.findByText('Old idea')).toBeInTheDocument();
-    expect(screen.getByText('Archived')).toBeInTheDocument();
     expect(screen.getByText('Overdue')).toBeInTheDocument();
+  });
+
+  it("marks plan tasks that are in this week's focus", async () => {
+    todayView.mockResolvedValue(loadedPlan);
+    weeklyFocus.mockResolvedValue({ id: 'f', week: '2026-W32', tasks: ['t1'], createdAt: '' });
+    render(DailyPlan);
+    const row = await screen.findByRole('group', { name: 'Draft the letter' });
+    expect(within(row).getByText("In this week's focus")).toBeInTheDocument();
   });
 });
 
@@ -164,7 +181,7 @@ describe('DailyPlan actions', () => {
   it('still lets an archived entry be completed', async () => {
     todayView.mockResolvedValue(archivedFixture);
     render(DailyPlan);
-    await userEvent.click(await screen.findByRole('button', { name: /mark done: old idea/i }));
+    await userEvent.click(await screen.findByRole('checkbox', { name: /mark done: old idea/i }));
     expect(completeTask).toHaveBeenCalledWith('t1', '2026-08-07');
   });
 
@@ -177,18 +194,17 @@ describe('DailyPlan actions', () => {
   it('lists Weekly Focus tasks before the rest of the pool', async () => {
     taskPool.mockResolvedValue(focusPool);
     render(DailyPlan);
-    const pool = await screen.findByRole('region', { name: /task pool/i });
+    const pool = await screen.findByRole('list', { name: /task pool/i });
     const titles = within(pool).getAllByRole('button', { name: /add to today/i });
     expect(titles[0]).toHaveAccessibleName(/Prepare portfolio/);
   });
 
-  it('displays importance and urgency chips in the task pool', async () => {
+  it('shows only high importance and urgency in the pool', async () => {
     taskPool.mockResolvedValue(focusPool);
     render(DailyPlan);
-    const pool = await screen.findByRole('region', { name: /task pool/i });
-    expect(within(pool).getByText('High importance')).toBeInTheDocument();
-    expect(within(pool).getByText('High urgency')).toBeInTheDocument();
-    expect(within(pool).getByText('Low importance')).toBeInTheDocument();
-    expect(within(pool).getByText('Low urgency')).toBeInTheDocument();
+    const pool = await screen.findByRole('list', { name: /task pool/i });
+    expect(within(pool).getByText('Important')).toBeInTheDocument();
+    expect(within(pool).getByText('Urgent')).toBeInTheDocument();
+    expect(within(pool).queryByText(/low/i)).toBeNull();
   });
 });

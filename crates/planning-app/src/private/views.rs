@@ -2,7 +2,7 @@ use super::error::AppError;
 use super::service::PlanningApp;
 use super::views_entities::{GoalView, HabitView, ValueView};
 use chrono::NaiveDate;
-use planning_core::{Association, Classification, Task, TaskId};
+use planning_core::{Association, Classification, Completion, Task, TaskId};
 use serde::{Deserialize, Serialize};
 
 /// Display-only collapse of the orthogonal Completion x Lifecycle axes.
@@ -27,6 +27,9 @@ pub struct TaskView {
     pub overdue: bool,
     pub archived: bool,
     pub one_off: bool,
+    /// The completion axis on its own: `state` hides it once archived wins,
+    /// and the Archive view groups by done / not done.
+    pub completed_on: Option<NaiveDate>,
 }
 
 impl TaskView {
@@ -42,7 +45,15 @@ impl TaskView {
             overdue: task.is_overdue(today),
             archived: !task.lifecycle.is_active(),
             one_off: task.one_off,
+            completed_on: completed_on(task),
         }
+    }
+}
+
+fn completed_on(task: &Task) -> Option<NaiveDate> {
+    match task.completion {
+        Completion::Completed { on } => Some(on),
+        Completion::Open => None,
     }
 }
 
@@ -207,9 +218,10 @@ mod tests {
         assert!(library.tasks[0].overdue);
 
         app.complete_task(&task.id).await.unwrap();
+        // A done one-off archives itself, so it is only listed with archived ones.
         let after = app
             .library(LibraryFilter {
-                include_archived: false,
+                include_archived: true,
             })
             .await
             .unwrap();
@@ -232,10 +244,11 @@ mod tests {
             overdue: true,
             archived: false,
             one_off: true,
+            completed_on: None,
         };
         assert_eq!(
             serde_json::to_string(&view).unwrap(),
-            r#"{"id":"t1","title":"File taxes","state":"open","importance":"high","urgency":"unclassified","deadline":"2026-08-06","overdue":true,"archived":false,"oneOff":true}"#
+            r#"{"id":"t1","title":"File taxes","state":"open","importance":"high","urgency":"unclassified","deadline":"2026-08-06","overdue":true,"archived":false,"oneOff":true,"completedOn":null}"#
         );
     }
 

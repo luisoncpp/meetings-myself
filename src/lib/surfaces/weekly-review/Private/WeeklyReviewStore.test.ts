@@ -12,6 +12,8 @@ const createGoal = vi.hoisted(() => vi.fn().mockResolvedValue({ id: 'g1' }));
 const createHabit = vi.hoisted(() => vi.fn().mockResolvedValue({ id: 'h1' }));
 const createTask = vi.hoisted(() => vi.fn().mockResolvedValue({ id: 't1' }));
 
+const addToFocus = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
+
 vi.mock('../../../api', () => ({
   openCurrentReview,
   openWeeklyReview,
@@ -23,7 +25,7 @@ vi.mock('../../../api', () => ({
   createHabit,
   createTask,
   achieveGoal: vi.fn().mockResolvedValue(undefined),
-  addToFocus: vi.fn().mockResolvedValue(undefined),
+  addToFocus,
   removeFromFocus: vi.fn().mockResolvedValue(undefined),
 }));
 
@@ -110,12 +112,13 @@ describe('WeeklyReviewStore navigation', () => {
 });
 
 describe('WeeklyReviewStore entity creation', () => {
-  it('creates a task and reloads review and library', async () => {
+  it("creates a task into next week's focus and reloads review and library", async () => {
     const store = new WeeklyReviewStore();
     await store.load();
 
-    await store.createTask('Review roadmap', /*oneOff=*/false);
-    expect(createTask).toHaveBeenCalledWith('Review roadmap', false);
+    await store.createTaskInFocus('Review roadmap');
+    expect(createTask).toHaveBeenCalledWith('Review roadmap');
+    expect(addToFocus).toHaveBeenCalledWith(store.focusWeek, 't1');
     expect(library).toHaveBeenCalledTimes(2);
   });
 
@@ -123,7 +126,7 @@ describe('WeeklyReviewStore entity creation', () => {
     const store = new WeeklyReviewStore();
     await store.load();
 
-    await store.createHabit('Exercise', { kind: 'everyDay' });
+    await store.createEntity({ kind: 'habit', title: 'Exercise', cadence: { kind: 'everyDay' } });
     expect(createHabit).toHaveBeenCalledWith('Exercise', { kind: 'everyDay' });
     expect(library).toHaveBeenCalledTimes(2);
   });

@@ -23,11 +23,10 @@
   },
   "nav": {
     "main": "Principal",
-    "dailyPlan": "Plan diario",
     "library": "Biblioteca",
-    "weeklyReview": "Revisión semanal",
-    "openWeeklyReview": "Abrir la revisión semanal en una ventana nueva",
-    "switchFolder": "Cambiar carpeta"
+    "switchFolder": "Cambiar carpeta",
+    "today": "Hoy",
+    "week": "Semana"
   },
   "shell": {
     "loading": "Cargando…"
@@ -55,8 +54,8 @@
   },
   "dailyPlan": {
     "loading": "Cargando plan…",
-    "todayTasks": "Tareas de hoy",
-    "todayTasksEmpty": "No hay tareas para hoy. Añade una arriba o toma una del grupo de tareas.",
+    "todayTasks": "Hoy",
+    "todayTasksEmpty": "Nada planeado aún. Elige de A continuación o añade una abajo.",
     "todayTasksList": "Tareas de hoy",
     "addTask": "Añadir una tarea",
     "habits": "Hábitos",
@@ -66,36 +65,25 @@
     "yesterdayTasksEmpty": "No hay tareas en el plan de ayer.",
     "yesterdayHabits": "Hábitos",
     "yesterdayHabitsEmpty": "No hay hábitos en el plan de ayer.",
-    "taskPool": "Grupo de tareas",
+    "taskPool": "A continuación",
     "taskPoolRegion": "Grupo de tareas",
-    "inFocus": "En el foco de esta semana",
-    "everythingElse": "Todo lo demás",
     "addToToday": "Añadir a hoy",
     "addToTodayFor": "Añadir a hoy: {title}",
     "lowImportance": "Importancia baja",
     "highImportance": "Importancia alta",
     "lowUrgency": "Urgencia baja",
-    "highUrgency": "Urgencia alta"
+    "highUrgency": "Urgencia alta",
+    "taskPoolEmpty": "Nada pendiente. Añade tareas en la Biblioteca o en la revisión semanal.",
+    "addTaskPlaceholder": "Añadir una tarea…",
+    "yesterdayCounts": "{open} abiertas · {unchecked} hábitos sin marcar"
   },
   "library": {
     "loading": "Cargando biblioteca…",
     "title": "Biblioteca",
-    "showArchived": "Mostrar archivados",
-    "values": "Valores",
-    "goals": "Metas",
-    "habits": "Hábitos",
-    "tasks": "Tareas",
-    "noValues": "Aún no hay valores.",
-    "noGoals": "Aún no hay metas.",
-    "noHabits": "Aún no hay hábitos.",
-    "noTasks": "Aún no hay tareas.",
-    "addValue": "Añadir valor",
-    "addGoal": "Añadir meta",
-    "addTask": "Añadir tarea",
-    "newHabit": "Nuevo hábito",
     "target": "Objetivo {date}",
     "habitStrength": "Fortaleza del hábito",
-    "pinned": "Fijado",
+    "pinnedHint": "Fijado. Se incluye solo en el plan del día cuando toca según la cadencia.",
+    "unpinnedHint": "Sin fijar. No se añade solo a los planes nuevos.",
     "markAchieved": "Marcar lograda",
     "markNotAchieved": "Marcar no lograda",
     "importance": "Importancia",
@@ -105,12 +93,47 @@
     "recurringTasks": "Tareas recurrentes",
     "newRecurringTask": "Nueva tarea recurrente",
     "noRecurringTasks": "Aún no hay tareas recurrentes.",
+    "habitTitle": "Título del hábito",
     "recurringTaskTitle": "Título de tarea recurrente",
     "recurrence": "Recurrencia",
     "recurrenceKind": "Tipo de recurrencia",
     "weekday": "Día de la semana",
     "dayOfMonth": "Día del mes",
-    "fieldTitle": "Título"
+    "fieldTitle": "Título",
+    "links": "Vínculos",
+    "focus": {
+      "thisWeek": "Foco de esta semana",
+      "nextWeek": "Foco de la próxima semana"
+    },
+    "showInDailyPlan": "Mostrar en el plan diario",
+    "notDaily": "No diario",
+    "new": {
+      "task": "Nueva tarea",
+      "habit": "Nuevo hábito",
+      "goal": "Nueva meta",
+      "value": "Nuevo valor"
+    },
+    "empty": {
+      "task": "No hay tareas activas.",
+      "habit": "No hay hábitos activos.",
+      "goal": "No hay metas activas.",
+      "value": "Aún no hay valores."
+    },
+    "tabs": {
+      "label": "Secciones de la biblioteca",
+      "tasks": "Tareas",
+      "habits": "Hábitos",
+      "goals": "Metas",
+      "values": "Valores",
+      "recurring": "Recurrentes",
+      "archive": "Archivo"
+    },
+    "archive": {
+      "empty": "No hay nada archivado.",
+      "done": "Hechas",
+      "notDone": "No hechas",
+      "other": "Hábitos, metas, valores y reglas"
+    }
   },
   "weeklyReview": {
     "loading": "Cargando revisión…",
@@ -127,19 +150,30 @@
     "doneColumn": "Hecho",
     "skippedColumn": "Omitido",
     "notCompletedColumn": "No completado",
+    "doneOne": "{count} hecho",
+    "doneMany": "{count} hechos",
+    "skippedOne": "{count} omitido",
+    "skippedMany": "{count} omitidos",
+    "missedOne": "{count} no completado",
+    "missedMany": "{count} no completados",
     "goalsAchieved": "Metas logradas",
     "reflection": "Reflexión",
     "saved": "Guardado",
     "saving": "Guardando…",
     "unsaved": "Sin guardar",
-    "nextWeekFocus": "Foco de la próxima semana",
     "nothingChosen": "Nada elegido aún.",
-    "reportFile": "Archivo del informe:"
+    "reportFile": "Archivo del informe:",
+    "focusFor": "Foco para {week}",
+    "everythingElse": "Todo lo demás",
+    "newFocusTask": "Nueva tarea para el foco",
+    "newFocusTaskPlaceholder": "Nueva tarea — entra al foco",
+    "addToFocusFor": "Añadir {title} al foco",
+    "removeFromFocusFor": "Quitar {title} del foco",
+    "summaryDisclosure": "Resumen de esta semana · {count} completadas"
   },
   "planningActions": {
     "bar": "Acciones de planificación",
     "toolbar": "Acciones rápidas",
-    "newTask": "Nueva tarea",
     "newHabit": "Nuevo hábito",
     "newGoal": "Nueva meta",
     "markAchieved": "Marcar lograda",
@@ -147,14 +181,10 @@
     "linkEntity": "Vincular \"{title}\" a:",
     "noCandidatesAvailable": "No hay {kind} disponibles para vincular.",
     "removeAssociation": "Eliminar vinculación con {title}",
-    "weeklyFocus": "Foco semanal",
     "goal": "Meta",
-    "addToFocus": "Añadir al foco",
-    "removeFromFocus": "Quitar del foco",
     "selectGoal": "Selecciona una meta",
     "markGoalAchieved": "Marcar lograda",
-    "goalToMarkAchieved": "Meta a marcar lograda",
-    "weeklyFocusWithWeek": "Foco semanal ({week})"
+    "goalToMarkAchieved": "Meta a marcar lograda"
   },
   "createEntity": {
     "valueName": "Nombre del valor",
@@ -247,5 +277,25 @@
     "reportUnsupportedSchema": "Este informe usa el esquema {found}, que esta versión no entiende.",
     "invalidWeekLabel": "Etiqueta de semana ISO no válida.",
     "unknown": "Algo salió mal: {detail}."
+  },
+  "taskLine": {
+    "more": "Más acciones para {title}",
+    "inFocus": "En el foco de esta semana",
+    "inNextFocus": "En el foco de la próxima semana",
+    "important": "Importante",
+    "urgent": "Urgente"
+  },
+  "taskMenu": {
+    "label": "Acciones para {title}",
+    "doneAndArchive": "Hecha y archivar",
+    "reopen": "Reabrir",
+    "addToThisWeekFocus": "Añadir al foco de esta semana",
+    "removeFromThisWeekFocus": "Quitar del foco de esta semana",
+    "addToNextWeekFocus": "Añadir al foco de la próxima semana",
+    "removeFromNextWeekFocus": "Quitar del foco de la próxima semana",
+    "addToToday": "Añadir a hoy",
+    "removeFromToday": "Quitar de hoy",
+    "rename": "Renombrar…",
+    "newTitle": "Nuevo título"
   }
 }

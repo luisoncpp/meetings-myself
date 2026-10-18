@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { WeeklySummary } from '../../../domain';
   import { t } from '../../../i18n';
+  import HabitOutcomes from './HabitOutcomes.svelte';
 
   interface Props {
     summary: WeeklySummary;
@@ -10,7 +11,10 @@
 </script>
 
 <section class="summary" aria-labelledby="summary-heading">
-  <h2 id="summary-heading">{t('weeklyReview.thisWeek')}</h2>
+  <h2 id="summary-heading">
+    <span>{t('weeklyReview.thisWeek')}</span>
+    <span class="still-open">{t('weeklyReview.stillOpen', { count: summary.stillOpen })}</span>
+  </h2>
 
   {#if summary.completed.length > 0}
     <h3>{t('weeklyReview.completed')}</h3>
@@ -20,8 +24,6 @@
       {/each}
     </ul>
   {/if}
-
-  <p class="count">{t('weeklyReview.stillOpen', { count: summary.stillOpen })}</p>
 
   {#if summary.overdue.length > 0}
     <h3>{t('weeklyReview.overdue')}</h3>
@@ -34,26 +36,7 @@
 
   {#if summary.habits.length > 0}
     <h3>{t('weeklyReview.habits')}</h3>
-    <table aria-label={t('weeklyReview.habitsTable')}>
-      <thead>
-        <tr>
-          <th scope="col">{t('weeklyReview.habitColumn')}</th>
-          <th scope="col">{t('weeklyReview.doneColumn')}</th>
-          <th scope="col">{t('weeklyReview.skippedColumn')}</th>
-          <th scope="col">{t('weeklyReview.notCompletedColumn')}</th>
-        </tr>
-      </thead>
-      <tbody>
-        {#each summary.habits as habit (habit.title)}
-          <tr>
-            <td>{habit.title}</td>
-            <td>{habit.done}</td>
-            <td>{habit.skipped}</td>
-            <td>{habit.notCompleted}</td>
-          </tr>
-        {/each}
-      </tbody>
-    </table>
+    <HabitOutcomes habits={summary.habits} />
   {/if}
 
   {#if summary.goalsAchieved.length > 0}
@@ -72,9 +55,20 @@
   }
 
   h2 {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-3);
     margin: 0 0 var(--space-3);
     font-size: var(--text-headline);
     font-weight: 600;
+    text-wrap: balance;
+  }
+
+  .still-open {
+    font-size: var(--text-label);
+    font-weight: 500;
+    color: var(--color-ink-muted);
   }
 
   h3 {
@@ -86,28 +80,5 @@
   ul {
     margin: 0;
     padding-left: var(--space-5);
-  }
-
-  .count {
-    margin: var(--space-2) 0;
-  }
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: var(--text-body);
-  }
-
-  th,
-  td {
-    text-align: left;
-    padding: var(--space-1) var(--space-2);
-    border-bottom: 1px solid var(--color-hairline);
-  }
-
-  th {
-    font-size: var(--text-label);
-    color: var(--color-ink-muted);
-    font-weight: 500;
   }
 </style>

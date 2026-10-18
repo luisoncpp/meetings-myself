@@ -12,18 +12,12 @@
   import { DailyPlan } from '../../surfaces/daily-plan';
   import { Library } from '../../surfaces/library';
   import { WeeklyReview } from '../../surfaces/weekly-review';
-  import type { Surface } from './surface';
   import HealthBanner from './HealthBanner.svelte';
-  import Navigation from './Navigation.svelte';
-
-  interface Props {
-    surface: Surface;
-  }
-
-  let { surface }: Props = $props();
+  import Navigation, { type MainView } from './Navigation.svelte';
 
   let health: StoreHealth | null = $state(null);
-  let mainView: 'daily-plan' | 'library' = $state('daily-plan');
+  // Sections remount on switch, so each one reloads and shows the others' edits.
+  let mainView: MainView = $state('today');
   let folderRevision = $state(0);
 
   async function refreshHealth(): Promise<void> {
@@ -63,21 +57,25 @@
         />
       </div>
     </SurfaceLayout>
-  {:else if surface === 'weekly-review'}
-    <WeeklyReview />
   {:else}
-    <Navigation
-      current={mainView}
-      onnavigate={/* switch main view */ (view) => (mainView = view)}
-      onswitchFolder={chooseReplacementFolder}
-    />
-    {#key folderRevision}
-      {#if mainView === 'daily-plan'}
-        <DailyPlan />
-      {:else}
-        <Library />
-      {/if}
-    {/key}
+    <div class="frame">
+      <Navigation
+        current={mainView}
+        onnavigate={/* switch main view */ (view) => (mainView = view)}
+        onswitchFolder={chooseReplacementFolder}
+      />
+      <main class="content">
+        {#key folderRevision}
+          {#if mainView === 'today'}
+            <DailyPlan />
+          {:else if mainView === 'library'}
+            <Library />
+          {:else}
+            <WeeklyReview />
+          {/if}
+        {/key}
+      </main>
+    </div>
   {/if}
 </div>
 
@@ -88,6 +86,16 @@
     color: var(--color-ink);
     font-family: var(--font-sans);
     font-size: var(--text-body);
+  }
+
+  .frame {
+    display: grid;
+    grid-template-columns: 9rem minmax(0, 1fr);
+    min-height: 100vh;
+  }
+
+  .content {
+    min-width: 0;
   }
 
   .loading {

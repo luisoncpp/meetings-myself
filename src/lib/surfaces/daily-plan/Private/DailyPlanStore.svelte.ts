@@ -1,6 +1,14 @@
-import type { CheckInOutcome, DailyPlanView, PlanTaskView, TaskPoolView } from '../../../domain';
+import { SvelteSet } from 'svelte/reactivity';
+import type {
+  CheckInOutcome,
+  DailyPlanView,
+  PlanTaskView,
+  TaskPoolView,
+  WeeklyFocus,
+} from '../../../domain';
 import { localizeError } from '../../../i18n';
 import * as api from '../../../api';
+import { TaskActions } from '../../../planning-actions';
 
 /**
  * State for the Daily Plan surface.
@@ -12,8 +20,20 @@ export class DailyPlanStore {
   #plan = $state<DailyPlanView | null>(null);
   #yesterday = $state<DailyPlanView | null>(null);
   #pool = $state<TaskPoolView | null>(null);
+  #focus = $state<WeeklyFocus | null>(null);
   #loading = $state(false);
   #error = $state<string | null>(null);
+
+  /** Shared task-menu operations, reloading this surface after each one. */
+  readonly actions = new TaskActions({
+    run: (mutation) => this.#change(mutation),
+    focusTargets: () => [{ week: this.#plan?.week ?? '', which: 'thisWeek', taskIds: this.focusIds }],
+    planDate: () => this.#date(),
+  });
+
+  get focusIds(): ReadonlySet<string> {
+    return new SvelteSet(this.#focus?.tasks ?? []);
+  }
 
   get plan(): DailyPlanView | null {
     return this.#plan;
@@ -43,6 +63,7 @@ export class DailyPlanStore {
         api.taskPool(),
         api.yesterdayView(),
       ]);
+      this.#focus = await api.weeklyFocus(plan.week);
       this.#plan = plan;
       this.#pool = pool;
       this.#yesterday = yesterday;
@@ -87,9 +108,9 @@ export class DailyPlanStore {
     await this.#change(/* recordTheOutcome= */ () => api.recordCheckIn(habitId, date, outcome));
   }
 
-  /** Completion is reversible, so this is a toggle, not a one-way action. */
+  /** Completion is reversible, so this is a toggle. A done one-off archives itself. */
   async toggleCompletion(task: PlanTaskView, date: string): Promise<void> {
-    const reopening = task.state === 'completed';
+    const reopening = task.completed;
     await this.#change(/* toggleTheOutcome= */ () =>
       reopening ? api.reopenTask(task.id) : api.completeTask(task.id, date),
     );

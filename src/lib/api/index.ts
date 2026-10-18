@@ -78,9 +78,12 @@ export function createValue(title: string): Promise<unknown> {
   return call('create_value', { title });
 }
 
-export function createTask(title: string, oneOff = true): Promise<unknown> {
-  return call('create_task', { title, oneOff });
+export function createTask(title: string, oneOff = true): Promise<{ id: string }> {
+  return call<{ id: string }>('create_task', { title, oneOff });
 }
+
+export const renameTask = (task: string, title: string): Promise<void> =>
+  call<void>('rename_task', { task, title });
 
 export function createGoal(title: string, targetDate?: string | null): Promise<unknown> {
   return call('create_goal', { title, targetDate: targetDate ?? null });
@@ -141,6 +144,9 @@ export function setHabitPinned(habit: string, pinned: boolean): Promise<void> {
 export function setHabitStrength(habit: string, strength: HabitStrength): Promise<void> {
   return call<void>('set_habit_strength', { habit, strength });
 }
+
+export const renameHabit = (habit: string, title: string): Promise<void> =>
+  call<void>('rename_habit', { habit, title });
 
 export function link(left: AssociationEnd, right: AssociationEnd): Promise<Association> {
   return call<Association>('link', { left, right });
@@ -227,10 +233,6 @@ export function restoreRecurringTask(rule: string): Promise<void> {
 
 export function renameRecurringTask(rule: string, title: string): Promise<void> {
   return call<void>('rename_recurring_task', { rule, title });
-}
-
-export function openWeeklyReviewWindow(): Promise<void> {
-  return call<void>('open_weekly_review_window');
 }
 
 export function openWeeklyReview(week: string): Promise<WeeklyReviewView> {

@@ -13,6 +13,7 @@ const weeklyFocus = vi.hoisted(() => vi.fn());
 const createGoal = vi.hoisted(() => vi.fn().mockResolvedValue({ id: 'g1' }));
 const createHabit = vi.hoisted(() => vi.fn().mockResolvedValue({ id: 'h1' }));
 const createTask = vi.hoisted(() => vi.fn().mockResolvedValue({ id: 't1' }));
+const addToFocus = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
 
 vi.mock('../../../ui', async (importOriginal) => {
   const original = await importOriginal<typeof import('../../../ui')>();
@@ -30,7 +31,7 @@ vi.mock('../../../api', () => ({
   createHabit,
   createTask,
   achieveGoal: vi.fn().mockResolvedValue(undefined),
-  addToFocus: vi.fn().mockResolvedValue(undefined),
+  addToFocus,
   removeFromFocus: vi.fn().mockResolvedValue(undefined),
 }));
 
@@ -77,8 +78,11 @@ describe('WeeklyReview content', () => {
   it('shows habit counts without scoring them', async () => {
     render(WeeklyReview);
     await screen.findByRole('heading', { level: 1 });
-    const habits = screen.getByRole('table', { name: /habits/i });
+    const habits = screen.getByRole('list', { name: /habits/i });
     expect(habits).toHaveTextContent('Writing');
+    expect(habits).toHaveTextContent('4 done');
+    expect(habits).toHaveTextContent('1 skipped');
+    expect(habits).toHaveTextContent('2 not completed');
     expect(habits.textContent).not.toMatch(/%|streak|score/i);
   });
 
@@ -100,7 +104,10 @@ describe('WeeklyReview reflection', () => {
     expect(screen.getByRole('status')).toHaveTextContent(/unsaved|saving/i);
 
     await vi.advanceTimersByTimeAsync(2000);
-    expect(saveReflection).toHaveBeenCalledWith('2026-W32', expect.stringContaining('More thoughts.'));
+    expect(saveReflection).toHaveBeenCalledWith(
+      '2026-W32',
+      expect.stringContaining('More thoughts.'),
+    );
     expect(screen.getByRole('status')).toHaveTextContent(/saved/i);
   });
 
@@ -115,21 +122,58 @@ describe('WeeklyReview reflection', () => {
   });
 });
 
-describe('WeeklyReview action bar', () => {
-  it('creates a task from the action bar', async () => {
+const base = {
+  state: 'open',
+  importance: 'unclassified',
+  urgency: 'unclassified',
+  deadline: null,
+  overdue: false,
+  archived: false,
+  oneOff: true,
+  completedOn: null,
+};
+
+describe('WeeklyReview focus board creation', () => {
+  it("creates a task from the focus board straight into next week's focus", async () => {
     render(WeeklyReview);
-    await screen.findByRole('heading', { level: 1 });
+    const input = await screen.findByRole('textbox', { name: /new task for the focus/i });
+    await fireEvent.input(input, { target: { value: 'Review quarterly goals' } });
+    await fireEvent.keyDown(input, { key: 'Enter' });
 
-    const newTaskBtn = screen.getByRole('button', { name: /new task/i });
-    await fireEvent.click(newTaskBtn);
+    await vi.waitFor(() => expect(addToFocus).toHaveBeenCalledWith('2026-W33', 't1'));
+    expect(createTask).toHaveBeenCalledWith('Review quarterly goals');
+  });
+});
 
-    const titleInput = screen.getByRole('textbox', { name: /task name/i });
-    await fireEvent.input(titleInput, { target: { value: 'Review quarterly goals' } });
+describe('WeeklyReview focus board columns', () => {
+  it('shows focus tasks apart from everything else and adds with one click', async () => {
+    library.mockResolvedValue({
+      values: [],
+      goals: [],
+      habits: [],
+      associations: [],
+      tasks: [
+        { ...base, id: 't-in', title: 'Ship weekly report' },
+        { ...base, id: 't-out', title: 'Clean garage' },
+      ],
+    });
+    weeklyFocus.mockResolvedValue({ id: 'f1', week: '2026-W33', tasks: ['t-in'], createdAt: '' });
+    render(WeeklyReview);
 
-    const submitBtn = screen.getByRole('button', { name: /create task/i });
-    await fireEvent.click(submitBtn);
+    const focus = await screen.findByRole('region', { name: /focus for 2026-W33/i });
+    expect(focus).toHaveTextContent('Ship weekly report');
+    expect(focus).not.toHaveTextContent('Clean garage');
 
-    expect(createTask).toHaveBeenCalledWith('Review quarterly goals', true);
+    await fireEvent.click(screen.getByRole('button', { name: 'Add Clean garage to focus' }));
+    expect(addToFocus).toHaveBeenCalledWith('2026-W33', 't-out');
+  });
+});
+
+describe('WeeklyReview action bar', () => {
+  it('offers no separate "New task" or focus panel in the action bar', async () => {
+    render(WeeklyReview);
+    const toolbar = await screen.findByRole('toolbar', { name: /quick actions/i });
+    expect(toolbar).not.toHaveTextContent(/new task|weekly focus/i);
   });
 
   it('creates a habit from the action bar', async () => {
@@ -154,5 +198,3 @@ describe('WeeklyReview action bar', () => {
     });
   });
 });
-
-

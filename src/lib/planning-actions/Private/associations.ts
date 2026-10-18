@@ -13,10 +13,6 @@ const LINK_TARGETS: Record<EntityKind, EntityKind[]> = {
   task: ['goal', 'habit'],
 };
 
-export function linkTargetsFor(kind: EntityKind): EntityKind[] {
-  return LINK_TARGETS[kind];
-}
-
 export function orderedLinkTargetsFor(kind: EntityKind): EntityKind[] {
   const allowed = LINK_TARGETS[kind];
   return TARGET_ORDER.filter((target) => allowed.includes(target));
@@ -71,13 +67,14 @@ export function unlinkedCandidatesFor(
   const linkedIds = new Set(
     linked.filter((item) => item.kind === targetKind).map((item) => item.end.id),
   );
-  return entitiesOf(view, targetKind).filter((item) => !linkedIds.has(item.id));
+  // The Library view now carries archived entities too; never offer them as link targets.
+  return entitiesOf(view, targetKind).filter((item) => !item.archived && !linkedIds.has(item.id));
 }
 
 function entitiesOf(
   view: LibraryView,
   kind: EntityKind,
-): { id: string; title: string }[] {
+): { id: string; title: string; archived: boolean }[] {
   switch (kind) {
     case 'value':
       return view.values;

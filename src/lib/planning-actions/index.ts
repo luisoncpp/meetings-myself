@@ -10,3 +10,7 @@ export type { CreatePayload } from './Private/CreateEntity.svelte';
 export type { EntityKind } from './Private/associations';
 export { linkedEntitiesFor } from './Private/associations';
 
+export { planTaskRef, TaskActions, taskRef } from './Private/task-actions';
+export type { FocusTarget } from './Private/task-actions';
+export { TaskMenuController } from './Private/TaskMenuController.svelte';
+export { default as TaskMenu } from './Private/TaskMenu.svelte';

@@ -1,7 +1,7 @@
 use super::commands::{app_error_message, AppState};
 use planning_app::{
-    Association, AssociationEnd, Cadence, Goal, Habit, LibraryFilter, LibraryView, NaiveDate,
-    NewGoal, NewHabit, Task, Value,
+    Association, AssociationEnd, Cadence, Goal, Habit, HabitId, LibraryFilter, LibraryView,
+    NaiveDate, NewGoal, NewHabit, Task, Value,
 };
 
 #[tauri::command]
@@ -73,6 +73,21 @@ pub async fn create_habit(
         .lock()
         .await
         .create_habit(NewHabit { title, cadence })
+        .await
+        .map_err(app_error_message)
+}
+
+#[tauri::command]
+pub async fn rename_habit(
+    state: tauri::State<'_, AppState>,
+    habit: String,
+    title: String,
+) -> Result<(), String> {
+    state
+        .0
+        .lock()
+        .await
+        .rename_habit(&HabitId::new(habit), title)
         .await
         .map_err(app_error_message)
 }

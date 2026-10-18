@@ -296,12 +296,13 @@ mod tests {
                 overdue: false,
                 archived: false,
                 one_off: true,
+                completed_on: None,
             }],
             report_path: std::path::PathBuf::from("/sync/weekly-reports/2026-W32-weekly-report.md"),
         };
         assert_eq!(
             serde_json::to_string(&view).unwrap(),
-            r#"{"week":"2026-W32","summary":{"week":"2026-W32","completed":["Prepare portfolio"],"stillOpen":1,"overdue":[],"habits":[{"title":"Writing","done":2,"skipped":0,"notCompleted":1}],"goalsAchieved":[]},"reflection":"A quiet week.","previousReport":"Prior week done.","nextWeekFocus":[{"id":"t1","title":"Call the bank","state":"open","importance":"high","urgency":"low","deadline":null,"overdue":false,"archived":false,"oneOff":true}],"reportPath":"/sync/weekly-reports/2026-W32-weekly-report.md"}"#
+            r#"{"week":"2026-W32","summary":{"week":"2026-W32","completed":["Prepare portfolio"],"stillOpen":1,"overdue":[],"habits":[{"title":"Writing","done":2,"skipped":0,"notCompleted":1}],"goalsAchieved":[]},"reflection":"A quiet week.","previousReport":"Prior week done.","nextWeekFocus":[{"id":"t1","title":"Call the bank","state":"open","importance":"high","urgency":"low","deadline":null,"overdue":false,"archived":false,"oneOff":true,"completedOn":null}],"reportPath":"/sync/weekly-reports/2026-W32-weekly-report.md"}"#
         );
     }
 }

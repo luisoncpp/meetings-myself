@@ -1,12 +1,14 @@
-import type { Cadence, LibraryView, WeeklyFocus, WeeklyReviewView } from '../../../domain';
+import { SvelteSet } from 'svelte/reactivity';
+import type { LibraryView, WeeklyFocus, WeeklyReviewView } from '../../../domain';
 import * as api from '../../../api';
 import {
   createEntityFromPayload,
+  TaskActions,
   type CreatePayload,
   type PlanningActionsHost,
 } from '../../../planning-actions';
 
-import { nextWeek } from './week-nav';
+import { nextWeek } from '../../../domain';
 import {
   commitReflectionSave,
   createDebounce,
@@ -30,9 +32,15 @@ export class WeeklyReviewStore implements PlanningActionsHost {
   #loading = $state(false);
   #autosave = createDebounce(REFLECTION_DEBOUNCE_MS);
 
+  /** Task menu operations; focus edits target the week after the one reviewed. */
+  readonly actions = new TaskActions({
+    run: (mutation) => this.#mutate(mutation),
+    focusTargets: () => [{ week: this.focusWeek, which: 'nextWeek', taskIds: this.focusIds }],
+  });
+
   get view(): WeeklyReviewView | null { return this.#view; }
   get library(): LibraryView | null { return this.#library; }
-  get focus(): WeeklyFocus | null { return this.#focus; }
+  get focusIds(): ReadonlySet<string> { return new SvelteSet(this.#focus?.tasks ?? []); }
   get draftReflection(): string { return this.#draftReflection; }
   get saveState(): SaveState { return this.#saveState; }
   // Used from WeeklyReview.svelte template.
@@ -119,33 +127,17 @@ export class WeeklyReviewStore implements PlanningActionsHost {
     await this.#mutate(/*createEntity=*/ () => createEntityFromPayload(payload));
   }
 
-  // fallow-ignore-next-line unused-class-member
-  async createGoal(title: string, targetDate?: string | null): Promise<void> {
-    await this.createEntity({ kind: 'goal', title, targetDate: targetDate ?? null });
-  }
-
-  async createHabit(title: string, cadence: Cadence): Promise<void> {
-    await this.createEntity({ kind: 'habit', title, cadence });
-  }
-
-  async createTask(title: string, oneOff = true): Promise<void> {
-    await this.createEntity({ kind: 'task', title, oneOff });
+  /** A task created while reviewing is meant for next week, so it lands in that focus. */
+  async createTaskInFocus(title: string): Promise<void> {
+    const week = this.focusWeek;
+    await this.#mutate(/*createThenFocus=*/ async () => {
+      const task = await api.createTask(title);
+      if (week !== '') await api.addToFocus(week, task.id);
+    });
   }
 
   async achieveGoal(goalId: string): Promise<void> {
     await this.#mutate(/*achieve=*/ () => api.achieveGoal(goalId));
-  }
-
-  async addToFocus(taskId: string): Promise<void> {
-    const week = this.focusWeek;
-    if (week === '') return;
-    await this.#mutate(/*add=*/ () => api.addToFocus(week, taskId));
-  }
-
-  async removeFromFocus(taskId: string): Promise<void> {
-    const week = this.focusWeek;
-    if (week === '') return;
-    await this.#mutate(/*remove=*/ () => api.removeFromFocus(week, taskId));
   }
 
   async #applyReview(review: WeeklyReviewView): Promise<void> {

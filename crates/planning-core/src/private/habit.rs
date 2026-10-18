@@ -43,13 +43,19 @@ impl Habit {
     pub fn create(request: CreateHabit<'_>) -> Result<Self, DomainError> {
         Ok(Self {
             id: HabitId::generate(),
-            title: clean_title(request.title)?,
+            title: Self::accept_title(request.title)?,
             lifecycle: Lifecycle::Active,
             strength: HabitStrength::ReminderDependent,
             cadence: request.cadence,
             pinned: true,
             created_at: request.clock.now(),
         })
+    }
+
+    /// The title that may be stored: trimmed, and never blank. Creation and
+    /// rename share this rule so a habit cannot lose its name.
+    pub fn accept_title(title: String) -> Result<String, DomainError> {
+        clean_title(title)
     }
 }
 
@@ -73,5 +79,17 @@ mod tests {
         assert_eq!(habit.strength, HabitStrength::ReminderDependent);
         assert_eq!(habit.lifecycle, Lifecycle::Active);
         assert!(habit.cadence.is_due(Weekday::Thu));
+    }
+
+    #[test]
+    fn a_renamed_title_is_trimmed() {
+        let title = Habit::accept_title("  Evening pages  ".into()).unwrap();
+        assert_eq!(title, "Evening pages");
+    }
+
+    #[test]
+    fn a_blank_title_is_rejected() {
+        let error = Habit::accept_title("   ".into()).unwrap_err();
+        assert_eq!(error, DomainError::BlankTitle);
     }
 }

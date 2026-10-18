@@ -31,7 +31,8 @@ Avoid: "bug description + fix". Prefer: "what I learned that applies to future w
 | [app-owned-regions-in-user-owned-files.md](app-owned-regions-in-user-owned-files.md) | Co-own Markdown with humans: sacred bytes outside one comment region; parsing is the risk | 2026-08-08 |
 | [svelte-5-runes-need-the-svelte-ts-extension.md](svelte-5-runes-need-the-svelte-ts-extension.md) | `$state` only in `.svelte` / `.svelte.ts`; hoist `vi.mock` before dynamic store import | 2026-08-08 |
 | [quill-semantic-html-before-markdown-save.md](quill-semantic-html-before-markdown-save.md) | Use `getSemanticHTML` + Turndown for Quill→Markdown; normalize empty shells | 2026-08-09 |
-| [tauri-hidden-windows-keep-process-alive.md](tauri-hidden-windows-keep-process-alive.md) | Hidden windows with `prevent_close` keep Tauri running; main close must call `exit` | 2026-08-09 |
+| [tauri-hidden-windows-keep-process-alive.md](tauri-hidden-windows-keep-process-alive.md) | Historical: hidden windows keep Tauri running (app is single-window since plan 0009) | 2026-08-09 |
 | [surrealkv-wal-rejects-sidecar-filenames.md](surrealkv-wal-rejects-sidecar-filenames.md) | SurrealKV WAL parse of every filename; Windows `desktop.ini` / silent release-exit | 2026-08-31 |
 | [test-file-cannot-have-two-module-parents.md](test-file-cannot-have-two-module-parents.md) | A `#[path]` test file included from two modules compiles twice with different `super` | 2026-09-01 |
+| [surrealkv-tests-exhaust-memory-in-one-process.md](surrealkv-tests-exhaust-memory-in-one-process.md) | Full `planning-app` test run OOMs on Windows; run per module | 2026-10-17 |
 | [flex-on-summary-hides-webview2-disclosure.md](flex-on-summary-hides-webview2-disclosure.md) | `summary { display: flex }` can hide a collapsed disclosure in Tauri/WebView2 | 2026-09-08 |

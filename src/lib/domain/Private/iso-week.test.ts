@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { nextWeek, prevWeek } from './week-nav';
+import { nextWeek, prevWeek } from './iso-week';
 
 describe('week navigation', () => {
   it('steps to the previous ISO week', () => {

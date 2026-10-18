@@ -20,6 +20,7 @@ vi.mock('../../../api', () => ({
   recordCheckIn,
   completeTask,
   reopenTask: vi.fn(),
+  weeklyFocus: vi.fn().mockResolvedValue({ id: 'f', week: '2026-W32', tasks: [], createdAt: '' }),
 }));
 
 const emptyToday = {
@@ -38,6 +39,7 @@ const leftoverTask = {
   deadline: null,
   overdue: false,
   archived: false,
+  completed: false,
   position: 0,
 };
 
@@ -77,6 +79,7 @@ describe('DailyPlan yesterday catch-up rendering', () => {
     render(DailyPlan);
     const toggle = await screen.findByRole('button', { name: /yesterday/i });
     expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    expect(toggle).toHaveTextContent('1 open · 1 habits unchecked');
     expect(screen.queryByText('Finish the draft')).not.toBeInTheDocument();
   });
 
@@ -94,7 +97,7 @@ describe('DailyPlan yesterday catch-up completion', () => {
     yesterdayView.mockResolvedValue({ ...leftoverPlan, habits: [] });
     render(DailyPlan);
     await expandYesterday();
-    await userEvent.click(screen.getByRole('button', { name: /mark done: finish the draft/i }));
+    await userEvent.click(screen.getByRole('checkbox', { name: /mark done: finish the draft/i }));
     expect(completeTask).toHaveBeenCalledWith('y1', '2026-08-06');
   });
 });

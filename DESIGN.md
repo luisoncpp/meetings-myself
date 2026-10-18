@@ -88,7 +88,11 @@ Translucent overlays (backdrop blur) are permitted **only** for transient layers
 
 ## 5. Components
 
-Shared primitives in `src/lib/ui`. Surface-specific rows (e.g. `PlanTaskRow`, `TaskRow`) compose them inside each surface module.
+Shared primitives in `src/lib/ui`. Surface-specific rows (e.g. `PlanTaskRow`, `TaskRows`) compose them inside each surface module.
+
+**The One Line Rule.** A list row is one line: check, title, at most a couple of muted signals, a focus mark. Editing controls never sit in a row — they live in the `DetailPanel` (Library) or the task menu. Walls of fields are what made the first version feel like a form, not a ledger.
+
+**The Gold Wash Rule.** Weekly Focus is the only row-level use of gold: a small dot plus `--color-gold-wash` behind the row (a ring for next week's focus). It marks membership, never an action.
 
 - **Button** — variants: `primary` | `secondary` | `quiet`. **Rule:** solid gold (`primary`) is rare — The One Accent Rule; only for the single primary action on a screen.
 - **Card** — prop: `interactive`. **Rule:** flat at rest; `--shadow-hover` appears only when `interactive` (Flat-By-Default Rule).
@@ -96,11 +100,16 @@ Shared primitives in `src/lib/ui`. Surface-specific rows (e.g. `PlanTaskRow`, `T
 - **StateFlag** — kinds: `archived` | `overdue` | `unpinned` | `completed`. **Rule:** every state has visible text — status is never conveyed by colour alone (Real State Rule).
 - **CheckInControl** — radiogroup for `done` | `skipped` | `notCompleted`. **Rule:** three honest outcomes, gold border on selection only — no streak counters, no celebration animation.
 - **OrderableList** — generic reorderable list (drag + Alt+Arrow keyboard). **Rule:** Trello-like sequencing affordance with live-region position announcements; used on Daily Plan task order only.
+- **TaskLine** — the one-line row for every task (and Library entities). Round check, title, `meta` / `trailing` snippets, focus mark, `⋯` on hover. **Rule:** right-click or `⋯` opens the task menu everywhere; muted for done and archived.
+- **ContextMenu** — positioned menu with scrim; arrows, Esc, focus return. **Rule:** a transient layer (raised surface + `--shadow-hover`), short verb-first items.
+- **DetailPanel** — sticky right-hand panel for editing the selected row. **Rule:** one selection at a time; closing returns to the list, nothing navigates away.
+- **TabStrip** — pill tabs for Library kinds. **Rule:** selection in gold text on a raised pill, nothing louder.
+- **InlineAdd** — dashed input at the end of a list; Enter adds. **Rule:** capture without a dialog.
 
 ## 6. Do's and Don'ts
 
 ### Do:
-- **Do** land users on the Daily Plan — it is home; other surfaces are peers, not co-equal dashboard tiles.
+- **Do** land users on Today — it is home; Library and Week are peers in the same window's side rail, not separate windows.
 - **Do** organize work as cards and ordered lists — Trello column logic for sequencing, Keep simplicity for quick scan.
 - **Do** use the gold accent only for primary actions, current selection, and meaningful progress — ≤10% of the screen.
 - **Do** show archived, overdue, skipped, and corrected entries in context with honest labels — mirror domain truth.

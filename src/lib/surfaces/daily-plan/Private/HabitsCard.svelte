@@ -1,7 +1,6 @@
 <script lang="ts">
   import type { CheckInOutcome, PlanHabitView } from '../../../domain';
   import { t } from '../../../i18n';
-  import { Card } from '../../../ui';
   import HabitList from './HabitList.svelte';
 
   interface Props {
@@ -12,20 +11,28 @@
   let { habits, oncheckin }: Props = $props();
 </script>
 
-<Card>
-  <h2>{t('dailyPlan.habits')}</h2>
+<section class="strip" aria-labelledby="habits-heading">
+  <h2 id="habits-heading">{t('dailyPlan.habits')}</h2>
   {#if habits.length === 0}
     <p class="empty">{t('dailyPlan.habitsEmpty')}</p>
   {:else}
     <HabitList {habits} {oncheckin} />
   {/if}
-</Card>
+</section>
 
 <style>
+  .strip {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+  }
+
   h2 {
-    margin: 0 0 var(--space-3);
-    font-size: var(--text-headline);
+    margin: 0;
+    font-size: var(--text-body);
     font-weight: 600;
+    color: var(--color-ink-muted);
   }
 
   .empty {

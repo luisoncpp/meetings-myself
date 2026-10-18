@@ -14,20 +14,10 @@
       {
         "label": "main",
         "title": "Self-Planning",
-        "width": 960,
-        "height": 760,
-        "minWidth": 720,
+        "width": 1120,
+        "height": 780,
+        "minWidth": 760,
         "minHeight": 600
-      },
-      {
-        "label": "weekly-review",
-        "title": "Weekly Review",
-        "url": "index.html?surface=weekly-review",
-        "width": 900,
-        "height": 760,
-        "minWidth": 720,
-        "minHeight": 600,
-        "visible": false
       }
     ],
     "security": {

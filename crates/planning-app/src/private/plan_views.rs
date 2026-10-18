@@ -19,6 +19,9 @@ pub struct PlanTaskView {
     pub deadline: Option<NaiveDate>,
     pub overdue: bool,
     pub archived: bool,
+    /// True when done, even after a one-off auto-archived itself: the plan
+    /// keeps showing finished work as done for the rest of the day.
+    pub completed: bool,
     pub position: u32,
 }
 
@@ -34,6 +37,7 @@ impl PlanTaskView {
             deadline: base.deadline,
             overdue: base.overdue,
             archived: base.archived,
+            completed: base.completed_on.is_some(),
             position,
         }
     }
@@ -353,6 +357,7 @@ mod tests {
                 deadline: Some(NaiveDate::from_ymd_opt(2026, 8, 6).unwrap()),
                 overdue: true,
                 archived: false,
+                completed: false,
                 position: 0,
             }],
             habits: vec![PlanHabitView {
@@ -366,7 +371,7 @@ mod tests {
         };
         assert_eq!(
             serde_json::to_string(&view).unwrap(),
-            r#"{"date":"2026-08-07","week":"2026-W32","tasks":[{"id":"t1","title":"File taxes","state":"open","importance":"high","urgency":"unclassified","deadline":"2026-08-06","overdue":true,"archived":false,"position":0}],"habits":[{"id":"h1","title":"Writing","cadence":{"kind":"everyDay"},"archived":false,"unpinned":false,"outcome":null}]}"#
+            r#"{"date":"2026-08-07","week":"2026-W32","tasks":[{"id":"t1","title":"File taxes","state":"open","importance":"high","urgency":"unclassified","deadline":"2026-08-06","overdue":true,"archived":false,"completed":false,"position":0}],"habits":[{"id":"h1","title":"Writing","cadence":{"kind":"everyDay"},"archived":false,"unpinned":false,"outcome":null}]}"#
         );
     }
 

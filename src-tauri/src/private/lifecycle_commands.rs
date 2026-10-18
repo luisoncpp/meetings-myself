@@ -62,6 +62,21 @@ pub async fn reopen_task(state: tauri::State<'_, AppState>, task: String) -> Res
 }
 
 #[tauri::command]
+pub async fn rename_task(
+    state: tauri::State<'_, AppState>,
+    task: String,
+    title: String,
+) -> Result<(), String> {
+    state
+        .0
+        .lock()
+        .await
+        .rename_task(&TaskId::new(task), title)
+        .await
+        .map_err(app_error_message)
+}
+
+#[tauri::command]
 pub async fn achieve_goal(state: tauri::State<'_, AppState>, goal: String) -> Result<(), String> {
     state
         .0

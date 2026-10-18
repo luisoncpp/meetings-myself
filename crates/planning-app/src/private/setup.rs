@@ -121,4 +121,3 @@ impl PlanningApp {
         Ok(/*opened=*/ true)
     }
 }
-

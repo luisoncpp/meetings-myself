@@ -11,6 +11,10 @@ const quickAddTask = vi.hoisted(() => vi.fn().mockResolvedValue({ id: 't9' }));
 const recordCheckIn = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
 const completeTask = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
 const reopenTask = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
+const weeklyFocus = vi.hoisted(() => vi.fn());
+const archiveEntity = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
+const addToFocus = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
+const removeFromFocus = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
 
 vi.mock('../../../api', () => ({
   todayView,
@@ -23,6 +27,10 @@ vi.mock('../../../api', () => ({
   recordCheckIn,
   completeTask,
   reopenTask,
+  weeklyFocus,
+  archiveEntity,
+  addToFocus,
+  removeFromFocus,
 }));
 
 function planWith(taskIds: string[]) {
@@ -38,6 +46,7 @@ function planWith(taskIds: string[]) {
       deadline: null,
       overdue: false,
       archived: false,
+      completed: false,
       position,
     })),
     habits: [],
@@ -49,6 +58,7 @@ function resetMocks(): void {
   todayView.mockResolvedValue(planWith(['a', 'b', 'c']));
   yesterdayView.mockResolvedValue({ ...planWith([]), date: '2026-08-06' });
   taskPool.mockResolvedValue({ focus: [], rest: [] });
+  weeklyFocus.mockResolvedValue({ id: 'f', week: '2026-W32', tasks: ['b'], createdAt: '' });
 }
 
 beforeEach(resetMocks);
@@ -107,7 +117,8 @@ describe('DailyPlanStore mutations', () => {
 
     todayView.mockResolvedValue({
       ...planWith(['a']),
-      tasks: [{ ...planWith(['a']).tasks[0]!, state: 'completed' as const }],
+      // A done one-off archived itself; the plan still knows it is done.
+      tasks: [{ ...planWith(['a']).tasks[0]!, state: 'archived' as const, archived: true, completed: true }],
     });
     await store.load();
     await store.toggleCompletion(store.plan!.tasks[0]!, '2026-08-07');
@@ -148,5 +159,35 @@ describe('DailyPlanStore yesterday check-in', () => {
 
     await store.checkIn('h1', 'done', '2026-08-06');
     expect(recordCheckIn).toHaveBeenCalledWith('h1', '2026-08-06', 'done');
+  });
+});
+
+describe('DailyPlanStore task menu actions', () => {
+  it("knows which plan tasks are in this week's focus", async () => {
+    const store = new DailyPlanStore();
+    await store.load();
+
+    expect(weeklyFocus).toHaveBeenCalledWith('2026-W32');
+    expect([...store.focusIds]).toEqual(['b']);
+  });
+
+  it('marks a task done and archives it, stamped with the plan date', async () => {
+    const store = new DailyPlanStore();
+    await store.load();
+
+    await store.actions.finish({ id: 'a', title: 'a', done: false, archived: false });
+    expect(completeTask).toHaveBeenCalledWith('a', '2026-08-07');
+    expect(archiveEntity).toHaveBeenCalledWith({ kind: 'task', id: 'a' });
+  });
+
+  it("toggles this week's focus from the menu", async () => {
+    const store = new DailyPlanStore();
+    await store.load();
+    const [target] = store.actions.focusTargets;
+
+    await store.actions.setFocus(target!, 'a');
+    await store.actions.setFocus(target!, 'b');
+    expect(addToFocus).toHaveBeenCalledWith('2026-W32', 'a');
+    expect(removeFromFocus).toHaveBeenCalledWith('2026-W32', 'b');
   });
 });

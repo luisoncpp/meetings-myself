@@ -1,9 +1,7 @@
 use super::error::AppError;
 use super::service::PlanningApp;
 use chrono::NaiveDate;
-use planning_core::{
-    Achievement, Classification, Completion, Goal, GoalId, Lifecycle, Task, TaskId,
-};
+use planning_core::{Achievement, Classification, Goal, GoalId, Lifecycle, Task, TaskId};
 
 pub struct ClassifyTask<'a> {
     pub task: &'a TaskId,
@@ -22,7 +20,7 @@ pub struct SetOneOff<'a> {
 }
 
 impl PlanningApp {
-    fn today(&self) -> Result<NaiveDate, AppError> {
+    pub(crate) fn today(&self) -> Result<NaiveDate, AppError> {
         Ok(self.calendar()?.today(self.clock.as_ref()))
     }
 
@@ -32,34 +30,6 @@ impl PlanningApp {
 
     pub async fn goal(&self, goal: &GoalId) -> Result<Option<Goal>, AppError> {
         self.load_one(GoalId::TABLE, goal.as_str()).await
-    }
-
-    pub async fn complete_task(&self, task: &TaskId) -> Result<(), AppError> {
-        let on = self.today()?;
-        self.complete_task_on(task, on).await
-    }
-
-    /// `on` is the calendar day the outcome belongs to (yesterday catch-up
-    /// stamps yesterday). Dates after home-zone today are refused.
-    pub async fn complete_task_on(&self, task: &TaskId, on: NaiveDate) -> Result<(), AppError> {
-        if on > self.today()? {
-            return Err(AppError::FutureCompletion);
-        }
-        self.mutate::<Task>((TaskId::TABLE, task.to_string()), |found| {
-            found.completion = Completion::Completed { on };
-        })
-        .await?;
-        Ok(())
-    }
-
-    /// Recorded outcomes stay correctable at any time (ADR 0002) — and completing
-    /// a Task was never gated on a Daily Plan, so reopening is not either.
-    pub async fn reopen_task(&self, task: &TaskId) -> Result<(), AppError> {
-        self.mutate::<Task>((TaskId::TABLE, task.to_string()), |found| {
-            found.completion = Completion::Open;
-        })
-        .await?;
-        Ok(())
     }
 
     pub async fn archive_task(&self, task: &TaskId) -> Result<(), AppError> {
@@ -142,8 +112,8 @@ mod tests {
     use super::*;
     use crate::private::habit_lifecycle::SetCadence;
     use crate::private::library::{NewGoal, NewHabit};
-    use crate::private::test_support::{ready_app, ready_app_at};
-    use chrono::{Duration, NaiveDate, TimeZone, Utc, Weekday};
+    use crate::private::test_support::ready_app;
+    use chrono::Weekday;
     use planning_core::Cadence;
 
     #[tokio::test]
@@ -170,30 +140,6 @@ mod tests {
         assert!(
             restored.completion.is_complete(),
             "restoring returns it exactly as it was"
-        );
-    }
-
-    #[tokio::test]
-    async fn completion_is_reversible_and_dated_in_the_home_zone() {
-        let (_home, _drive, app) = ready_app().await;
-        let task = app
-            .create_task("Draft the letter".into(), /*one_off=*/ true)
-            .await
-            .unwrap();
-
-        app.complete_task(&task.id).await.unwrap();
-        let completed = app.task(&task.id).await.unwrap().unwrap();
-        assert_eq!(
-            completed.completion,
-            Completion::Completed {
-                on: NaiveDate::from_ymd_opt(2026, 8, 7).unwrap()
-            }
-        );
-
-        app.reopen_task(&task.id).await.unwrap();
-        assert_eq!(
-            app.task(&task.id).await.unwrap().unwrap().completion,
-            Completion::Open
         );
     }
 
@@ -252,40 +198,5 @@ mod tests {
         let (_home, _drive, app) = ready_app().await;
         let error = app.complete_task(&TaskId::new("nope")).await.unwrap_err();
         assert!(matches!(error, AppError::NotFound { table: "task", .. }));
-    }
-
-    #[tokio::test]
-    async fn completing_on_a_past_day_stamps_that_day_not_today() {
-        let (_home, _drive, app, _clock) =
-            ready_app_at(Utc.with_ymd_and_hms(2026, 8, 7, 9, 0, 0).unwrap()).await;
-        let task = app
-            .create_task("Catch up".into(), /*one_off=*/ true)
-            .await
-            .unwrap();
-        let yesterday = app.calendar().unwrap().today(app.clock_ref()) - Duration::days(1);
-
-        app.complete_task_on(&task.id, yesterday).await.unwrap();
-        assert_eq!(
-            app.task(&task.id).await.unwrap().unwrap().completion,
-            Completion::Completed { on: yesterday }
-        );
-    }
-
-    #[tokio::test]
-    async fn completing_on_a_future_day_is_refused() {
-        let (_home, _drive, app, _clock) =
-            ready_app_at(Utc.with_ymd_and_hms(2026, 8, 7, 9, 0, 0).unwrap()).await;
-        let task = app
-            .create_task("Tomorrow".into(), /*one_off=*/ true)
-            .await
-            .unwrap();
-        let tomorrow = app.calendar().unwrap().today(app.clock_ref()) + Duration::days(1);
-
-        let error = app.complete_task_on(&task.id, tomorrow).await.unwrap_err();
-        assert!(matches!(error, AppError::FutureCompletion));
-        assert_eq!(
-            app.task(&task.id).await.unwrap().unwrap().completion,
-            Completion::Open
-        );
     }
 }

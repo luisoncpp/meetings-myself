@@ -1,3 +1,4 @@
+import { SvelteSet } from 'svelte/reactivity';
 import type {
   AssociationEnd,
   Cadence,
@@ -6,72 +7,72 @@ import type {
   LibraryView,
   Recurrence,
   RecurringTask,
-  TaskView,
   WeeklyFocus,
 } from '../../../domain';
+import { nextWeek } from '../../../domain';
 import * as api from '../../../api';
-import {
-  createEntityFromPayload,
-  type CreatePayload,
-  type PlanningActionsHost,
-} from '../../../planning-actions';
+import { createEntityFromPayload, TaskActions, type CreatePayload } from '../../../planning-actions';
 import { libraryStoreMessage, runLibraryMutation } from './library-store-change';
 
-export class LibraryStore implements PlanningActionsHost {
+export type LibraryTab = 'tasks' | 'habits' | 'goals' | 'values' | 'recurring' | 'archive';
+
+/**
+ * Loads everything, archived included, once: active tabs filter archived rows
+ * out and the Archive tab shows only them, so switching tabs never refetches.
+ */
+export class LibraryStore {
   #view = $state<LibraryView | null>(null);
-  #recurringTasks = $state<RecurringTask[]>([]);
-  #includeArchived = $state(false);
+  #recurring = $state<RecurringTask[]>([]);
   #loading = $state(false);
   #error = $state<string | null>(null);
-  #week = $state('');
   #focus = $state<WeeklyFocus | null>(null);
+  #nextFocus = $state<WeeklyFocus | null>(null);
+  #tab = $state<LibraryTab>('tasks');
+  #selected = $state<AssociationEnd | null>(null);
 
-  get view(): LibraryView | null {
-    return this.#view;
-  }
+  /** Task menu operations; focus edits target this week or next. */
+  readonly actions = new TaskActions({
+    run: (mutation) => this.#change(mutation),
+    focusTargets: () => [
+      { week: this.#focus?.week ?? '', which: 'thisWeek', taskIds: this.focusIds },
+      { week: this.#nextFocus?.week ?? '', which: 'nextWeek', taskIds: this.nextFocusIds },
+    ],
+  });
 
+  get view(): LibraryView | null { return this.#view; }
+  get loading(): boolean { return this.#loading; }
   // Used from Library.svelte template.
   // fallow-ignore-next-line unused-class-member
-  get includeArchived(): boolean {
-    return this.#includeArchived;
-  }
+  get error(): string | null { return this.#error; }
+  get tab(): LibraryTab { return this.#tab; }
+  get selected(): AssociationEnd | null { return this.#selected; }
+  get focusIds(): ReadonlySet<string> { return new SvelteSet(this.#focus?.tasks ?? []); }
+  get nextFocusIds(): ReadonlySet<string> { return new SvelteSet(this.#nextFocus?.tasks ?? []); }
 
-  get loading(): boolean {
-    return this.#loading;
-  }
-
-  get error(): string | null {
-    return this.#error;
-  }
-
-  get week(): string {
-    return this.#week;
-  }
-
-  get focus(): WeeklyFocus | null {
-    return this.#focus;
-  }
-
-  // Used from RecurringTaskSection.svelte template.
   get recurringTasks(): RecurringTask[] {
-    if (this.#includeArchived) {
-      return this.#recurringTasks;
-    }
-    return this.#recurringTasks.filter((task) => task.lifecycle === 'active');
+    return this.#recurring.filter((rule) => rule.lifecycle === 'active');
+  }
+
+  get archivedRecurringTasks(): RecurringTask[] {
+    return this.#recurring.filter((rule) => rule.lifecycle === 'archived');
   }
 
   async load(): Promise<void> {
     this.#loading = true;
     try {
       const [view, today, recurring] = await Promise.all([
-        api.library(this.#includeArchived),
+        api.library(/*includeArchived=*/ true),
         api.todayView(),
         api.recurringTasks(),
       ]);
+      const [focus, next] = await Promise.all([
+        api.weeklyFocus(today.week),
+        api.weeklyFocus(nextWeek(today.week)),
+      ]);
       this.#view = view;
-      this.#recurringTasks = recurring;
-      this.#week = today.week;
-      this.#focus = await api.weeklyFocus(today.week);
+      this.#recurring = recurring;
+      this.#focus = focus;
+      this.#nextFocus = next;
       this.#error = null;
     } catch (failure) {
       this.#error = libraryStoreMessage(failure);
@@ -80,75 +81,46 @@ export class LibraryStore implements PlanningActionsHost {
     }
   }
 
-  async setIncludeArchived(show: boolean): Promise<void> {
-    this.#includeArchived = show;
-    await this.load();
+  setTab(tab: LibraryTab): void {
+    this.#tab = tab;
+    this.#selected = null;
+  }
+
+  select(end: AssociationEnd | null): void {
+    this.#selected = end;
   }
 
   async createEntity(payload: CreatePayload): Promise<void> {
     await this.#change(/* createEntity= */ () => createEntityFromPayload(payload));
   }
 
-  // Used from Library.svelte script.
-  // fallow-ignore-next-line unused-class-member
-  async createValue(title: string): Promise<void> {
-    await this.createEntity({ kind: 'value', title });
-  }
-
-  // Used from Library.svelte script.
-  // fallow-ignore-next-line unused-class-member
-  async createGoal(title: string, targetDate?: string | null): Promise<void> {
-    await this.createEntity({ kind: 'goal', title, targetDate: targetDate ?? null });
-  }
-
-  // Used from Library.svelte script.
-  // fallow-ignore-next-line unused-class-member
-  async createHabit(title: string, cadence: Cadence): Promise<void> {
-    await this.createEntity({ kind: 'habit', title, cadence });
-  }
-
-  // Used from Library.svelte script.
-  async createTask(title: string, oneOff: boolean): Promise<void> {
-    await this.createEntity({ kind: 'task', title, oneOff });
-  }
-
   async createRecurringTask(title: string, recurrence: Recurrence): Promise<void> {
     await this.#change(/* createRecurringTask= */ () => api.createRecurringTask(title, recurrence));
   }
 
-  async archiveRecurringTask(id: string): Promise<void> {
-    await this.#change(/* archiveRecurringTask= */ () => api.archiveRecurringTask(id));
-  }
-
-  async restoreRecurringTask(id: string): Promise<void> {
-    await this.#change(/* restoreRecurringTask= */ () => api.restoreRecurringTask(id));
+  async setRecurringArchived(id: string, archived: boolean): Promise<void> {
+    await this.#change(/* archiveOrRestoreRule= */ () =>
+      archived ? api.archiveRecurringTask(id) : api.restoreRecurringTask(id),
+    );
   }
 
   async renameRecurringTask(id: string, title: string): Promise<void> {
     await this.#change(/* renameRecurringTask= */ () => api.renameRecurringTask(id, title));
   }
 
-  async archive(end: AssociationEnd): Promise<void> {
-    await this.#change(/* archive= */ () => api.archiveEntity(end));
+  async setArchived(end: AssociationEnd, archived: boolean): Promise<void> {
+    await this.#change(/* archiveOrRestore= */ () =>
+      archived ? api.archiveEntity(end) : api.restoreEntity(end),
+    );
   }
 
-  async restore(end: AssociationEnd): Promise<void> {
-    await this.#change(/* restore= */ () => api.restoreEntity(end));
+  async setGoalAchieved(goalId: string, achieved: boolean): Promise<void> {
+    await this.#change(/* achieveOrUnachieve= */ () =>
+      achieved ? api.achieveGoal(goalId) : api.unachieveGoal(goalId),
+    );
   }
 
-  async achieveGoal(goalId: string): Promise<void> {
-    await this.#change(/* achieve= */ () => api.achieveGoal(goalId));
-  }
-
-  async unachieveGoal(goalId: string): Promise<void> {
-    await this.#change(/* unachieve= */ () => api.unachieveGoal(goalId));
-  }
-
-  async classifyTask(
-    taskId: string,
-    importance: Classification,
-    urgency: Classification,
-  ): Promise<void> {
+  async classifyTask(taskId: string, importance: Classification, urgency: Classification): Promise<void> {
     await this.#change(/* classify= */ () => api.classifyTask(taskId, importance, urgency));
   }
 
@@ -158,13 +130,6 @@ export class LibraryStore implements PlanningActionsHost {
 
   async setTaskOneOff(taskId: string, oneOff: boolean): Promise<void> {
     await this.#change(/* setTaskOneOff= */ () => api.setTaskOneOff(taskId, oneOff));
-  }
-
-  async toggleTask(task: TaskView): Promise<void> {
-    const reopening = task.state === 'completed';
-    await this.#change(/* toggleTask= */ () =>
-      reopening ? api.reopenTask(task.id) : api.completeTask(task.id),
-    );
   }
 
   async setHabitStrength(habitId: string, strength: HabitStrength): Promise<void> {
@@ -179,20 +144,16 @@ export class LibraryStore implements PlanningActionsHost {
     await this.#change(/* setPinned= */ () => api.setHabitPinned(habitId, pinned));
   }
 
+  async renameHabit(habitId: string, title: string): Promise<void> {
+    await this.#change(/* renameHabit= */ () => api.renameHabit(habitId, title));
+  }
+
   async link(left: AssociationEnd, right: AssociationEnd): Promise<void> {
     await this.#change(/* link= */ () => api.link(left, right));
   }
 
   async unlink(associationId: string): Promise<void> {
     await this.#change(/* unlink= */ () => api.unlink(associationId));
-  }
-
-  async addToFocus(taskId: string): Promise<void> {
-    await this.#change(/* addToFocus= */ () => api.addToFocus(this.#week, taskId));
-  }
-
-  async removeFromFocus(taskId: string): Promise<void> {
-    await this.#change(/* removeFromFocus= */ () => api.removeFromFocus(this.#week, taskId));
   }
 
   async #change(mutation: () => Promise<unknown>): Promise<void> {

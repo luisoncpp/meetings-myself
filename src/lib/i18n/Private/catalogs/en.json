@@ -23,11 +23,10 @@
   },
   "nav": {
     "main": "Main",
-    "dailyPlan": "Daily Plan",
     "library": "Library",
-    "weeklyReview": "Weekly Review",
-    "openWeeklyReview": "Open Weekly Review in a new window",
-    "switchFolder": "Switch folder"
+    "switchFolder": "Switch folder",
+    "today": "Today",
+    "week": "Week"
   },
   "shell": {
     "loading": "Loading…"
@@ -55,8 +54,8 @@
   },
   "dailyPlan": {
     "loading": "Loading plan…",
-    "todayTasks": "Today's Tasks",
-    "todayTasksEmpty": "No tasks for today. Add one above or pull from the task pool.",
+    "todayTasks": "Today",
+    "todayTasksEmpty": "Nothing planned yet. Pick from Up next or add one below.",
     "todayTasksList": "Today's tasks",
     "addTask": "Add a task",
     "habits": "Habits",
@@ -66,36 +65,25 @@
     "yesterdayTasksEmpty": "No tasks on yesterday's plan.",
     "yesterdayHabits": "Habits",
     "yesterdayHabitsEmpty": "No habits on yesterday's plan.",
-    "taskPool": "Task Pool",
+    "taskPool": "Up next",
     "taskPoolRegion": "Task pool",
-    "inFocus": "In this week's focus",
-    "everythingElse": "Everything else",
     "addToToday": "Add to today",
     "addToTodayFor": "Add to today: {title}",
     "lowImportance": "Low importance",
     "highImportance": "High importance",
     "lowUrgency": "Low urgency",
-    "highUrgency": "High urgency"
+    "highUrgency": "High urgency",
+    "taskPoolEmpty": "Nothing waiting. Add tasks in the Library or the Week review.",
+    "addTaskPlaceholder": "Add a task…",
+    "yesterdayCounts": "{open} open · {unchecked} habits unchecked"
   },
   "library": {
     "loading": "Loading library…",
     "title": "Library",
-    "showArchived": "Show archived",
-    "values": "Values",
-    "goals": "Goals",
-    "habits": "Habits",
-    "tasks": "Tasks",
-    "noValues": "No values yet.",
-    "noGoals": "No goals yet.",
-    "noHabits": "No habits yet.",
-    "noTasks": "No tasks yet.",
-    "addValue": "Add value",
-    "addGoal": "Add goal",
-    "addTask": "Add task",
-    "newHabit": "New habit",
     "target": "Target {date}",
     "habitStrength": "Habit Strength",
-    "pinned": "Pinned",
+    "pinnedHint": "Pinned. Included automatically in Daily Plans on cadence days.",
+    "unpinnedHint": "Not pinned. Not added to new Daily Plans automatically.",
     "markAchieved": "Mark achieved",
     "markNotAchieved": "Mark not achieved",
     "importance": "Importance",
@@ -105,12 +93,47 @@
     "recurringTasks": "Recurring tasks",
     "newRecurringTask": "New recurring task",
     "noRecurringTasks": "No recurring tasks yet.",
+    "habitTitle": "Habit title",
     "recurringTaskTitle": "Recurring task title",
     "recurrence": "Recurrence",
     "recurrenceKind": "Recurrence kind",
     "weekday": "Weekday",
     "dayOfMonth": "Day of month",
-    "fieldTitle": "Title"
+    "fieldTitle": "Title",
+    "links": "Links",
+    "focus": {
+      "thisWeek": "This week's focus",
+      "nextWeek": "Next week's focus"
+    },
+    "showInDailyPlan": "Show in daily plan",
+    "notDaily": "Not daily",
+    "new": {
+      "task": "New task",
+      "habit": "New habit",
+      "goal": "New goal",
+      "value": "New value"
+    },
+    "empty": {
+      "task": "No active tasks.",
+      "habit": "No active habits.",
+      "goal": "No active goals.",
+      "value": "No values yet."
+    },
+    "tabs": {
+      "label": "Library sections",
+      "tasks": "Tasks",
+      "habits": "Habits",
+      "goals": "Goals",
+      "values": "Values",
+      "recurring": "Recurring",
+      "archive": "Archive"
+    },
+    "archive": {
+      "empty": "Nothing archived.",
+      "done": "Done",
+      "notDone": "Not done",
+      "other": "Habits, goals, values and rules"
+    }
   },
   "weeklyReview": {
     "loading": "Loading review…",
@@ -127,19 +150,30 @@
     "doneColumn": "Done",
     "skippedColumn": "Skipped",
     "notCompletedColumn": "Not completed",
+    "doneOne": "{count} done",
+    "doneMany": "{count} done",
+    "skippedOne": "{count} skipped",
+    "skippedMany": "{count} skipped",
+    "missedOne": "{count} not completed",
+    "missedMany": "{count} not completed",
     "goalsAchieved": "Goals achieved",
     "reflection": "Reflection",
     "saved": "Saved",
     "saving": "Saving…",
     "unsaved": "Unsaved",
-    "nextWeekFocus": "Next week focus",
     "nothingChosen": "Nothing chosen yet.",
-    "reportFile": "Report file:"
+    "reportFile": "Report file:",
+    "focusFor": "Focus for {week}",
+    "everythingElse": "Everything else",
+    "newFocusTask": "New task for the focus",
+    "newFocusTaskPlaceholder": "New task — lands in focus",
+    "addToFocusFor": "Add {title} to focus",
+    "removeFromFocusFor": "Remove {title} from focus",
+    "summaryDisclosure": "This week's summary · {count} completed"
   },
   "planningActions": {
     "bar": "Planning actions",
     "toolbar": "Quick actions",
-    "newTask": "New task",
     "newHabit": "New habit",
     "newGoal": "New goal",
     "markAchieved": "Mark achieved",
@@ -147,14 +181,10 @@
     "linkEntity": "Link \"{title}\" to:",
     "noCandidatesAvailable": "No {kind} available to link.",
     "removeAssociation": "Remove link to {title}",
-    "weeklyFocus": "Weekly focus",
     "goal": "Goal",
-    "addToFocus": "Add to focus",
-    "removeFromFocus": "Remove from focus",
     "selectGoal": "Select a goal",
     "markGoalAchieved": "Mark achieved",
-    "goalToMarkAchieved": "Goal to mark achieved",
-    "weeklyFocusWithWeek": "Weekly focus ({week})"
+    "goalToMarkAchieved": "Goal to mark achieved"
   },
   "createEntity": {
     "valueName": "Value name",
@@ -247,5 +277,25 @@
     "reportUnsupportedSchema": "This report uses schema {found}, which this version does not understand.",
     "invalidWeekLabel": "Invalid ISO week label.",
     "unknown": "Something went wrong: {detail}."
+  },
+  "taskLine": {
+    "more": "More actions for {title}",
+    "inFocus": "In this week's focus",
+    "inNextFocus": "In next week's focus",
+    "important": "Important",
+    "urgent": "Urgent"
+  },
+  "taskMenu": {
+    "label": "Actions for {title}",
+    "doneAndArchive": "Done and archive",
+    "reopen": "Reopen",
+    "addToThisWeekFocus": "Add to this week's focus",
+    "removeFromThisWeekFocus": "Remove from this week's focus",
+    "addToNextWeekFocus": "Add to next week's focus",
+    "removeFromNextWeekFocus": "Remove from next week's focus",
+    "addToToday": "Add to today",
+    "removeFromToday": "Remove from today",
+    "rename": "Rename…",
+    "newTitle": "New title"
   }
 }

@@ -50,4 +50,5 @@ Keep these docs operational. Prefer short tables, explicit file names, and seque
 | [completing-a-task-from-the-daily-plan.md](completing-a-task-from-the-daily-plan.md) | Tick plan row → `complete_task` / `reopen_task` → stamp date → reload → reprojection |
 | [catching-up-yesterdays-plan.md](catching-up-yesterdays-plan.md) | Today’s surface → `yesterday_view` (no create) → complete / check in on yesterday |
 | [linking-entities-in-library.md](linking-entities-in-library.md) | Library entity card → "Link to…" modal / unlink tag → reactive view refresh |
+| [right-click-task-actions.md](right-click-task-actions.md) | Any task row → `TaskMenu` → done+archive / focus / today / rename / archive → owning store reloads |
 | [switching-sync-folder.md](switching-sync-folder.md) | Navigation / banner → pick folder → reconnect store → reload views |

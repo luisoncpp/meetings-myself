@@ -6,6 +6,7 @@
     children: Snippet;
     trailing?: Snippet;
     muted?: boolean;
+    align?: 'center' | 'start';
     onactivate?: () => void;
   }
 
@@ -14,6 +15,7 @@
     children,
     trailing,
     muted = false,
+    align = 'center',
     onactivate,
   }: Props = $props();
 
@@ -28,6 +30,7 @@
 <div
   class="row"
   class:muted
+  class:align-start={align === 'start'}
   class:interactive={!!onactivate}
   role={onactivate ? 'button' : undefined}
   tabindex={onactivate ? 0 : undefined}
@@ -51,6 +54,10 @@
     padding: var(--space-2) var(--space-3);
     border-radius: var(--radius-control);
     background: var(--color-raised);
+  }
+
+  .align-start {
+    align-items: flex-start;
   }
 
   .muted {

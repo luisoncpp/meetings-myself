@@ -1,6 +1,8 @@
 <script lang="ts">
   import {
     PlanningActionBar,
+    TaskMenu,
+    TaskMenuController,
     bindPlanningActionsHost,
     type CreatePayload,
     type PlanningAction,
@@ -8,23 +10,14 @@
   import { t } from '../../../i18n';
   import { SurfaceLayout } from '../../../ui';
   import { WeeklyReviewStore } from './WeeklyReviewStore.svelte';
-  import NextWeekFocus from './NextWeekFocus.svelte';
-  import PreviousReport from './PreviousReport.svelte';
+  import FocusBoard from './FocusBoard.svelte';
   import ReflectionEditor from './ReflectionEditor.svelte';
-  import ReportPath from './ReportPath.svelte';
-  import SummarySection from './SummarySection.svelte';
+  import ReviewHistory from './ReviewHistory.svelte';
   import WeekNav from './WeekNav.svelte';
 
   let store = $state<WeeklyReviewStore>();
   let activeAction = $state<PlanningAction | null>(null);
-
-  function toggleAction(action: PlanningAction): void {
-    activeAction = activeAction === action ? null : action;
-  }
-
-  function closeAction(): void {
-    activeAction = null;
-  }
+  const menu = new TaskMenuController();
 
   async function handleToolbarCreate(
     reviewStore: WeeklyReviewStore,
@@ -34,7 +27,7 @@
     activeAction = null;
   }
 
-  $effect(() => {
+  $effect(/* createLoadAndSaveOnLeave */ () => {
     const created = new WeeklyReviewStore();
     store = created;
     void created.load();
@@ -55,45 +48,53 @@
       <section class="weekly-review">
         <header class="top">
           <h1 id="review-week">{view.week}</h1>
-          {#if activeStore.isHistorical}
-            <p class="historical">{t('weeklyReview.historical')}</p>
-          {/if}
+          <WeekNav week={view.week} store={activeStore} />
         </header>
+        {#if activeStore.isHistorical}
+          <p class="historical">{t('weeklyReview.historical')}</p>
+        {/if}
 
-        <WeekNav week={view.week} store={activeStore} />
+        <FocusBoard {library} store={activeStore} {menu} />
 
         <PlanningActionBar
           active={activeAction}
           view={library}
           host={bindPlanningActionsHost(activeStore)}
-          week={activeStore.focusWeek}
-          ontoggle={toggleAction}
-          onclose={closeAction}
+          ontoggle={/* toggle */ (action) => (activeAction = activeAction === action ? null : action)}
+          onclose={/* close */ () => (activeAction = null)}
           oncreate={/* create */ (payload) => void handleToolbarCreate(activeStore, payload)}
         />
 
-        <PreviousReport body={view.previousReport} />
-        <SummarySection summary={view.summary} />
         <ReflectionEditor
           value={activeStore.draftReflection}
           saveState={activeStore.saveState}
           oninput={/* edit */ (text) => activeStore.setReflection(text)}
           onblur={/* blur */ () => activeStore.onReflectionBlur()}
         />
-        <NextWeekFocus tasks={view.nextWeekFocus} />
-        <ReportPath path={view.reportPath} />
+
+        <ReviewHistory {view} />
 
         {#if activeStore.error}
           <p class="error" role="alert">{activeStore.error}</p>
         {/if}
       </section>
+      <TaskMenu controller={menu} actions={activeStore.actions} />
     </SurfaceLayout>
   {/if}
 {/if}
 
 <style>
+  .weekly-review {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
   .top {
-    margin-bottom: var(--space-2);
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-4);
   }
 
   h1 {
@@ -103,7 +104,7 @@
   }
 
   .historical {
-    margin: var(--space-2) 0 0;
+    margin: 0;
     font-size: var(--text-label);
     color: var(--color-ink-muted);
   }
@@ -114,7 +115,7 @@
   }
 
   .error {
-    margin: var(--space-4) 0 0;
+    margin: 0;
     color: var(--color-overdue);
   }
 </style>

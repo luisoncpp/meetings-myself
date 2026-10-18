@@ -1,7 +1,7 @@
 import type { LibraryView, WeeklyFocus, WeeklyReviewView } from '../../../domain';
 import { localizeError } from '../../../i18n';
 import * as api from '../../../api';
-import { nextWeek } from './week-nav';
+import { nextWeek } from '../../../domain';
 
 export type SaveState = 'saved' | 'unsaved' | 'saving';
 

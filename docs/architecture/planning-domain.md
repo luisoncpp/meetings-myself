@@ -18,8 +18,8 @@ src-tauri ──► planning-app ──► planning-store ──► planning-cor
 |--------|--------|---------------|
 | **Value** | `id`, `title`, `lifecycle`, `created_at` | Title alone |
 | **Goal** | `id`, `title`, `achievement`, `lifecycle`, `target_date?`, `created_at` | Title alone; optional target date |
-| **Task** | `id`, `title`, `completion`, `lifecycle`, `importance`, `urgency`, `deadline?`, `one_off`, `created_at` | Title alone; `one_off` defaults to `true`; importance/urgency default to unclassified |
-| **Habit** | `id`, `title`, `lifecycle`, `strength`, `cadence`, `pinned`, `created_at` | Title **and** cadence required; new habits are pinned and reminder-dependent |
+| **Task** | `id`, `title`, `completion`, `lifecycle`, `importance`, `urgency`, `deadline?`, `one_off`, `created_at` | Title alone; `one_off` defaults to `true`; importance/urgency default to unclassified. Title can change later (`rename_task`, blank rejected) |
+| **Habit** | `id`, `title`, `lifecycle`, `strength`, `cadence`, `pinned`, `created_at` | Title **and** cadence required; new habits are pinned and reminder-dependent. Title can change later (`rename_habit`); a blank title is rejected. The id stays, so check-ins remain attached |
 | **Association** | `id`, `left`, `right`, `lifecycle`, `created_at` | Valid pair only; stored in canonical order |
 
 ### Orthogonal lifecycle
@@ -30,6 +30,8 @@ A Task's outcome and its archive state are **independent axes**:
 - `Lifecycle`: `Active` | `Archived`
 
 Archiving a completed Task keeps the completion. Restoring it returns it exactly as it was — no guesswork. Goals use the same pattern with `Achievement` × `Lifecycle`.
+
+**One-off auto-archive** (`Task::complete` / `Task::reopen` in `planning-core/task_outcome.rs`): completing a **one-off** Task also sets `Archived`; reopening it sets `Active`. The axes stay orthogonal in storage — the rule only couples the *transitions*. Ongoing (non-one-off) Tasks never change lifecycle on complete/reopen, and reopening never restores an ongoing Task the user archived. Recurring occurrences are one-off Tasks, so a done occurrence archives; the rule keeps producing new ones.
 
 `TaskState` (`Open` | `Completed` | `Archived`) exists only in **read models** for display. Archived wins when both axes apply.
 
@@ -65,7 +67,7 @@ SurrealDB 3's upsert/select APIs require `SurrealValue`, not plain `Serialize` d
 | Area | Module | Examples |
 |------|--------|----------|
 | Creation | `library.rs` | `create_task`, `create_habit` |
-| Lifecycle | `entity_lifecycle.rs`, `habit_lifecycle.rs` | `archive_task`, `complete_task`, `complete_task_on`, `set_task_one_off`, `set_habit_cadence` |
+| Lifecycle | `entity_lifecycle.rs`, `habit_lifecycle.rs`, `task_completion.rs` | `archive_task`, `set_task_one_off`, `set_habit_cadence`, `rename_habit`; `complete_task`, `complete_task_on`, `reopen_task`, `rename_task` |
 | Associations | `associations.rs` | `link`, `unlink` (archives link) |
 | Read models | `views.rs`, `views_entities.rs` | `library(LibraryFilter)` |
 
@@ -79,7 +81,8 @@ Computed at read time in view types; forward-only for plan 0005:
 |------------|--------|
 | `overdue` | Open + active Task with `deadline < today` (home zone) |
 | `archived` | `!lifecycle.is_active()` |
-| `TaskState` | Collapse of `Completion` × `Lifecycle` |
+| `TaskState` | Collapse of `Completion` × `Lifecycle` (archived wins) |
+| `TaskView.completed_on` / `PlanTaskView.completed` | The completion axis on its own — read this, not `state`, to know if a task is done |
 | `achieved` | `achievement.is_achieved()` |
 
 `LibraryFilter { include_archived }` hides archived entries by default.

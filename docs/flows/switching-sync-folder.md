@@ -2,7 +2,7 @@
 
 ## Trigger
 
-User clicks **Switch folder** in the top navigation bar during normal use, or clicks **Choose a different folder** on the health gate banner when the configured folder is missing.
+User clicks **Switch folder** at the bottom of the side rail during normal use, or clicks **Choose a different folder** on the health gate banner when the configured folder is missing.
 
 ## Entry point
 

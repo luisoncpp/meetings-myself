@@ -1,6 +1,6 @@
 # Tauri hidden windows keep the process alive
 
-**Date:** 2026-08-09
+**Date:** 2026-08-09 — **Historical (2026-10-17):** plan 0009 moved Weekly Review into the main window, so the app has one window and no lifecycle code. Keep this in mind if a second window ever returns.
 
 ## What to know
 

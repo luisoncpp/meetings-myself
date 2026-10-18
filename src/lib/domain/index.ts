@@ -1,4 +1,5 @@
 export { formatPlanDate } from './Private/plan-date';
+export { nextWeek, prevWeek } from './Private/iso-week';
 
 export type Classification = 'unclassified' | 'low' | 'high';
 export type TaskState = 'open' | 'completed' | 'archived';
@@ -27,6 +28,8 @@ export interface TaskView {
   overdue: boolean;
   archived: boolean;
   oneOff: boolean;
+  /** Completion axis on its own; `state` hides it once a task is archived. */
+  completedOn: string | null;
 }
 
 export interface ValueView {
@@ -85,6 +88,8 @@ export interface PlanTaskView {
   deadline: string | null;
   overdue: boolean;
   archived: boolean;
+  /** Done today even after a one-off archived itself. */
+  completed: boolean;
   position: number;
 }
 

@@ -31,6 +31,7 @@ const sampleLibrary: LibraryView = {
       overdue: false,
       archived: false,
       oneOff: true,
+      completedOn: null,
     },
   ],
   associations: [

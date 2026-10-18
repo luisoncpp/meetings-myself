@@ -83,4 +83,73 @@ impl PlanningApp {
         .await?;
         Ok(())
     }
+
+    /// Title lives on the habit. Plans and summaries read it when they project,
+    /// so a rename shows up on the next view without rewriting those records.
+    pub async fn rename_habit(&self, habit: &HabitId, title: String) -> Result<(), AppError> {
+        let title = Habit::accept_title(title)?;
+        self.mutate::<Habit>((HabitId::TABLE, habit.to_string()), |found| {
+            found.title = title;
+        })
+        .await?;
+        Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::private::library::NewHabit;
+    use crate::private::test_support::ready_app;
+    use crate::private::views::LibraryFilter;
+    use planning_core::{Cadence, DomainError};
+
+    #[tokio::test]
+    async fn renaming_a_habit_shows_up_in_library_and_today() {
+        let (_home, _drive, app) = ready_app().await;
+        let habit = app
+            .create_habit(NewHabit {
+                title: "Meditation".into(),
+                cadence: Cadence::EveryDay,
+            })
+            .await
+            .unwrap();
+        app.open_today().await.unwrap();
+
+        app.rename_habit(&habit.id, "  Evening pages  ".into())
+            .await
+            .unwrap();
+
+        let library = app
+            .library(LibraryFilter {
+                include_archived: false,
+            })
+            .await
+            .unwrap();
+        assert_eq!(library.habits[0].title, "Evening pages");
+        assert_eq!(library.habits[0].id, habit.id);
+
+        let plan = app.today_view().await.unwrap();
+        assert_eq!(plan.habits[0].title, "Evening pages");
+        assert_eq!(plan.habits[0].id, habit.id);
+    }
+
+    #[tokio::test]
+    async fn a_blank_rename_does_not_change_the_title() {
+        let (_home, _drive, app) = ready_app().await;
+        let habit = app
+            .create_habit(NewHabit {
+                title: "Meditation".into(),
+                cadence: Cadence::EveryDay,
+            })
+            .await
+            .unwrap();
+
+        let error = app.rename_habit(&habit.id, "   ".into()).await.unwrap_err();
+        assert!(matches!(error, AppError::Domain(DomainError::BlankTitle)));
+        assert_eq!(
+            app.habit(&habit.id).await.unwrap().unwrap().title,
+            "Meditation"
+        );
+    }
 }

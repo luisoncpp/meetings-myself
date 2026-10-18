@@ -15,7 +15,9 @@ User archives a Task (or Value, Goal, or Habit) from the Library.
 3. **Load** — `PlanningApp::mutate` loads the record via `Records::find`; missing id → `AppError::NotFound`.
 4. **Mutate** — set `lifecycle` to `Archived`. Task `completion` / Goal `achievement` are **not** changed.
 5. **Save** — `Records::save` upserts the document back.
-6. **Read model** — next `library()` call hides the entity unless `includeArchived: true`; view sets `archived: true` and `TaskState::Archived` where applicable.
+6. **Read model** — the Library always loads with `includeArchived: true`; active tabs filter `archived` rows out and the **Archive** tab lists them (tasks grouped Done / Not done by `completedOn`). `TaskState::Archived` wins in `state`.
+
+Completing a one-off Task archives it too (see [completing-a-task-from-the-daily-plan.md](completing-a-task-from-the-daily-plan.md)); that is a completion side effect, not this flow.
 
 Restore is the same path through `restore_entity`, setting `lifecycle` back to `Active`.
 

@@ -17,9 +17,7 @@ pub async fn today_view(state: tauri::State<'_, AppState>) -> Result<DailyPlanVi
 }
 
 #[tauri::command]
-pub async fn yesterday_view(
-    state: tauri::State<'_, AppState>,
-) -> Result<DailyPlanView, String> {
+pub async fn yesterday_view(state: tauri::State<'_, AppState>) -> Result<DailyPlanView, String> {
     state
         .0
         .lock()

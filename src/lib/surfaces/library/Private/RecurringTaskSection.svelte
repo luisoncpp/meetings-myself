@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { Recurrence } from '../../../domain';
   import { t } from '../../../i18n';
-  import { Button, Card } from '../../../ui';
+  import { Button } from '../../../ui';
   import CreateRecurringTask from './CreateRecurringTask.svelte';
   import type { LibraryStore } from './LibraryStore.svelte';
   import RecurringTaskRow from './RecurringTaskRow.svelte';
@@ -30,11 +30,9 @@
   }
 </script>
 
-<section class="section" aria-label={t('library.recurringTasks')}>
-  <Card>
+<section aria-label={t('library.recurringTasks')}>
     <div class="header">
-      <h2>{t('library.recurringTasks')}</h2>
-      <Button variant="quiet" onclick={/* start create */ startCreate}>{t('library.newRecurringTask')}</Button>
+      <Button variant="quiet" onclick={/* start create */ startCreate}>+ {t('library.newRecurringTask')}</Button>
     </div>
 
     {#if creating}
@@ -53,25 +51,11 @@
         {/each}
       </div>
     {/if}
-  </Card>
 </section>
 
 <style>
-  .section {
-    margin-bottom: var(--space-4);
-  }
-
   .header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: var(--space-3);
-  }
-
-  h2 {
-    margin: 0;
-    font-size: var(--text-headline);
-    font-weight: 600;
+    margin-bottom: var(--space-2);
   }
 
   .empty {

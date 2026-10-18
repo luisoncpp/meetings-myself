@@ -9,14 +9,14 @@ describe('t', () => {
   });
 
   it('resolves English keys', () => {
-    expect(t('nav.dailyPlan')).toBe('Daily Plan');
+    expect(t('nav.today')).toBe('Today');
   });
 
   it('falls back to English for missing Spanish keys', () => {
     const store = new LocaleStore();
     bindLocaleStore(store);
     store.locale = 'es';
-    expect(t('nav.dailyPlan')).toBe('Plan diario');
+    expect(t('nav.today')).toBe('Hoy');
   });
 
   it('interpolates parameters', () => {

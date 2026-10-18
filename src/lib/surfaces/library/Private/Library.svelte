@@ -1,52 +1,21 @@
 <script lang="ts">
-  import {
-    PlanningActionBar,
-    bindPlanningActionsHost,
-    type CreatePayload,
-    type EntityKind,
-    type PlanningAction,
-  } from '../../../planning-actions';
   import { t } from '../../../i18n';
-  import { SurfaceLayout } from '../../../ui';
-  import EntitySection from './EntitySection.svelte';
-  import { LibraryStore } from './LibraryStore.svelte';
-  import RecurringTaskSection from './RecurringTaskSection.svelte';
+  import { TaskMenu, TaskMenuController } from '../../../planning-actions';
+  import { SurfaceLayout, TabStrip } from '../../../ui';
+  import LibraryBody from './LibraryBody.svelte';
+  import { LibraryStore, type LibraryTab } from './LibraryStore.svelte';
 
   let store = $state<LibraryStore>();
-  let creating = $state<EntityKind | null>(null);
-  let activeAction = $state<PlanningAction | null>(null);
+  const menu = new TaskMenuController();
 
-  function toggleAction(action: PlanningAction): void {
-    activeAction = activeAction === action ? null : action;
-    if (activeAction !== null) creating = null;
-  }
+  const TABS: LibraryTab[] = ['tasks', 'habits', 'goals', 'values', 'recurring', 'archive'];
+  const tabs = $derived(TABS.map((id) => ({ id, label: t(`library.tabs.${id}`) })));
 
-  $effect(() => {
+  $effect(/* createAndLoadStore */ () => {
     if (store) return;
     store = new LibraryStore();
     void store.load();
   });
-
-  function closeAction(): void {
-    activeAction = null;
-  }
-
-  function startCreate(kind: EntityKind): void {
-    creating = kind;
-    activeAction = null;
-  }
-
-  function cancelCreate(): void {
-    creating = null;
-  }
-
-  async function handleCreate(payload: CreatePayload): Promise<void> {
-    if (!store) return;
-    await store.createEntity(payload);
-    creating = null;
-    activeAction = null;
-  }
-
 </script>
 
 {#if store}
@@ -58,81 +27,22 @@
   {:else if activeStore.view}
     {@const view = activeStore.view}
     <SurfaceLayout aria-labelledby="library-heading">
-      <section class="library">
-        <header class="top">
-          <h1 id="library-heading">{t('library.title')}</h1>
-          <label class="archived-toggle">
-            <input
-              type="checkbox"
-              role="switch"
-              checked={activeStore.includeArchived}
-              onchange={/* toggle archived */ (event) =>
-                void activeStore.setIncludeArchived((event.currentTarget as HTMLInputElement).checked)}
-            />
-            {t('library.showArchived')}
-          </label>
-        </header>
-
-        <PlanningActionBar
-          active={activeAction}
-          {view}
-          host={bindPlanningActionsHost(activeStore)}
-          week={activeStore.week}
-          ontoggle={toggleAction}
-          onclose={closeAction}
-          oncreate={/* create */ (payload) => void handleCreate(payload)}
+      <header class="top">
+        <h1 id="library-heading">{t('library.title')}</h1>
+        <TabStrip
+          {tabs}
+          current={activeStore.tab}
+          label={t('library.tabs.label')}
+          onchange={/* switch tab */ (id) => activeStore.setTab(id)}
         />
+      </header>
 
-        <EntitySection
-          kind="value"
-          title={t('library.values')}
-          emptyLabel={t('library.noValues')}
-          store={activeStore}
-          {creating}
-          onstartCreate={startCreate}
-          oncreate={/* create */ (payload) => void handleCreate(payload)}
-          oncancelCreate={cancelCreate}
-        />
+      <LibraryBody {view} store={activeStore} {menu} />
 
-        <EntitySection
-          kind="goal"
-          title={t('library.goals')}
-          emptyLabel={t('library.noGoals')}
-          store={activeStore}
-          {creating}
-          onstartCreate={startCreate}
-          oncreate={/* create */ (payload) => void handleCreate(payload)}
-          oncancelCreate={cancelCreate}
-        />
-
-        <EntitySection
-          kind="habit"
-          title={t('library.habits')}
-          emptyLabel={t('library.noHabits')}
-          store={activeStore}
-          {creating}
-          onstartCreate={startCreate}
-          oncreate={/* create */ (payload) => void handleCreate(payload)}
-          oncancelCreate={cancelCreate}
-        />
-
-        <EntitySection
-          kind="task"
-          title={t('library.tasks')}
-          emptyLabel={t('library.noTasks')}
-          store={activeStore}
-          {creating}
-          onstartCreate={startCreate}
-          oncreate={/* create */ (payload) => void handleCreate(payload)}
-          oncancelCreate={cancelCreate}
-        />
-
-        <RecurringTaskSection store={activeStore} />
-
-        {#if activeStore.error}
-          <p class="error" role="alert">{activeStore.error}</p>
-        {/if}
-      </section>
+      {#if activeStore.error}
+        <p class="error" role="alert">{activeStore.error}</p>
+      {/if}
+      <TaskMenu controller={menu} actions={activeStore.actions} />
     </SurfaceLayout>
   {/if}
 {/if}
@@ -141,7 +51,7 @@
   .top {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    flex-wrap: wrap;
     gap: var(--space-4);
     margin-bottom: var(--space-4);
   }
@@ -150,14 +60,6 @@
     margin: 0;
     font-size: var(--text-display);
     font-weight: 600;
-  }
-
-  .archived-toggle {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    font-size: var(--text-body);
-    color: var(--color-ink-muted);
   }
 
   .loading {

@@ -2,7 +2,7 @@
   import { t } from '../../../i18n';
   import { Button } from '../../../ui';
   import type { WeeklyReviewStore } from './WeeklyReviewStore.svelte';
-  import { nextWeek, prevWeek } from './week-nav';
+  import { nextWeek, prevWeek } from '../../../domain';
 
   interface Props {
     week: string;

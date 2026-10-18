@@ -6,38 +6,28 @@
   import type { EntityKind } from './associations';
   import CreateEntity, { type CreatePayload } from './CreateEntity.svelte';
   import type { PlanningActionsHost } from './planning-actions-host';
-  import WeeklyFocusPanel from './WeeklyFocusPanel.svelte';
 
-  export type PlanningAction = 'new-task' | 'new-habit' | 'new-goal' | 'achieve' | 'focus';
+  export type PlanningAction = 'new-habit' | 'new-goal' | 'achieve';
 
   interface Props {
     active: PlanningAction | null;
     view: LibraryView;
     host: PlanningActionsHost;
-    week: string;
     ontoggle: (action: PlanningAction) => void;
     onclose: () => void;
     oncreate: (payload: CreatePayload) => void;
   }
 
-  let { active, view, host, week, ontoggle, onclose, oncreate }: Props = $props();
+  let { active, view, host, ontoggle, onclose, oncreate }: Props = $props();
 
   const actions: { id: PlanningAction; label: string }[] = [
-    { id: 'new-task', label: t('planningActions.newTask') },
     { id: 'new-habit', label: t('planningActions.newHabit') },
     { id: 'new-goal', label: t('planningActions.newGoal') },
     { id: 'achieve', label: t('planningActions.markAchieved') },
-    { id: 'focus', label: t('planningActions.weeklyFocus') },
   ];
 
   const createKind = $derived<EntityKind | null>(
-    active === 'new-task'
-      ? 'task'
-      : active === 'new-habit'
-        ? 'habit'
-        : active === 'new-goal'
-          ? 'goal'
-          : null,
+    active === 'new-habit' ? 'habit' : active === 'new-goal' ? 'goal' : null,
   );
 </script>
 
@@ -64,8 +54,6 @@
         />
       {:else if active === 'achieve'}
         <AchieveGoalPanel goals={view.goals} {host} onclose={/* close */ onclose} />
-      {:else if active === 'focus'}
-        <WeeklyFocusPanel {view} {host} {week} onclose={/* close */ onclose} />
       {/if}
     </div>
   {/if}

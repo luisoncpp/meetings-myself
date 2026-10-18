@@ -1,245 +1,105 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { LibraryStore } from './LibraryStore.svelte';
+import * as api from './library-test-api';
+import { emptyLibrary } from './library-test-api';
 
-const library = vi.hoisted(() => vi.fn());
-const todayView = vi.hoisted(() => vi.fn());
-const weeklyFocus = vi.hoisted(() => vi.fn());
-const recurringTasks = vi.hoisted(() => vi.fn());
-const archiveEntity = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
-const setHabitStrength = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
-const createRecurringTask = vi.hoisted(() => vi.fn().mockResolvedValue({ id: 'r-new' }));
-const archiveRecurringTask = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
-const restoreRecurringTask = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
-const renameRecurringTask = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
-const createTask = vi.hoisted(() => vi.fn().mockResolvedValue({ id: 't1' }));
-const setTaskOneOff = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
-const completeTask = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
+vi.mock('../../../api', () => import('./library-test-api'));
 
-vi.mock('../../../api', () => ({
-  library,
-  todayView,
-  weeklyFocus,
-  recurringTasks,
-  archiveEntity,
-  setHabitStrength,
-  createRecurringTask,
-  archiveRecurringTask,
-  restoreRecurringTask,
-  renameRecurringTask,
-  createValue: vi.fn().mockResolvedValue({ id: 'v1' }),
-  createGoal: vi.fn().mockResolvedValue({ id: 'g1' }),
-  createHabit: vi.fn().mockResolvedValue({ id: 'h1' }),
-  createTask,
-  setTaskOneOff,
-  completeTask,
-  restoreEntity: vi.fn().mockResolvedValue(undefined),
-  achieveGoal: vi.fn().mockResolvedValue(undefined),
-  unachieveGoal: vi.fn().mockResolvedValue(undefined),
-  classifyTask: vi.fn().mockResolvedValue(undefined),
-  setTaskDeadline: vi.fn().mockResolvedValue(undefined),
-  reopenTask: vi.fn().mockResolvedValue(undefined),
-  setHabitCadence: vi.fn().mockResolvedValue(undefined),
-  setHabitPinned: vi.fn().mockResolvedValue(undefined),
-  link: vi.fn().mockResolvedValue({ id: 'a1' }),
-  unlink: vi.fn().mockResolvedValue(undefined),
-  addToFocus: vi.fn().mockResolvedValue(undefined),
-  removeFromFocus: vi.fn().mockResolvedValue(undefined),
-  uiLanguage: vi.fn().mockResolvedValue('en'),
-  setUiLanguage: vi.fn().mockResolvedValue(undefined),
-}));
-
-const emptyLibrary = {
-  values: [],
-  goals: [],
-  habits: [],
-  tasks: [],
-  associations: [],
-};
-
-const activeRecurring = {
-  id: 'r1',
-  title: 'Daily standup',
-  recurrence: { kind: 'daily' as const },
-  lifecycle: 'active' as const,
-  startsOn: '2026-08-01',
-  materializedThrough: null,
-  createdAt: '2026-08-01',
-};
-
-const archivedRecurring = {
-  id: 'r2',
-  title: 'Old rule',
-  recurrence: { kind: 'weekdays' as const },
-  lifecycle: 'archived' as const,
-  startsOn: '2026-08-01',
-  materializedThrough: '2026-08-07',
-  createdAt: '2026-08-01',
-};
-
-function resetMocks(): void {
-  vi.clearAllMocks();
-  library.mockResolvedValue(emptyLibrary);
-  todayView.mockResolvedValue({ date: '2026-08-07', week: '2026-W32', tasks: [], habits: [] });
-  weeklyFocus.mockResolvedValue({ id: 'f1', week: '2026-W32', tasks: [], createdAt: '2026-08-01' });
-  recurringTasks.mockResolvedValue([activeRecurring, archivedRecurring]);
-}
-
-beforeEach(resetMocks);
+beforeEach(() => {
+  api.resetLibraryApi();
+  api.recurringTasks.mockResolvedValue([api.activeRecurring, api.archivedRecurring]);
+});
 
 describe('LibraryStore loading', () => {
-  it('loads the library and weekly focus together', async () => {
+  it("loads everything, archived included, with this and next week's focus", async () => {
     const store = new LibraryStore();
     await store.load();
 
+    expect(api.library).toHaveBeenCalledWith(true);
     expect(store.view).toEqual(emptyLibrary);
-    expect(store.week).toBe('2026-W32');
-    expect(store.focus?.tasks).toEqual([]);
+    expect(api.weeklyFocus).toHaveBeenCalledWith('2026-W32');
+    expect(api.weeklyFocus).toHaveBeenCalledWith('2026-W33');
+    expect([...store.focusIds]).toEqual(['t-this']);
+    expect([...store.nextFocusIds]).toEqual(['t-next']);
     expect(store.loading).toBe(false);
   });
-});
 
-describe('LibraryStore archived toggle', () => {
-  it('reloads with archived entries when requested', async () => {
+  it('splits recurring rules into active and archived', async () => {
     const store = new LibraryStore();
     await store.load();
-    library.mockResolvedValueOnce({
-      ...emptyLibrary,
-      tasks: [
-        {
-          id: 't1',
-          title: 'Old',
-          state: 'archived',
-          archived: true,
-          importance: 'unclassified',
-          urgency: 'unclassified',
-          deadline: null,
-          overdue: false,
-          oneOff: true,
-        },
-      ],
-    });
 
-    await store.setIncludeArchived(/* show= */ true);
-    expect(library).toHaveBeenLastCalledWith(true);
-    expect(store.view?.tasks).toHaveLength(1);
+    expect(store.recurringTasks.map((rule) => rule.id)).toEqual(['r1']);
+    expect(store.archivedRecurringTasks.map((rule) => rule.id)).toEqual(['r2']);
   });
 });
 
-describe('LibraryStore archive mutation', () => {
+describe('LibraryStore navigation', () => {
+  it('clears the selection when the tab changes', async () => {
+    const store = new LibraryStore();
+    store.select({ kind: 'task', id: 't1' });
+    store.setTab('habits');
+
+    expect(store.tab).toBe('habits');
+    expect(store.selected).toBeNull();
+  });
+});
+
+describe('LibraryStore lifecycle mutations', () => {
   it('reloads after archiving an entity', async () => {
     const store = new LibraryStore();
     await store.load();
+    api.library.mockClear();
 
-    await store.archive({ kind: 'task', id: 't1' });
-    expect(archiveEntity).toHaveBeenCalledWith({ kind: 'task', id: 't1' });
-    expect(library).toHaveBeenCalledTimes(2);
+    await store.setArchived({ kind: 'goal', id: 'g1' }, /* archived= */ true);
+    expect(api.archiveEntity).toHaveBeenCalledWith({ kind: 'goal', id: 'g1' });
+    expect(api.library).toHaveBeenCalledOnce();
+  });
+
+  it('archives and restores recurring rules', async () => {
+    const store = new LibraryStore();
+    await store.load();
+
+    await store.setRecurringArchived('r1', /* archived= */ true);
+    await store.setRecurringArchived('r2', /* archived= */ false);
+    expect(api.archiveRecurringTask).toHaveBeenCalledWith('r1');
+    expect(api.restoreRecurringTask).toHaveBeenCalledWith('r2');
+  });
+
+  it('creates a recurring task with daily recurrence', async () => {
+    const store = new LibraryStore();
+    await store.createRecurringTask('Daily standup', { kind: 'daily' });
+    expect(api.createRecurringTask).toHaveBeenCalledWith('Daily standup', { kind: 'daily' });
   });
 });
 
-describe('LibraryStore error handling', () => {
-  it('surfaces failures without clearing the loaded view', async () => {
-    const store = new LibraryStore();
-    await store.load();
-    setHabitStrength.mockRejectedValueOnce(new Error('habit is archived'));
-
-    await store.setHabitStrength('h1', 'established');
-    expect(store.error).toMatch(/archived/);
-    expect(store.view).toEqual(emptyLibrary);
-  });
-});
-
-describe('LibraryStore recurring tasks', () => {
-  it('loads recurring tasks and hides archived by default', async () => {
-    const store = new LibraryStore();
-    await store.load();
-
-    expect(recurringTasks).toHaveBeenCalled();
-    expect(store.recurringTasks).toEqual([activeRecurring]);
-  });
-
-  it('shows archived recurring tasks when includeArchived is true', async () => {
-    const store = new LibraryStore();
-    await store.load();
-
-    await store.setIncludeArchived(/* show= */ true);
-    expect(store.recurringTasks).toEqual([activeRecurring, archivedRecurring]);
-  });
-
-  it('creates a recurring task then reloads', async () => {
-    const store = new LibraryStore();
-    await store.load();
-
-    await store.createRecurringTask('Weekly review', { kind: 'weekly', weekday: 'fri' });
-    expect(createRecurringTask).toHaveBeenCalledWith('Weekly review', {
-      kind: 'weekly',
-      weekday: 'fri',
-    });
-    expect(recurringTasks).toHaveBeenCalledTimes(2);
-  });
-
-  it('archives a recurring task then reloads', async () => {
-    const store = new LibraryStore();
-    await store.load();
-
-    await store.archiveRecurringTask('r1');
-    expect(archiveRecurringTask).toHaveBeenCalledWith('r1');
-    expect(recurringTasks).toHaveBeenCalledTimes(2);
-  });
-
-  it('restores a recurring task then reloads', async () => {
-    const store = new LibraryStore();
-    await store.load();
-
-    await store.restoreRecurringTask('r2');
-    expect(restoreRecurringTask).toHaveBeenCalledWith('r2');
-    expect(recurringTasks).toHaveBeenCalledTimes(2);
-  });
-
-  it('renames a recurring task then reloads', async () => {
-    const store = new LibraryStore();
-    await store.load();
-
-    await store.renameRecurringTask('r1', 'New title');
-    expect(renameRecurringTask).toHaveBeenCalledWith('r1', 'New title');
-    expect(recurringTasks).toHaveBeenCalledTimes(2);
-  });
-
+describe('LibraryStore task mutations', () => {
   it('creates a task with oneOff then reloads', async () => {
     const store = new LibraryStore();
-    await store.load();
-
-    await store.createTask('Pay rent', /*oneOff=*/false);
-    expect(createTask).toHaveBeenCalledWith('Pay rent', /*oneOff=*/false);
-    expect(library).toHaveBeenCalledTimes(2);
+    await store.createEntity({ kind: 'task', title: 'Pay rent', oneOff: false });
+    expect(api.createTask).toHaveBeenCalledWith('Pay rent', false);
+    expect(api.library).toHaveBeenCalled();
   });
 
-  it('sets oneOff then reloads', async () => {
+  it('completes a task from its row; a one-off then archives itself server-side', async () => {
     const store = new LibraryStore();
     await store.load();
 
-    await store.setTaskOneOff('t1', /*oneOff=*/false);
-    expect(setTaskOneOff).toHaveBeenCalledWith('t1', /*oneOff=*/false);
-    expect(library).toHaveBeenCalledTimes(2);
+    await store.actions.toggleDone({ id: 't1', title: 'Send invoice', done: false, archived: false });
+    expect(api.completeTask).toHaveBeenCalledWith('t1', undefined);
   });
-});
 
-describe('LibraryStore task completion', () => {
-  it('toggles completion for one-off tasks', async () => {
+  it("adds a task to next week's focus from the menu", async () => {
     const store = new LibraryStore();
     await store.load();
+    const next = store.actions.focusTargets.find((target) => target.which === 'nextWeek')!;
 
-    await store.toggleTask({
-      id: 't1',
-      title: 'File taxes',
-      state: 'open',
-      importance: 'unclassified',
-      urgency: 'unclassified',
-      deadline: null,
-      overdue: false,
-      archived: false,
-      oneOff: true,
-    });
-    expect(completeTask).toHaveBeenCalledWith('t1');
-    expect(library).toHaveBeenCalledTimes(2);
+    await store.actions.setFocus(next, 't1');
+    expect(api.addToFocus).toHaveBeenCalledWith('2026-W33', 't1');
+  });
+
+  it('renames a habit then reloads', async () => {
+    const store = new LibraryStore();
+    await store.renameHabit('h1', 'Evening pages');
+    expect(api.renameHabit).toHaveBeenCalledWith('h1', 'Evening pages');
   });
 });

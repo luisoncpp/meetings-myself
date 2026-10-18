@@ -9,7 +9,8 @@ vi.mock('./lib/api', () => ({
   chooseSyncFolder: vi.fn(),
   uiLanguage: vi.fn().mockResolvedValue('en'),
   setUiLanguage: vi.fn().mockResolvedValue(undefined),
-  openWeeklyReviewWindow: vi.fn(),
+  weeklyFocus: vi.fn().mockResolvedValue({ id: 'f', week: '2026-W32', tasks: [], createdAt: '' }),
+  yesterdayView: vi.fn().mockResolvedValue({ date: '2026-08-06', week: '2026-W32', tasks: [], habits: [] }),
   todayView: vi.fn().mockResolvedValue({
     date: '2026-08-07',
     week: '2026-W32',
@@ -20,8 +21,8 @@ vi.mock('./lib/api', () => ({
 }));
 
 describe('App', () => {
-  it('renders the app shell with the daily plan home surface', async () => {
+  it('renders the app shell with the Today section as home', async () => {
     render(App);
-    expect(await screen.findByRole('heading', { name: /Today's Tasks/i })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Today' })).toBeInTheDocument();
   });
 });

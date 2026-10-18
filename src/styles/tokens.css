@@ -17,6 +17,8 @@
   /* Accent — the One Accent Rule: gold covers <=10% of any screen */
   --color-gold: #d4a94a;
   --color-gold-deep: #b88f35;
+  /* Gold wash — a faint tint marking Weekly Focus rows, never a fill for actions */
+  --color-gold-wash: #27251f;
 
   /* Semantic state — restrained tint shifts, never punitive floods */
   --color-overdue: #e0a183;

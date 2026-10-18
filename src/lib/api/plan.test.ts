@@ -160,6 +160,18 @@ describe('restoreRecurringTask', () => {
   });
 });
 
+describe('renameHabit', () => {
+  it('forwards habit and title', async () => {
+    invoke.mockResolvedValue(undefined);
+    const { renameHabit } = await import('./index');
+    await renameHabit('h1', 'Evening pages');
+    expect(invoke).toHaveBeenCalledWith('rename_habit', {
+      habit: 'h1',
+      title: 'Evening pages',
+    });
+  });
+});
+
 describe('renameRecurringTask', () => {
   it('forwards rule id and title', async () => {
     invoke.mockResolvedValue(undefined);

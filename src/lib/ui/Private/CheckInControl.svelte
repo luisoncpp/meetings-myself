@@ -7,9 +7,13 @@
     value: CheckInOutcome | null;
     label: string;
     onchange: (next: CheckInOutcome) => void;
+    /** Symbols instead of words; the full outcome stays as the accessible name. */
+    compact?: boolean;
   }
 
-  let { value, label, onchange }: Props = $props();
+  let { value, label, onchange, compact = false }: Props = $props();
+
+  const SYMBOLS: Record<CheckInOutcome, string> = { done: '✓', skipped: '↷', notCompleted: '✕' };
 
   function tabIndexFor(outcome: CheckInOutcome): number {
     if (value === outcome) return 0;
@@ -38,11 +42,13 @@
       role="radio"
       aria-label={outcome.label}
       aria-checked={value === outcome.value}
+      title={outcome.label}
       tabindex={tabIndexFor(outcome.value)}
       class:selected={value === outcome.value}
+      class:compact
       onclick={/* record this outcome */ () => onchange(outcome.value)}
     >
-      {outcome.label}
+      {compact ? SYMBOLS[outcome.value] : outcome.label}
     </button>
   {/each}
 </div>
@@ -63,6 +69,11 @@
     font-size: var(--text-label);
     cursor: pointer;
     transition: color var(--duration-fast) var(--ease-out);
+  }
+
+  .compact {
+    min-width: 1.75rem;
+    padding: var(--space-1) var(--space-2);
   }
 
   /* Selection is the accent's job. No celebration, no animation on check-in. */

@@ -1,8 +1,6 @@
 <script lang="ts">
-  import { AppShell, currentSurface } from './lib/shell';
+  import { AppShell } from './lib/shell';
   import { localeStore } from './lib/i18n';
-
-  const surface = currentSurface(window.location.search);
 
   $effect(() => {
     void localeStore.load();
@@ -10,7 +8,7 @@
 </script>
 
 {#if localeStore.ready}
-  <AppShell {surface} />
+  <AppShell />
 {:else}
   <p class="boot-loading" lang="en">Loading…</p>
 {/if}
